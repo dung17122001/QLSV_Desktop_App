@@ -1,10 +1,23 @@
+import * as React from 'react';
 import { Avatar } from '@mui/material';
 import classNames from 'classnames';
 import logo from '~/images/logo.png';
-
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Fade from '@mui/material/Fade';
+import Menu1 from '../Menu/menu';
 const cx = classNames;
 
 function Header() {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     return (
         <div>
             <div className="flex flex-row items-center ">
@@ -16,23 +29,40 @@ function Header() {
                         <Avatar>NV</Avatar>
 
                         <div className="flex flex-col items-start ml-4">
-                            <div className="flex w-52 border  border-sv-blue-4 rounded-lg p-1 text-sm">
-                                <select
-                                    className="text-sv-text-2 w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value=""
+                            <div>
+                                <div
+                                    className="text-sv-blue-4 font-bold"
+                                    id="fade-button"
+                                    aria-controls={open ? 'fade-menu' : undefined}
+                                    aria-haspopup="true"
+                                    aria-expanded={open ? 'true' : undefined}
+                                    onClick={handleClick}
                                 >
-                                    <option>Nguyễn văn Đúng</option>
-                                    <option>Cập nhật</option>
-                                    <option>Đăng xuất</option>
-                                </select>
+                                    Nguyễn Văn Đúng
+                                </div>
+                                <Menu
+                                    className="mt-4"
+                                    id="fade-menu"
+                                    MenuListProps={{
+                                        'aria-labelledby': 'fade-button',
+                                    }}
+                                    anchorEl={anchorEl}
+                                    open={open}
+                                    onClose={handleClose}
+                                    TransitionComponent={Fade}
+                                >
+                                    <MenuItem onClick={handleClose}>Thông tin tài khoản</MenuItem>
+                                    <MenuItem onClick={handleClose}>My account</MenuItem>
+                                    <MenuItem onClick={handleClose}>Đăng xuất</MenuItem>
+                                </Menu>
                             </div>
 
-                            <div className={cx('text-sm')}>Nhân viên</div>
+                            <div className={cx('text-sm text-red-500')}>Nhân viên</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className=" w-full flex items-center justify-center">
+            <div className=" w-full flex items-center justify-end">
                 <div className="border-t border-gray-500 w-[95%]"></div>
             </div>
         </div>
