@@ -2,8 +2,7 @@ import { Button } from '@mui/material';
 function Home() {
     return (
         <>
-            <div className="text-blue-300"> test Tailwind</div>
-            <Button color="yellow">test MUI</Button>
+            <div className="text-blue-300"> home</div>
         </>
     );
 }
