@@ -63,7 +63,7 @@ function Header() {
                 </div>
             </div>
             <div className=" w-full flex items-center justify-end">
-                <div className="border-t border-gray-500 w-[95%]"></div>
+                <div className="border-t border-gray-500 w-[100%]"></div>
             </div>
         </div>
     );
