@@ -1,5 +1,5 @@
 import React from 'react';
-import HeaderQL from '../../components/HeaderQL/HeaderQL';
+import { DataGrid } from '@mui/x-data-grid';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -22,78 +22,50 @@ function SinhVien() {
         },
         {
             field: 'maNV',
-            renderHeader: () => <strong>Mã nhân viên</strong>,
+            renderHeader: () => <strong>Mã số sinh viên</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 100,
+            width: 200,
         },
         {
             field: 'avatar',
 
-            renderHeader: () => <strong>Ảnh đại diện</strong>,
+            renderHeader: () => <strong>Họ tên sinh viên</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 100,
+            width: 250,
             renderCell: (data) => <Avatar src={data.value} />,
             align: 'center',
         },
         {
             field: 'tenNV',
-            renderHeader: () => <strong>Tên nhân viên</strong>,
+            renderHeader: () => <strong>Giới tính</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 250,
+            width: 130,
         },
         {
             field: 'ngaySinh',
             renderHeader: () => <strong>Ngày sinh</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
+            width: 200,
             align: 'right',
         },
         {
             field: 'email',
-            renderHeader: () => <strong>Email</strong>,
+            renderHeader: () => <strong>Lớp</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
             width: 200,
         },
         {
             field: 'sdt',
-            renderHeader: () => <strong>SĐT</strong>,
+            renderHeader: () => <strong>Khoa</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 100,
+            width: 200,
             align: 'center',
         },
         {
             field: 'chucVu',
-            renderHeader: () => <strong>Chức vụ</strong>,
+            renderHeader: () => <strong>Khóa học</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
             width: 150,
-        },
-        {
-            field: 'diaChi',
-            renderHeader: () => <strong>Địa chỉ</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 250,
-        },
-        {
-            field: 'trangThai',
-            renderHeader: () => <strong>Trạng thái</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-        },
-        {
-            field: 'chucNang',
-            renderHeader: () => <strong className="text-center">Chức năng</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 300,
-            renderCell: (data) => (
-                <div>
-                    <Button variant="outlined" color="yellow" sx={{ marginRight: 1, marginLeft: 1 }}>
-                        <IoIosAddCircle className={'text-xl text-2t-yellow-1'} />
-                    </Button>
-                    <Button variant="outlined" color="error">
-                        Thôi việc
-                    </Button>
-                </div>
-            ),
         },
     ];
 
@@ -119,29 +91,39 @@ function SinhVien() {
     const ToolbarTable = () => {
         return (
             <GridToolbarContainer>
-                <GridToolbarExport fileName="Danh sách phim" />
+                <GridToolbarExport fileName="Danh sÃ¡ch phim" />
                 <GridToolbarColumnsButton />
             </GridToolbarContainer>
         );
     };
 
     return (
-        <div className="h-full">
-            <HeaderQL placeholder="Mã, tên giảng viên" onPressSearch={(value) => console.log(value)}></HeaderQL>
-            <div className={'mt-2 h-full'}>
-                <DataGridPremium
-                    columns={columns}
-                    rows={row.map((item, index) => ({ stt: index + 1, ...item }))}
-                    getRowId={(row) => row.stt}
-                    checkboxSelection
-                    pagination
-                    localeText={viVN.components.MuiDataGrid.defaultProps.localeText}
-                    components={{
-                        Toolbar: ToolbarTable,
-                    }}
-                />
+        <>
+            <div className="w-full mt-5 mr-5">
+                <div style={{ height: 400 }}>
+                    <DataGridPremium
+                        columns={columns}
+                        rows={row.map((item, index) => ({ stt: index + 1, ...item }))}
+                        getRowId={(row) => row.stt}
+                        // loading={loading}
+                        // localeText={{
+                        //     toolbarColumns: 'Thay Ä‘á»•i cá»™t',
+                        //     toolbarExport: 'Xuáº¥t bÃ¡o cÃ¡o',
+                        //     MuiTablePagination: {
+                        //         labelDisplayedRows: ({ from, to, count }) => `${from} - ${to} cá»§a ${count}`,
+                        //     },
+                        // }}
+                        // autoPageSize
+
+                        pagination
+                        localeText={viVN.components.MuiDataGrid.defaultProps.localeText}
+                        components={{
+                            Toolbar: ToolbarTable,
+                        }}
+                    />
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
