@@ -5,8 +5,9 @@ import SinhVien from '~/page/SinhVien';
 import GiangVien from '~/page/GiangVien';
 import DaoTao from '~/page/Daotao';
 import MonHoc from '../page/Daotao/MonHoc';
-import LopHoc from '../page/Daotao/LopHoc';
+import LopHoc from '../page/Daotao/LopHocPhan';
 import Nganh from '../page/Daotao/Nganh';
+import DanhSachLopHoc from '../page/Daotao/DanhSachLopHoc';
 
 //public
 
@@ -40,6 +41,10 @@ const publicRoutes = [
     {
         path: route.nganh,
         component: Nganh,
+    },
+    {
+        path: route.dslophp,
+        component: DanhSachLopHoc,
     },
 ];
 const privateRoutes = [];

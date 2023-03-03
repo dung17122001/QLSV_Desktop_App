@@ -80,7 +80,7 @@ function Header() {
                                     name: 'Học phần',
                                     subItems: [
                                         { name: 'Môn học', to: 'dao-tao/mon-hoc', icon: <BsFillBookFill /> },
-                                        { name: 'Lớp học', to: 'dao-tao/lop-hoc', icon: <BsFillDoorOpenFill /> },
+                                        { name: 'Lớp học', to: 'dao-tao/lop-hoc-phan', icon: <BsFillDoorOpenFill /> },
                                         { name: 'Ngành', to: 'dao-tao/nganh', icon: <FaUniversity /> },
                                     ],
                                 },
