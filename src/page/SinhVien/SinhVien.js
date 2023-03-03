@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
-import { FaRegWindowClose } from 'react-icons/fa';
+import { FaRegWindowClose, FaPlus } from 'react-icons/fa';
 import { BsFillEraserFill } from 'react-icons/bs';
 import { TiCancel } from 'react-icons/ti';
-
+import Autocomplete from '@mui/material/Autocomplete';
 import { AiFillSave } from 'react-icons/ai';
 import classNames from 'classnames';
 import DialogContent from '@mui/material/DialogContent';
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -20,11 +21,15 @@ import {
 
 import HeaderQl from '../../components/HeaderQL';
 import { textAlign } from '@mui/system';
+import { Height } from '@mui/icons-material';
+import { green, red } from '@mui/material/colors';
 function SinhVien() {
+    const options = ['Option 1', 'Option 2'];
     const [open, setOpen] = React.useState(false);
     const cx = classNames.bind();
     const navigate = useNavigate();
-
+    const [value, setValue] = React.useState('');
+    const [inputValue, setInputValue] = React.useState('');
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -96,7 +101,7 @@ function SinhVien() {
             width: 150,
         },
     ];
-
+    console.log(inputValue);
     const row = [
         {
             id: 1,
@@ -144,7 +149,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -159,7 +164,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -173,7 +178,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -190,7 +195,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -203,7 +208,7 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Giới tính:</label>
                             </div>
-                            <div className="w-60 h-8 border border-sv-blue-4 rounded-lg p-1 m-4">
+                            <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
                                     onChange={(e) => console.log(e.target.value)}
                                     name="selectedFruit"
@@ -221,13 +226,89 @@ function SinhVien() {
                             </div>
                             <input
                                 type="date"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
                                 //     setValueTenGV(e.target.value);
                                 // }}
                             />
+                        </div>
+                    </div>
+
+                    <div className="w-full flex flex-row justify-between">
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Khoa:</label>
+                            </div>
+                            <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    onChange={(e) => console.log(e.target.value)}
+                                    name="selectedFruit"
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                >
+                                    <option value="null">Khoa</option>
+                                    <option value="Công nghệ thông tin">Công nghệ thông tin</option>
+                                    <option value="Kế toán -  kiểm toán">Kế toán - Kiểm toán</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Ngành:</label>
+                            </div>
+                            <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    onChange={(e) => console.log(e.target.value)}
+                                    name="selectedFruit"
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                >
+                                    <option value="null">Ngành</option>
+                                    <option value="Kỹ thuật phần mền">Kỹ thuật phần mềm</option>
+                                    <option value="Kế toán">Kế toán</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Lớp học:</label>
+                            </div>
+                            <div className=" w-60 h-9 flex justify-center items-center m-4">
+                                <Autocomplete
+                                    value={inputValue}
+                                    onChange={(event, newValue) => {
+                                        setValue(newValue);
+                                    }}
+                                    inputValue={inputValue}
+                                    onInputChange={(event, newInputValue) => {
+                                        setInputValue(newInputValue);
+                                    }}
+                                    id="controllable-states-demo"
+                                    options={options}
+                                    sx={{
+                                        width: 240,
+
+                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: '#47A9FF',
+                                            borderRadius: '5px',
+                                            border: '2',
+                                            height: 40,
+                                        },
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            size="small"
+                                            label="Lớp học"
+                                            placeholder="Chọn lớp học"
+                                        />
+                                    )}
+                                />
+                                <div className="ml-3">
+                                    <FaPlus size={20} color="green" />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -238,53 +319,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
-                            />
-                        </div>
-
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Khoa:</label>
-                            </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
-                            />
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Lớp học:</label>
-                            </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="w-full flex flex-row justify-between">
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Ngành học:</label>
-                            </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -299,7 +334,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -313,7 +348,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -330,7 +365,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -345,7 +380,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="date"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -359,7 +394,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -375,7 +410,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -390,7 +425,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -404,7 +439,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -421,7 +456,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="date"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -436,7 +471,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="date"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -450,7 +485,7 @@ function SinhVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 // value={valueSDT}
                                 // onChange={(e) => {

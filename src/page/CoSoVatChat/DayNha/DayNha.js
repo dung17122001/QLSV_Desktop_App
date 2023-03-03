@@ -1,16 +1,9 @@
 import React, { useState } from 'react';
-import Button from '@mui/material/Button';
-import { AiOutlineSearch, AiFillSetting, AiFillDelete } from 'react-icons/ai';
-import { IoIosAddCircle } from 'react-icons/io';
-import { TiCancel } from 'react-icons/ti';
-import DialogContent from '@mui/material/DialogContent';
-import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
+import HeaderQL from '../../../components/HeaderQL/HeaderQL';
 import { FaRegWindowClose } from 'react-icons/fa';
 import { AiFillSave } from 'react-icons/ai';
 import { BsFillEraserFill } from 'react-icons/bs';
-import Autocomplete from '@mui/material/Autocomplete';
-
+import { TiCancel } from 'react-icons/ti';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -18,82 +11,12 @@ import {
     GridToolbarExport,
     viVN,
 } from '@mui/x-data-grid-premium';
-import HeaderQL from '../../../components/HeaderQL';
-function Nganh() {
-    const columns = [
-        {
-            field: 'STT',
-            renderHeader: () => <strong>STT</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            filterable: false,
-            width: 50,
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import { Avatar, Button, Link } from '@mui/material';
 
-            align: 'center',
-        },
-        {
-            field: 'MaNganh',
-            renderHeader: () => <strong>Mã ngành</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 300,
-        },
-        {
-            field: 'TenNganh',
-
-            renderHeader: () => <strong>Tên ngành</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 335,
-
-            align: 'left',
-        },
-        {
-            field: 'Khoa',
-            renderHeader: () => <strong>Khoa</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 250,
-        },
-        {
-            field: 'TongTC',
-            renderHeader: () => <strong>Tổng số tín chỉ</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 180,
-        },
-        {
-            field: 'TrangThai',
-            renderHeader: () => <strong>Trạng thái</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 200,
-            align: 'right',
-        },
-    ];
-
-    const row = [
-        {
-            id: 1,
-
-            MaNganh: '19496481',
-            TenNganh: 'Công nghệ thông tin',
-            TongTC: '146',
-            TrangThai: '',
-        },
-        {
-            id: 2,
-
-            ten: 'Phan Huu Trong',
-        },
-        {
-            id: 3,
-
-            ten: 'Phan Huu Trong',
-        },
-    ];
-    const ToolbarTable = () => {
-        return (
-            <GridToolbarContainer>
-                <GridToolbarExport fileName="Danh sách môn học" />
-                <GridToolbarColumnsButton />
-            </GridToolbarContainer>
-        );
-    };
+function DayNha(onPressAdd, onPressUpdate) {
     const [open, setOpen] = useState(false);
     const handleClickOpen = () => {
         setOpen(true);
@@ -102,10 +25,70 @@ function Nganh() {
     const handleClose = () => {
         setOpen(false);
     };
+    const columns = [
+        {
+            field: 'STT',
+            renderHeader: () => <strong>STT</strong>,
+            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
+            filterable: false,
+            width: 50,
+            align: 'center',
+        },
+        {
+            field: 'maDayNha',
+            renderHeader: () => <strong>Mã dãy nhà</strong>,
+            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
+            width: 250,
+            align: 'center',
+        },
+
+        {
+            field: 'tenDayNha',
+            renderHeader: () => <strong>Tên dãy nhà</strong>,
+            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
+            width: 380,
+            align: 'center',
+        },
+        {
+            field: 'tongSoTang',
+            renderHeader: () => <strong>Tổng số tầng</strong>,
+            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
+            width: 350,
+            align: 'center',
+        },
+
+        {
+            field: 'trangThai',
+            renderHeader: () => <strong>Trạng thái</strong>,
+            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
+            width: 300,
+            align: 'center',
+        },
+    ];
+
+    const row = [
+        {
+            id: 1,
+            maDayNha: 'H',
+            tenDayNha: 'Nhà H',
+            tongSoTang: '9',
+
+            trangThai: '',
+        },
+    ];
+
+    const ToolbarTable = () => {
+        return (
+            <GridToolbarContainer>
+                <GridToolbarExport fileName="Danh sách phim" />
+                <GridToolbarColumnsButton />
+            </GridToolbarContainer>
+        );
+    };
     return (
         <>
-            <div className="w-full h-screen mt-3">
-                <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý ngành học</div>
+            <div className="h-full w-full">
+                <div className="flex justify-center text-lg font-bold text-sv-blue-4 mb-3">Quản lý dãy nhà</div>
                 <HeaderQL
                     placeholder="Mã, tên giảng viên"
                     onPressSearch={(value) => console.log(value)}
@@ -113,20 +96,21 @@ function Nganh() {
                     onPressUpdate={handleClickOpen}
                 ></HeaderQL>
 
-                <div style={{}} className="h-3/4  mt-3  ">
+                <div className="h-4/5">
                     <DataGridPremium
                         columns={columns}
                         rows={row.map((item, index) => ({ STT: index + 1, ...item }))}
                         getRowId={(row) => row.STT}
                         checkboxSelection
-                        onRowClick={(row) => alert(row.id)}
                         showCellRightBorder={true}
+                        showColumnRightBorder={true}
+                        //onRowClick={(row) => alert(row.id)}
                         // loading={loading}
                         // localeText={{
-                        //     toolbarColumns: 'Thay Ä‘á»•i cá»™t',
-                        //     toolbarExport: 'Xuáº¥t bÃ¡o cÃ¡o',
+                        //     toolbarColumns: 'Thay đổi cột',
+                        //     toolbarExport: 'Xuất báo cáo',
                         //     MuiTablePagination: {
-                        //         labelDisplayedRows: ({ from, to, count }) => `${from} - ${to} cá»§a ${count}`,
+                        //         labelDisplayedRows: ({ from, to, count }) => `${from} - ${to} của ${count}`,
                         //     },
                         // }}
                         // autoPageSize
@@ -139,9 +123,15 @@ function Nganh() {
                     />
                 </div>
 
-                <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
+                <Dialog
+                    sx={{ '& .MuiDialog-paper': { width: '100%', height: '50%' } }}
+                    fullWidth={'100%'}
+                    maxWidth
+                    open={open}
+                    onClose={handleClose}
+                >
                     <div className="w-full flex justify-between mt-5 border-b-2">
-                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin môn học</div>
+                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin dãy nhà</div>
                         <div>
                             <FaRegWindowClose className="mr-5" size={30} color="#47A9FF" onClick={handleClose} />
                         </div>
@@ -160,12 +150,12 @@ function Nganh() {
                         <div className="w-full flex flex-row justify-between">
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
-                                    <label htmlFor="">Mã ngành:</label>
+                                    <label htmlFor="">Mã dãy nhà:</label>
                                 </div>
                                 <input
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Mã ngành học"
+                                    placeholder="Mã dãy nhà"
                                     // value={valueSDT}
                                     // onChange={(e) => {
                                     //     setValueTenGV(e.target.value);
@@ -175,12 +165,12 @@ function Nganh() {
 
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
-                                    <label htmlFor="">Tên ngành:</label>
+                                    <label htmlFor="">Tên dãy nhà:</label>
                                 </div>
                                 <input
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Tên ngành học"
+                                    placeholder="Tên dãy nhà"
                                     // value={valueSDT}
                                     // onChange={(e) => {
                                     //     setValueTenGV(e.target.value);
@@ -188,54 +178,32 @@ function Nganh() {
                                 />
                             </div>
                             <div className="flex justify-center flex-row items-center w-1/3">
-                                <div className="w-32 text-left">
-                                    <label htmlFor="">Khoa:</label>
-                                </div>
-
-                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                    <select
-                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                        // value={selectedOptionGT}
-                                        // onChange={handleSelectGT}
-                                    >
-                                        <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-                                        <option value="Kế toán - kiểm toán">Kế toán - kiểm toán</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="w-full flex flex-row justify-between">
-                            <div className="flex justify-center flex-row items-center w-1/3">
-                                <div className="w-32 text-left">
-                                    <label htmlFor="">Tổng tín chỉ:</label>
+                                <div className="w-32  text-left">
+                                    <label htmlFor="">Tổng số tầng:</label>
                                 </div>
                                 <input
                                     type="number"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Tổng tín chỉ   "
-                                    // value={valueSDT}
+                                    placeholder="Tổng số tầng"
+                                    // value={valueTenGV}
                                     // onChange={(e) => {
                                     //     setValueTenGV(e.target.value);
                                     // }}
                                 />
                             </div>
+                        </div>
+                        <div className="w-full flex flex-row justify-between">
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Trạng thái:</label>
                                 </div>
                                 <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                    <select
-                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                        // value={selectedOptionGT}
-                                        // onChange={handleSelectGT}
-                                    >
+                                    <select className=" w-full rounded-md bg-white leading-tight focus:outline-none focus:shadow-outline">
                                         <option value="Hoạt động">Hoạt động</option>
                                         <option value="Tạm ngưng">Tạm ngưng</option>
                                     </select>
                                 </div>
                             </div>
-                            <div className="w-1/3"></div>
                         </div>
 
                         <div className="w-full flex flex-row justify-center p-3">
@@ -278,4 +246,4 @@ function Nganh() {
     );
 }
 
-export default Nganh;
+export default DayNha;

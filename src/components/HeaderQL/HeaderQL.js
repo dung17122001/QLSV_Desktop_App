@@ -11,7 +11,7 @@ function HeaderQL({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, pla
             <div className="flex justify-center flex-row items-center m-2">
                 <input
                     type="text"
-                    className="block p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                    className="block p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                     placeholder={placeholder}
                     value={valueSearch}
                     onChange={(e) => {

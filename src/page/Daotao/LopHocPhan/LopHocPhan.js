@@ -1,7 +1,7 @@
 import React from 'react';
 
-function LopHoc() {
+function LopHocPhan() {
     return <div>LopHoc</div>;
 }
 
-export default LopHoc;
+export default LopHocPhan;

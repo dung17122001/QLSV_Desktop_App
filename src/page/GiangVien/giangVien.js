@@ -168,6 +168,7 @@ function GiangVien() {
 
     return (
         <div className="h-full w-full">
+            <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý giảng viên</div>
             <HeaderQL
                 placeholder="Mã, tên giảng viên"
                 onPressSearch={(value) => console.log(value)}
@@ -227,7 +228,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Mã hồ sơ"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -242,7 +243,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Mã giảng viên"
                                 // value={valueSDT}
                                 // onChange={(e) => {
@@ -256,7 +257,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Họ và tên"
                                 value={valueTenGV}
                                 onChange={(e) => {
@@ -273,7 +274,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 value={valueSDT}
                                 onChange={(e) => {
@@ -286,7 +287,7 @@ function GiangVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Giới tính:</label>
                             </div>
-                            <div className="flex w-60 border h-8 border-sv-blue-4 rounded-lg p-1 m-4">
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
                                     className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
                                     value={selectedOptionGT}
@@ -304,7 +305,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="date"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
                                 value={valueNgaySinh}
                                 onChange={(e) => {
@@ -321,7 +322,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Email"
                                 value={valueEmail}
                                 onChange={(e) => {
@@ -334,7 +335,7 @@ function GiangVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Khoa:</label>
                             </div>
-                            <div className="flex w-60 border h-8 border-sv-blue-4 rounded-lg p-1 m-4">
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
                                     className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
                                     value={selectedOptionKhoa}
@@ -354,7 +355,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Chức vụ"
                                 value={valueChucVu}
                                 onChange={(e) => {
@@ -371,7 +372,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số CCCD"
                                 value={soCMND}
                                 onChange={(e) => {
@@ -386,7 +387,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="date"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 //placeholder="Mã giảng viên"
                                 value={ngayCapCMND}
                                 onChange={(e) => {
@@ -400,7 +401,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Nơi cấp"
                                 value={noiCap}
                                 onChange={(e) => {
@@ -417,7 +418,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Địa chỉ"
                                 value={diaChi}
                                 onChange={(e) => {
@@ -432,7 +433,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Nơi sinh"
                                 value={noiSinh}
                                 onChange={(e) => {
@@ -446,7 +447,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Đối tượng"
                                 value={doiTuong}
                                 onChange={(e) => {
@@ -463,7 +464,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="date"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 //placeholder="Mã hồ sơ"
                                 value={ngayVaoDoan}
                                 onChange={(e) => {
@@ -474,11 +475,11 @@ function GiangVien() {
 
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
-                                <label htmlFor="">Ngày vào đảng::</label>
+                                <label htmlFor="">Ngày vào Đảng:</label>
                             </div>
                             <input
                                 type="date"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 //placeholder="Mã giảng viên"
                                 value={ngayVaoDang}
                                 onChange={(e) => {
@@ -492,7 +493,7 @@ function GiangVien() {
                             </div>
                             <input
                                 type="text"
-                                className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Trạng thái"
                                 value={trangThai}
                                 onChange={(e) => {

@@ -3,21 +3,29 @@ const home = '/';
 const sinhvien = '/sinh-vien';
 const giangvien = '/giang-vien';
 const daotao = '/dao-tao';
+const khoa = '/khoa';
+const cosovatchat = '/co-so-vat-chat';
 
 /*
     Level 2
 */
-const lophoc = '/dao-tao/lop-hoc';
+const lophocphan = '/dao-tao/lop-hoc-phan';
 const monhoc = '/dao-tao/mon-hoc';
 const nganh = '/dao-tao/nganh';
+const phonghoc = '/co-so-vat-chat/phong-hoc';
+const daynha = '/co-so-vat-chat/day-nha';
 
 const routes = {
     home: home,
     sinhvien: sinhvien,
     giangvien: giangvien,
+    khoa: khoa,
     daotao: daotao,
-    lophoc: lophoc,
+    lophocphan: lophocphan,
     monhoc: monhoc,
     nganh: nganh,
+    cosovatchat: cosovatchat,
+    phonghoc: phonghoc,
+    daynha: daynha,
 };
 export default routes;

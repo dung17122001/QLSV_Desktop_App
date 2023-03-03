@@ -3,11 +3,14 @@ import routeConfig from './configRoutes';
 import Home from '~/page/Home';
 import SinhVien from '~/page/SinhVien';
 import GiangVien from '~/page/GiangVien';
+import Khoa from '../page/Khoa';
 import DaoTao from '~/page/Daotao';
 import MonHoc from '../page/Daotao/MonHoc';
-import LopHoc from '../page/Daotao/LopHoc';
+import LopHocPhan from '../page/Daotao/LopHocPhan';
 import Nganh from '../page/Daotao/Nganh';
-
+import CoSoVatChat from '../page/CoSoVatChat';
+import PhongHoc from '../page/CoSoVatChat/PhongHoc';
+import DayNha from '../page/CoSoVatChat/DayNha';
 //public
 
 const route = routeConfig.routeConfig;
@@ -22,6 +25,10 @@ const publicRoutes = [
         component: SinhVien,
     },
     {
+        path: route.khoa,
+        component: Khoa,
+    },
+    {
         path: route.giangvien,
         component: GiangVien,
     },
@@ -29,9 +36,10 @@ const publicRoutes = [
         path: route.daotao,
         component: DaoTao,
     },
+
     {
-        path: route.lophoc,
-        component: LopHoc,
+        path: route.lophocphan,
+        component: LopHocPhan,
     },
     {
         path: route.monhoc,
@@ -40,6 +48,18 @@ const publicRoutes = [
     {
         path: route.nganh,
         component: Nganh,
+    },
+    {
+        path: route.cosovatchat,
+        component: CoSoVatChat,
+    },
+    {
+        path: route.phonghoc,
+        component: PhongHoc,
+    },
+    {
+        path: route.daynha,
+        component: DayNha,
     },
 ];
 const privateRoutes = [];
