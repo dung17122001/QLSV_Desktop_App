@@ -23,10 +23,10 @@ function Header() {
         console.log('hhh');
     }
     return (
-        <div className=" w-40">
+        <div className=" w-48">
             <FaAlignJustify size={25} onClick={Menu} />
             <div className={showMenu ? '' : 'hidden'}>
-                <div className="border rounded-lg border-gray-500 mt-2 ">
+                <div className="border rounded-lg border-gray-500 mt-2  bg-sv-blue-3 ">
                     <div className={cx('menu flex items-center')}>
                         <div className={cx('flex flex-row items-center ')}>
                             <Button to={route.sinhvien} navLink={true} className={' flex items-center '}>

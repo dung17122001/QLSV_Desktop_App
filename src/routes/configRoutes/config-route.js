@@ -15,6 +15,12 @@ const nganh = '/dao-tao/nganh';
 const phonghoc = '/co-so-vat-chat/phong-hoc';
 const daynha = '/co-so-vat-chat/day-nha';
 
+/*
+    Level 3
+*/
+
+const dslophp = '/dao-tao/lop-hoc-phan/ds-lop';
+
 const routes = {
     home: home,
     sinhvien: sinhvien,
@@ -27,5 +33,6 @@ const routes = {
     cosovatchat: cosovatchat,
     phonghoc: phonghoc,
     daynha: daynha,
+    dslophp: dslophp,
 };
 export default routes;

@@ -96,7 +96,7 @@ function GiangVien() {
             field: 'khoa',
             renderHeader: () => <strong>Khoa</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 250,
+            width: 200,
             align: 'center',
         },
         {
@@ -111,7 +111,7 @@ function GiangVien() {
             field: 'trangThai',
             renderHeader: () => <strong>Trạng thái</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 200,
+            width: 150,
             align: 'center',
         },
     ];
@@ -167,7 +167,7 @@ function GiangVien() {
     }
 
     return (
-        <div className="h-full w-full">
+        <div className="h-full mt-5 w-full">
             <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý giảng viên</div>
             <HeaderQL
                 placeholder="Mã, tên giảng viên"
@@ -176,7 +176,7 @@ function GiangVien() {
                 onPressUpdate={handleClickOpen}
             ></HeaderQL>
 
-            <div className="h-4/5">
+            <div className="h-3/4 mr-11 ml-10">
                 <DataGridPremium
                     columns={columns}
                     rows={row.map((item, index) => ({ STT: index + 1, ...item }))}

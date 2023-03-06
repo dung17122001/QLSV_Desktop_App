@@ -11,6 +11,10 @@ import Nganh from '../page/Daotao/Nganh';
 import CoSoVatChat from '../page/CoSoVatChat';
 import PhongHoc from '../page/CoSoVatChat/PhongHoc';
 import DayNha from '../page/CoSoVatChat/DayNha';
+import LopHoc from '../page/Daotao/LopHocPhan';
+
+import DanhSachLopHoc from '../page/Daotao/DanhSachLopHoc';
+
 //public
 
 const route = routeConfig.routeConfig;
@@ -36,6 +40,10 @@ const publicRoutes = [
         path: route.daotao,
         component: DaoTao,
     },
+    {
+        path: route.cosovatchat,
+        component: CoSoVatChat,
+    },
 
     {
         path: route.lophocphan,
@@ -50,16 +58,16 @@ const publicRoutes = [
         component: Nganh,
     },
     {
-        path: route.cosovatchat,
-        component: CoSoVatChat,
+        path: route.daynha,
+        component: DayNha,
     },
     {
         path: route.phonghoc,
         component: PhongHoc,
     },
     {
-        path: route.daynha,
-        component: DayNha,
+        path: route.dslophp,
+        component: DanhSachLopHoc,
     },
 ];
 const privateRoutes = [];

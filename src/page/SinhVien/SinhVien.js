@@ -92,13 +92,13 @@ function SinhVien() {
             field: 'KhoaHoc',
             renderHeader: () => <strong>Khóa học</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 200,
+            width: 150,
         },
         {
             field: 'TrangThai',
             renderHeader: () => <strong>Trạng thái</strong>,
             headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
+            width: 100,
         },
     ];
     console.log(inputValue);
@@ -530,9 +530,10 @@ function SinhVien() {
                     </div>
                 </DialogContent>
             </Dialog>
-            <div className="w-full h-full  mt-5 mr-5">
+            <div className="w-full h-full mt-5 mr-5">
+                <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý sinh viên</div>
                 <HeaderQl onPressAdd={handleClickOpen} placeholder={'Nhập thông tin tìm kiếm'} />
-                <div style={{}} className="h-4/5">
+                <div style={{}} className="h-3/4 mr-11 ml-10">
                     <DataGridPremium
                         columns={columns}
                         rows={row.map((item, index) => ({ STT: index + 1, ...item }))}

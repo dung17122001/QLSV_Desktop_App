@@ -203,7 +203,7 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                     onPressUpdate={handleClickOpen}
                 ></HeaderQL>
 
-                <div style={{}} className="h-3/4 mt-2">
+                <div style={{}} className="h-3/4 mt-2 mr-11 ml-10">
                     <DataGridPremium
                         columns={columns}
                         rows={row.map((item, index) => ({ STT: index + 1, ...item }))}

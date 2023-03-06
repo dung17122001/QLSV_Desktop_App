@@ -113,7 +113,7 @@ function Nganh() {
                     onPressUpdate={handleClickOpen}
                 ></HeaderQL>
 
-                <div style={{}} className="h-3/4  mt-3  ">
+                <div style={{}} className="h-3/4  mt-3  mr-11 ml-10">
                     <DataGridPremium
                         columns={columns}
                         rows={row.map((item, index) => ({ STT: index + 1, ...item }))}

@@ -10,7 +10,7 @@ function DefaultLayout({ children }) {
         <div className={cx('w-full h-screen  flex flex-row')}>
             <div className={cx('w-full h-full overflow-hidden relative')}>
                 <Header />
-                <div className="w-full flex">
+                <div className="w-full flex ">
                     <div className="h-screen w-1/12 mr-10 mt-5">
                         <Menu />
                     </div>

@@ -148,7 +148,7 @@ function PhongHoc() {
     console.log(dayNha);
     return (
         <>
-            <div className="h-full w-full">
+            <div className="h-full mt-5 w-full">
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4 mb-3">Quản lý phòng học</div>
                 <HeaderQL
                     placeholder="Mã, tên phòng học"
@@ -156,7 +156,7 @@ function PhongHoc() {
                     onPressAdd={handleClickOpen}
                     onPressUpdate={handleClickOpen}
                 ></HeaderQL>
-                <div className="h-4/5">
+                <div className="h-3/4 mr-11 ml-10">
                     <DataGridPremium
                         columns={columns}
                         rows={row.map((item, index) => ({ STT: index + 1, ...item }))}
