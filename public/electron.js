@@ -19,7 +19,7 @@ function createWindow() {
 
     win.maximize();
 
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
     // khi close thì ta xóa cửa sổ đi
     win.on('close', function () {

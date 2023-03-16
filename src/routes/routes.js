@@ -1,5 +1,7 @@
 import routeConfig from './configRoutes';
 
+import DangNhap from '~/page/Login';
+import LoginLayout from '~/layout/LoginLayout';
 import Home from '~/page/Home';
 import SinhVien from '~/page/SinhVien';
 import GiangVien from '~/page/GiangVien';
@@ -23,6 +25,11 @@ const publicRoutes = [
     {
         path: route.home,
         component: Home,
+    },
+    {
+        path: route.dangnhap,
+        component: DangNhap,
+        layout: LoginLayout,
     },
     {
         path: route.sinhvien,

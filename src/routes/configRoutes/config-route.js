@@ -1,5 +1,6 @@
 //level 1
 const home = '/';
+const dangnhap = '/dang-nhap';
 const sinhvien = '/sinh-vien';
 const giangvien = '/giang-vien';
 const daotao = '/dao-tao';
@@ -23,6 +24,7 @@ const dslophp = '/dao-tao/lop-hoc-phan/ds-lop';
 
 const routes = {
     home: home,
+    dangnhap: dangnhap,
     sinhvien: sinhvien,
     giangvien: giangvien,
     khoa: khoa,

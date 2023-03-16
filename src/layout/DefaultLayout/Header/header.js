@@ -9,7 +9,7 @@ import Fade from '@mui/material/Fade';
 import Menu1 from '../Menu/menu';
 const cx = classNames;
 
-function Header() {
+function Header({ userLoginData }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -38,7 +38,7 @@ function Header() {
                                     aria-expanded={open ? 'true' : undefined}
                                     onClick={handleClick}
                                 >
-                                    Nguyễn Văn Đúng
+                                    {userLoginData?.tenNhanVien}
                                 </div>
                                 <Menu
                                     className="mt-4"
@@ -57,7 +57,7 @@ function Header() {
                                 </Menu>
                             </div>
 
-                            <div className={cx('text-sm text-red-500')}>Nhân viên</div>
+                            <div className={cx('text-sm text-red-500')}>{userLoginData?.chucVu.tenChucVu}</div>
                         </div>
                     </div>
                 </div>

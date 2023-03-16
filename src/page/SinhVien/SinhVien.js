@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
@@ -22,14 +22,34 @@ import {
 import HeaderQl from '../../components/HeaderQL';
 import { textAlign } from '@mui/system';
 import { Height } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
+import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
+import { useDispatch } from 'react-redux';
+import TableSinhVien from '../../components/TableSinhVien/TableSinhVien';
 import { green, red } from '@mui/material/colors';
+import { getTatCaSinhVien } from '../../services/sinhVienService';
 function SinhVien() {
     const options = ['Option 1', 'Option 2'];
     const [open, setOpen] = React.useState(false);
     const cx = classNames.bind();
     const navigate = useNavigate();
-    const [value, setValue] = React.useState('');
-    const [inputValue, setInputValue] = React.useState('');
+    const [value, setValue] = useState('');
+    const [inputValue, setInputValue] = useState('');
+    const [listSV, setListSV] = useState();
+
+    const dispatch = useDispatch();
+    const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
+    var accessToken = userLoginData.accessToken;
+    var axiosJWT = getAxiosJWT(dispatch, userLoginData);
+
+    useEffect(() => {
+        const getALLSinhVien = async () => {
+            const getTatCaSV = await getTatCaSinhVien(accessToken, axiosJWT, dispatch);
+            setListSV(getTatCaSV);
+        };
+        getALLSinhVien();
+    }, []);
+
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -101,7 +121,7 @@ function SinhVien() {
             width: 100,
         },
     ];
-    console.log(inputValue);
+
     const row = [
         {
             id: 1,
@@ -126,7 +146,7 @@ function SinhVien() {
     const ToolbarTable = () => {
         return (
             <GridToolbarContainer>
-                <GridToolbarExport fileName="Danh sÃ¡ch phim" />
+                <GridToolbarExport fileName="Danh sách sinh viên" />
                 <GridToolbarColumnsButton />
             </GridToolbarContainer>
         );
@@ -533,8 +553,10 @@ function SinhVien() {
             <div className="w-full h-full mt-5 mr-5">
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý sinh viên</div>
                 <HeaderQl onPressAdd={handleClickOpen} placeholder={'Nhập thông tin tìm kiếm'} />
+
                 <div style={{}} className="h-3/4 mr-11 ml-10">
-                    <DataGridPremium
+                    <TableSinhVien />
+                    {/* <DataGridPremium
                         columns={columns}
                         rows={row.map((item, index) => ({ STT: index + 1, ...item }))}
                         getRowId={(row) => row.STT}
@@ -556,7 +578,7 @@ function SinhVien() {
                         components={{
                             Toolbar: ToolbarTable,
                         }}
-                    />
+                    /> */}
                 </div>
             </div>
         </>
