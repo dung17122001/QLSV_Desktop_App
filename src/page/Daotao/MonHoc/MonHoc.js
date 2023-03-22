@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Button from '@mui/material/Button';
 import { AiOutlineSearch, AiFillSetting, AiFillDelete } from 'react-icons/ai';
 import { IoIosAddCircle } from 'react-icons/io';
@@ -14,7 +14,13 @@ import Dialog from '@mui/material/Dialog';
 import { FaRegWindowClose } from 'react-icons/fa';
 import { AiFillSave } from 'react-icons/ai';
 import { BsFillEraserFill } from 'react-icons/bs';
-
+import { exportToExcel } from '~/function/exportToExcel';
+import { useSelector } from 'react-redux';
+import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
+import { useDispatch } from 'react-redux';
+import classNames from 'classnames/bind';
+import { getTatCaMonHoc, addMonHoc, getTatCaLoaiMonHoc, capNhatMonHoc } from '~/services/monHocService';
+import { getTatCaKhoa } from '~/services/khoaService';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -24,173 +30,228 @@ import {
 } from '@mui/x-data-grid-premium';
 import { height } from '@mui/system';
 import HeaderQL from '../../../components/HeaderQL';
+import style from './MonHoc.module.scss';
+import { Scrollbar } from 'react-scrollbars-custom';
+import { FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Select } from '@mui/material';
+const cx = classNames.bind(style);
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuPropsMonHoc = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
+
 function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, placeholder }) {
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-    const checkedIcon = <CheckBoxIcon fontSize="small" />;
-    const [valueSearch, setValueSearch] = useState('');
-    const [selectedOptionGT, setSelectedOptionGT] = useState('null');
-    const [arr, setArr] = useState([]);
     const [open, setOpen] = useState(false);
+    const [listCheckedHocTruoc, setListCheckedHocTruoc] = useState([]);
+    const [listCheckedTienQuyet, setListCheckedTienQuyet] = useState([]);
+    const [listCheckedSongSong, setListCheckedSongSong] = useState([]);
+    const [listHocTruoc, setListHocTruoc] = useState([]);
+    const [listTienQuyet, setListTienQuyet] = useState([]);
+    const [listSongHanh, setListSongHanh] = useState([]);
+    const [selectedMon, setSelectedMon] = useState('');
+    const [listMonHoc, setListMonHoc] = useState();
+    const [listMonHocTruoc, setListMonHocTruoc] = useState();
+    const [listMonHocTienQuyet, setListMonHocTienQuyet] = useState();
+    const [listMonHocSongHanh, setListMonHocSongHanh] = useState();
+    const [maMonHoc, setMaMonHoc] = useState('');
+    const [tenMonHoc, setTenMonHoc] = useState();
+    const [selectTrangThai, setSelectTrangThai] = useState('Bình thường');
+    const [soTCLT, setSoTCLT] = useState();
+    const [soTCTH, setSoTCTH] = useState();
+
+    const [reload, setReload] = useState(false);
+
+    const dispatch = useDispatch();
+    const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
+    var accessToken = userLoginData.accessToken;
+    var axiosJWT = getAxiosJWT(dispatch, userLoginData);
+
+    const getAllCheckedHocTruoc = (item, index) => {
+        //setTick(!tick);
+        //console.log(item);
+        const temp = [...listMonHocTruoc];
+        if (temp[index].maMonHoc === item.maMonHoc) {
+            temp[index].isCheckedHocTruoc = !item.isCheckedHocTruoc;
+        }
+        //console.log(item);
+        if (item.isCheckedHocTruoc) setListCheckedHocTruoc((prev) => [...prev, item.maMonHoc]);
+        else {
+            var arrRemove = listCheckedHocTruoc.filter((e) => e !== item.maMonHoc);
+            setListCheckedHocTruoc(arrRemove);
+        }
+        setListMonHocTruoc(temp);
+    };
+
+    const getAllCheckedTienQuyet = (item, index) => {
+        //setTick(!tick);
+        //console.log(item);
+        const temp = [...listMonHocTienQuyet];
+        if (temp[index].maMonHoc === item.maMonHoc) {
+            temp[index].isCheckedTienQuyet = !item.isCheckedTienQuyet;
+        }
+        //console.log(item);
+        if (item.isCheckedTienQuyet) setListCheckedTienQuyet((prev) => [...prev, item.maMonHoc]);
+        else {
+            var arrRemove = listCheckedTienQuyet.filter((e) => e !== item.maMonHoc);
+            setListCheckedTienQuyet(arrRemove);
+        }
+        setListMonHocTienQuyet(temp);
+    };
+
+    const getAllCheckedSongHanh = (item, index) => {
+        //setTick(!tick);
+        //console.log(item);
+        const temp = [...listMonHocSongHanh];
+        if (temp[index].maMonHoc === item.maMonHoc) {
+            temp[index].isCheckedHocSongHanh = !item.isCheckedHocSongHanh;
+        }
+        //console.log(item);
+        if (item.isCheckedHocSongHanh) setListCheckedSongSong((prev) => [...prev, item.maMonHoc]);
+        else {
+            var arrRemove = listCheckedSongSong.filter((e) => e !== item.maMonHoc);
+            setListCheckedSongSong(arrRemove);
+        }
+        setListMonHocSongHanh(temp);
+    };
+
+    const handleSelectMonHoc = (item) => {
+        setSelectedMon(item);
+    };
+
+    const handleExportExcel = () => {
+        exportToExcel('data-sv', 'Danh sách môn học');
+    };
+
     const handleClickOpen = () => {
+        handleXoaRong();
+        setMaMonHoc('');
+        setOpen(true);
+    };
+
+    const handleClickOpenUpdate = () => {
+        //console.log(selectedMon);
+        if (!!selectedMon) {
+            setMaMonHoc(selectedMon.maMonHoc);
+            setTenMonHoc(selectedMon.tenMonHoc);
+            setSoTCLT(selectedMon.soTCLT);
+            setSoTCTH(selectedMon.soTCTH);
+            setSelectTrangThai(selectedMon.trangThai);
+            //setListHocTruoc(selectedMon.danhSachMonHocHocTruoc.danhSachMonHocHocTruoc[0]);
+        }
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
     };
-    const top100Films = [
-        { title: 'The Shawshank Redemption', year: 1994 },
-        { title: 'The Godfather', year: 1972 },
-        { title: 'The Godfather: Part II', year: 1974 },
-        { title: 'The Dark Knight', year: 2008 },
-        { title: '12 Angry Men', year: 1957 },
-        { title: "Schindler's List", year: 1993 },
-        { title: 'Pulp Fiction', year: 1994 },
-        {
-            title: 'The Lord of the Rings: The Return of the King',
-            year: 2003,
-        },
-        { title: 'The Good, the Bad and the Ugly', year: 1966 },
-        { title: 'Fight Club', year: 1999 },
-        {
-            title: 'The Lord of the Rings: The Fellowship of the Ring',
-            year: 2001,
-        },
-        {
-            title: 'Star Wars: Episode V - The Empire Strikes Back',
-            year: 1980,
-        },
-        { title: 'Forrest Gump', year: 1994 },
-        { title: 'Inception', year: 2010 },
-        {
-            title: 'The Lord of the Rings: The Two Towers',
-            year: 2002,
-        },
-        { title: "One Flew Over the Cuckoo's Nest", year: 1975 },
-        { title: 'Goodfellas', year: 1990 },
-        { title: 'The Matrix', year: 1999 },
-        { title: 'Seven Samurai', year: 1954 },
-        {
-            title: 'Star Wars: Episode IV - A New Hope',
-            year: 1977,
-        },
-        { title: 'City of God', year: 2002 },
-        { title: 'Se7en', year: 1995 },
-        { title: 'The Silence of the Lambs', year: 1991 },
-        { title: "It's a Wonderful Life", year: 1946 },
-        { title: 'Life Is Beautiful', year: 1997 },
-        { title: 'The Usual Suspects', year: 1995 },
-        { title: 'Léon: The Professional', year: 1994 },
-        { title: 'Spirited Away', year: 2001 },
-        { title: 'Saving Private Ryan', year: 1998 },
-        { title: 'Once Upon a Time in the West', year: 1968 },
-        { title: 'American History X', year: 1998 },
-        { title: 'Interstellar', year: 2014 },
-    ];
 
-    function handleSelectGT(event) {
-        setSelectedOptionGT(event.target.value);
-    }
-
-    const columns = [
-        {
-            field: 'STT',
-            renderHeader: () => <strong>STT</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            filterable: false,
-            width: 50,
-
-            align: 'center',
-        },
-        {
-            field: 'MSMH',
-            renderHeader: () => <strong>Mã môn học</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-        },
-        {
-            field: 'TenMH',
-
-            renderHeader: () => <strong>Tên môn học</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 280,
-
-            align: 'left',
-        },
-        {
-            field: 'LoaiMH',
-            renderHeader: () => <strong>Loại môn học</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-        },
-        {
-            field: 'SoTCLT',
-            renderHeader: () => <strong>Số tín chỉ LT</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 100,
-            align: 'right',
-        },
-        {
-            field: 'SoTCTH',
-            renderHeader: () => <strong>Số tín chỉ TH</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 100,
-        },
-        {
-            field: 'Khoa',
-            renderHeader: () => <strong>Khoa</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
-        {
-            field: 'DK',
-            renderHeader: () => <strong>Điều kiện</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 200,
-        },
-        {
-            field: 'TrangThai',
-            renderHeader: () => <strong>Trạng thái</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-        },
-    ];
-
-    const row = [
-        {
-            id: 1,
-
-            MSSV: '19496481',
-            HoTen: 'Nguyễn Tuấn Thanh',
-            GioiTinh: 'Nam',
-            chucNang: '',
-        },
-        {
-            id: 2,
-
-            ten: 'Phan Huu Trong',
-        },
-        {
-            id: 3,
-
-            ten: 'Phan Huu Trong',
-        },
-    ];
-    const ToolbarTable = () => {
-        return (
-            <GridToolbarContainer>
-                <GridToolbarExport fileName="Danh sách môn học" />
-                <GridToolbarColumnsButton />
-            </GridToolbarContainer>
-        );
+    const handleXoaRong = () => {
+        setSelectedMon('');
+        setTenMonHoc('');
+        setSoTCLT('');
+        setSoTCTH('');
+        setListCheckedHocTruoc([]);
+        setListCheckedSongSong([]);
+        setListCheckedTienQuyet([]);
+        setReload(!reload);
+        //setSelectTrangThai('');
     };
 
-    function onPressAdd1() {
-        // setArr([selectedOptionGT]);
-        arr.push([selectedOptionGT]);
-        // console.log(arr[0]);
+    const handleAddMonHocTruoc = (e) => {
+        setListHocTruoc(e.target.value);
+    };
+    const handleAddMonHocTienQuyet = (e) => {
+        setListTienQuyet(e.target.value);
+    };
+
+    const handleAddMonHocSongHanh = (e) => {
+        setListSongHanh(e.target.value);
+    };
+
+    function handleSelectTrangThai(e) {
+        setSelectTrangThai(e.target.value);
     }
+
+    useEffect(() => {
+        const getALLMonHoc = async () => {
+            const getTatCaMH = await getTatCaMonHoc(accessToken, axiosJWT);
+            getTatCaMH.isCheckedHocTruoc = false;
+            getTatCaMH.isCheckedTienQuyet = false;
+            getTatCaMH.isCheckedHocSongHanh = false;
+            setListMonHoc(getTatCaMH);
+            setListMonHocTruoc(getTatCaMH);
+            setListMonHocTienQuyet(getTatCaMH);
+            setListMonHocSongHanh(getTatCaMH);
+        };
+
+        getALLMonHoc();
+    }, [reload]);
+
+    const handleAddMonHoc = async () => {
+        var monHoc = {
+            maMonHoc: maMonHoc,
+            tenMonHoc: tenMonHoc,
+            soTCLT: soTCLT,
+            soTCTH: soTCTH,
+            trangThai: selectTrangThai,
+            danhSachMonHocTienQuyet: listCheckedTienQuyet,
+            danhSachMonHocHocTruoc: listCheckedHocTruoc,
+            danhSachMonHocSongHanh: listCheckedSongSong,
+        };
+
+        if (!!selectedMon.maMonHoc) {
+            const result = await capNhatMonHoc(monHoc, accessToken, axiosJWT);
+            alert('Cập nhật môn học thành công');
+            handleClose();
+            setReload(!reload);
+        } else {
+            const result = await addMonHoc(monHoc, accessToken, axiosJWT);
+            alert('Lưu môn học thành công');
+            handleClose();
+            setReload(!reload);
+        }
+    };
+
+    const renderDanhSachDieuKien = (item) => {
+        let arrFilterHocTruoc = item.danhSachMonHocHocTruoc.map((monHoc) => {
+            return (
+                <>
+                    {monHoc.maMonHoc} <span className="text-red-500"> (a)</span>
+                </>
+            );
+        });
+        let arrFilterTienQuyet = item.danhSachMonHocTienQuyet.map((monHoc) => {
+            return (
+                <>
+                    {monHoc.maMonHoc} <span className="text-red-500"> (b)</span>
+                </>
+            );
+        });
+        let arrFilterSongHanh = item.danhSachMonHocSongHanh.map((monHoc) => {
+            return (
+                <>
+                    {monHoc.maMonHoc} <span className="text-red-500"> (c)</span>
+                </>
+            );
+        });
+        let newArrDieuKien = [...arrFilterHocTruoc, ...arrFilterTienQuyet, ...arrFilterSongHanh];
+
+        let nodeDieuKien = [];
+        for (let i = 0; i < newArrDieuKien.length - 1; i++) {
+            let data = newArrDieuKien[i];
+            let CompDieuKien = <>{data}, </>;
+            nodeDieuKien = [...nodeDieuKien, CompDieuKien];
+        }
+        nodeDieuKien = [...nodeDieuKien, newArrDieuKien[newArrDieuKien.length - 1]];
+
+        return nodeDieuKien;
+    };
 
     return (
         <>
@@ -200,33 +261,62 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                     placeholder="Mã, tên giảng viên"
                     onPressSearch={(value) => console.log(value)}
                     onPressAdd={handleClickOpen}
-                    onPressUpdate={handleClickOpen}
+                    onPressUpdate={handleClickOpenUpdate}
                 ></HeaderQL>
 
                 <div style={{}} className="h-3/4 mt-2 mr-11 ml-10">
-                    <DataGridPremium
-                        columns={columns}
-                        rows={row.map((item, index) => ({ STT: index + 1, ...item }))}
-                        getRowId={(row) => row.STT}
-                        checkboxSelection
-                        onRowClick={(row) => alert(row.id)}
-                        showCellRightBorder={true}
-                        // loading={loading}
-                        // localeText={{
-                        //     toolbarColumns: 'Thay Ä‘á»•i cá»™t',
-                        //     toolbarExport: 'Xuáº¥t bÃ¡o cÃ¡o',
-                        //     MuiTablePagination: {
-                        //         labelDisplayedRows: ({ from, to, count }) => `${from} - ${to} cá»§a ${count}`,
-                        //     },
-                        // }}
-                        // autoPageSize
-
-                        pagination
-                        localeText={viVN.components.MuiDataGrid.defaultProps.localeText}
-                        components={{
-                            Toolbar: ToolbarTable,
-                        }}
-                    />
+                    <div>
+                        <Button type="primary" onClick={handleExportExcel}>
+                            Export Excel
+                        </Button>
+                        <div className="m-2">
+                            <div className="overflow-y-auto max-h-[480px] ">
+                                <table className={cx('table-SV')} id="data-sv">
+                                    <thead className="text-sv-blue-5">
+                                        <tr className={cx(' bg-blue-100')}>
+                                            <th></th>
+                                            <th>STT</th>
+                                            <th>Mã môn học</th>
+                                            <th>Tên môn học</th>
+                                            <th>Số TCLT</th>
+                                            <th>Số TCTH</th>
+                                            <th>Điều kiện</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {listMonHoc?.map((item, index) => (
+                                            <tr
+                                                key={item?.maMonHoc}
+                                                onClick={() => handleSelectMonHoc(item)}
+                                                className={`${
+                                                    selectedMon.maMonHoc === `${item.maMonHoc}` ? 'bg-orange-200' : ''
+                                                } hover:cursor-pointer`}
+                                            >
+                                                <td>
+                                                    <input
+                                                        type="radio"
+                                                        className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                                                        name="radio-group-mon"
+                                                        value={item.maMonHoc}
+                                                        checked={selectedMon.maMonHoc === `${item.maMonHoc}`}
+                                                        onChange={() => handleSelectMonHoc(item)}
+                                                    />
+                                                </td>
+                                                <td>{index + 1}</td>
+                                                <td>{item.maMonHoc}</td>
+                                                <td align="left">{item.tenMonHoc}</td>
+                                                <td>{item.soTCLT}</td>
+                                                <td>{item.soTCTH}</td>
+                                                <td>{renderDanhSachDieuKien(item)}</td>
+                                                <td>{item.trangThai}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
                     <div className="w-full flex justify-between mt-5 border-b-2">
@@ -255,10 +345,11 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                     placeholder="Mã môn học"
-                                    // value={valueSDT}
-                                    // onChange={(e) => {
-                                    //     setValueTenGV(e.target.value);
-                                    // }}
+                                    value={maMonHoc}
+                                    disabled="true"
+                                    onChange={(e) => {
+                                        setMaMonHoc(e.target.value);
+                                    }}
                                 />
                             </div>
 
@@ -270,204 +361,169 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                     placeholder="Tên môn học"
-                                    // value={valueSDT}
-                                    // onChange={(e) => {
-                                    //     setValueTenGV(e.target.value);
-                                    // }}
+                                    value={tenMonHoc}
+                                    onChange={(e) => {
+                                        setTenMonHoc(e.target.value);
+                                    }}
                                 />
                             </div>
-                            <div className="flex justify-center flex-row items-center w-1/3">
-                                <div className="w-32 text-left">
-                                    <label htmlFor="">Loại môn học:</label>
-                                </div>
-                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                    <select
-                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                        value={selectedOptionGT}
-                                        onChange={handleSelectGT}
-                                    >
-                                        <option value="Bắt nuộc">Bắt buộc</option>
-                                        <option value="Tự chọn">Tự chọn</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="w-full flex flex-row justify-between">
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Số tín chỉ LT:</label>
                                 </div>
                                 <input
-                                    type="text"
+                                    type="number"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                     placeholder="Số tín chỉ lý thuyết"
-                                    // value={valueSDT}
-                                    // onChange={(e) => {
-                                    //     setValueSDT(e.target.value);
-                                    // }}
+                                    value={soTCLT}
+                                    onChange={(e) => {
+                                        setSoTCLT(e.target.value);
+                                    }}
                                 />
-                            </div>
-
-                            <div className="flex justify-center flex-row items-center w-1/3">
-                                <div className="w-32 text-left">
-                                    <label htmlFor="">Số tín chỉ TH:</label>
-                                </div>
-                                <input
-                                    type="text"
-                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Số tín chỉ thực hành"
-                                    // value={valueSDT}
-                                    // onChange={(e) => {
-                                    //     setValueSDT(e.target.value);
-                                    // }}
-                                />
-                            </div>
-                            <div className="flex justify-center flex-row items-center w-1/3">
-                                <div className="w-32 text-left">
-                                    <label htmlFor="">Khoa:</label>
-                                </div>
-                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                    <select
-                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                        // value={selectedOptionGT}
-                                        // onChange={handleSelectGT}
-                                    >
-                                        <option value="Bắt nuộc">Công nghệ thông tin</option>
-                                        <option value="Tự chọn">Kế toán- kiểm toán</option>
-                                    </select>
-                                </div>
                             </div>
                         </div>
 
                         <div className="w-full flex flex-row justify-between">
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
-                                    <label htmlFor="">Môn học trước:</label>
+                                    <label htmlFor="">Số tín chỉ TH:</label>
                                 </div>
-                                <Autocomplete
-                                    className="m-4"
-                                    multiple
-                                    id="checkboxes-tags-demo"
-                                    options={top100Films}
-                                    disableCloseOnSelect
-                                    getOptionLabel={(option) => option.title}
-                                    renderOption={(props, option, { selected }) => (
-                                        <li {...props}>
-                                            <Checkbox
-                                                icon={icon}
-                                                checkedIcon={checkedIcon}
-                                                style={{ marginRight: 8 }}
-                                                checked={selected}
-                                            />
-                                            {option.title}
-                                        </li>
-                                    )}
-                                    sx={{
-                                        width: 240,
-
-                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#47A9FF',
-                                            borderRadius: '5px',
-                                            border: '2',
-                                            height: 40,
-                                        },
+                                <input
+                                    type="number"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Số tín chỉ thực hành"
+                                    value={soTCTH}
+                                    onChange={(e) => {
+                                        setSoTCTH(e.target.value);
                                     }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            size="small"
-                                            label="Môn học"
-                                            placeholder="Môn học tiên quyết"
-                                        />
-                                    )}
                                 />
                             </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Trạng thái:</label>
+                                </div>
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={selectTrangThai}
+                                        onChange={(e) => handleSelectTrangThai(e)}
+                                    >
+                                        <option value="Bình thường">Bình thường</option>
+                                        <option value="Tạm khóa">Tạm khóa</option>
+                                        <option value="Đã khóa">Đã khóa</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Môn học trước:</label>
+                                </div>
 
+                                <FormControl size="small" color="blue" sx={{ mb: 2, width: 250 }}>
+                                    <InputLabel id="select-hoc-truoc">Môn học trước</InputLabel>
+
+                                    <Select
+                                        labelId="select-hoc-truoc"
+                                        multiple
+                                        value={listCheckedHocTruoc}
+                                        onChange={(e) => handleAddMonHocTruoc(e)}
+                                        input={<OutlinedInput label="Môn học trước" />}
+                                        renderValue={(selected) => selected.join(', ')}
+                                        MenuProps={MenuPropsMonHoc}
+                                    >
+                                        {listMonHocTruoc?.map((item, index) => (
+                                            <MenuItem
+                                                key={item.maMonHoc}
+                                                value={item.tenMonHoc}
+                                                onClick={() => getAllCheckedHocTruoc(item, index)}
+                                            >
+                                                {/* <Checkbox checked={listMonHoc.indexOf(item) > -1} /> */}
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-checkbox h-5 w-5 text-green-500 cursor-pointer mr-2"
+                                                    checked={item.isCheckedHocTruoc}
+                                                    //onChange={() => getAllChecked(item, index)}
+                                                />
+                                                <ListItemText primary={item.tenMonHoc} />
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </div>
+                        </div>
+
+                        <div className="w-full flex flex-row justify-between">
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Môn học tiên quyết:</label>
                                 </div>
-                                <Autocomplete
-                                    className="m-4"
-                                    multiple
-                                    id="checkboxes-tags-demo"
-                                    options={top100Films}
-                                    disableCloseOnSelect
-                                    getOptionLabel={(option) => option.title}
-                                    renderOption={(props, option, { selected }) => (
-                                        <li {...props}>
-                                            <Checkbox
-                                                icon={icon}
-                                                checkedIcon={checkedIcon}
-                                                style={{ marginRight: 8 }}
-                                                checked={selected}
-                                            />
-                                            {option.title}
-                                        </li>
-                                    )}
-                                    sx={{
-                                        width: 240,
+                                <FormControl size="small" color="blue" sx={{ mb: 2, width: 250 }}>
+                                    <InputLabel id="select-tien-quyet">Môn học tiên quyết</InputLabel>
 
-                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#47A9FF',
-                                            borderRadius: '5px',
-                                            border: '2',
-                                            height: 40,
-                                        },
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            size="small"
-                                            label="Môn học"
-                                            placeholder="Môn học tiên quyết"
-                                        />
-                                    )}
-                                />
+                                    <Select
+                                        labelId="select-tien-quyet"
+                                        multiple
+                                        value={listCheckedTienQuyet}
+                                        onChange={(e) => handleAddMonHocTienQuyet(e)}
+                                        input={<OutlinedInput label="Môn học tiên quyết" />}
+                                        renderValue={(selected) => selected.join(', ')}
+                                        MenuProps={MenuPropsMonHoc}
+                                    >
+                                        {listMonHocTienQuyet?.map((item, index) => (
+                                            <MenuItem
+                                                key={item.maMonHoc}
+                                                value={item.tenMonHoc}
+                                                onClick={() => getAllCheckedTienQuyet(item, index)}
+                                            >
+                                                {/* <Checkbox checked={listMonHoc.indexOf(item) > -1} /> */}
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-checkbox h-5 w-5 text-green-500 cursor-pointer mr-2"
+                                                    checked={item.isCheckedTienQuyet}
+                                                    //onChange={() => getAllChecked(item, index)}
+                                                />
+                                                <ListItemText primary={item.tenMonHoc} />
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </div>
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Môn học song hành:</label>
                                 </div>
-                                <Autocomplete
-                                    className="m-4"
-                                    multiple
-                                    id="checkboxes-tags-demo"
-                                    options={top100Films}
-                                    disableCloseOnSelect
-                                    getOptionLabel={(option) => option.title}
-                                    renderOption={(props, option, { selected }) => (
-                                        <li {...props}>
-                                            <Checkbox
-                                                icon={icon}
-                                                checkedIcon={checkedIcon}
-                                                style={{ marginRight: 8 }}
-                                                checked={selected}
-                                            />
-                                            {option.title}
-                                        </li>
-                                    )}
-                                    sx={{
-                                        width: 240,
+                                <FormControl size="small" color="blue" sx={{ mb: 2, width: 250 }}>
+                                    <InputLabel id="select-song-hanh">Môn học song hành</InputLabel>
 
-                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#47A9FF',
-                                            borderRadius: '5px',
-                                            border: '2',
-                                            height: 40,
-                                        },
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            size="small"
-                                            label="Môn học"
-                                            placeholder="Môn học tiên quyết"
-                                        />
-                                    )}
-                                />
+                                    <Select
+                                        labelId="select-song-hanh"
+                                        multiple
+                                        value={listCheckedSongSong}
+                                        onChange={(e) => handleAddMonHocSongHanh(e)}
+                                        input={<OutlinedInput label="Môn học song hành" />}
+                                        renderValue={(selected) => selected.join(', ')}
+                                        MenuProps={MenuPropsMonHoc}
+                                    >
+                                        {listMonHocSongHanh?.map((item, index) => (
+                                            <MenuItem
+                                                key={item.maMonHoc}
+                                                value={item.tenMonHoc}
+                                                onClick={() => getAllCheckedSongHanh(item, index)}
+                                            >
+                                                {/* <Checkbox checked={listMonHoc.indexOf(item) > -1} /> */}
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-checkbox h-5 w-5 text-green-500 cursor-pointer mr-2"
+                                                    checked={item.isCheckedHocSongHanh}
+                                                    //onChange={() => getAllChecked(item, index)}
+                                                />
+                                                <ListItemText primary={item.tenMonHoc} />
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </div>
+                            <div className="flex justify-center flex-row items-center w-1/3"></div>
                         </div>
 
                         <div className="w-full flex flex-row justify-center p-3">
@@ -476,7 +532,7 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                                 size="small"
                                 startIcon={<AiFillSave />}
                                 color="success"
-                                //onClick={() => onPressSearch(valueSearch)}
+                                onClick={handleAddMonHoc}
                             >
                                 Lưu
                             </Button>
@@ -486,7 +542,7 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                                     size="small"
                                     startIcon={<BsFillEraserFill />}
                                     color="success"
-                                    //onClick={() => onPressSearch(valueSearch)}
+                                    onClick={handleXoaRong}
                                 >
                                     Xóa trắng
                                 </Button>
@@ -497,7 +553,7 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                                     size="small"
                                     color="error"
                                     startIcon={<TiCancel />}
-                                    //onClick={() => onPressSearch(valueSearch)}
+                                    onClick={handleClose}
                                 >
                                     Hủy bỏ
                                 </Button>
