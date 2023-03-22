@@ -84,13 +84,13 @@ function App() {
                                 >
                                     <td>
                                         <div className="flex items-center justify-center">
-                                            <input
+                                            {/* <input
                                                 type="checkbox"
                                                 className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
                                                 //checked={item.isCheck === true ? true : false}
                                                 status={item.isChecked ? 'checked' : 'unchecked'}
                                                 onChange={(item) => handleCheckboxChange(item)}
-                                            />
+                                            /> */}
                                         </div>
                                     </td>
                                     <td>{index + 1}</td>

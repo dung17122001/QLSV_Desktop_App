@@ -68,11 +68,12 @@ export const logout = async (dispatch, navigate, accessToken, axiosJWT) => {
 
 export const register = async (user, navigate, dispatch) => {
     try {
-        const res = await httpRequest.post('auth/register/', user);
+        const res = await httpRequest.post('auth/register', user);
         // dispatch(userSignUp(null)); // xoa signUp
+        console.log(res);
 
         if (!!res) {
-            return { userName: user.email, password: user.password };
+            return { username: user.maSinhVien, password: user.password };
         }
         // navigate(config.routeConfig.friends)
         // return res;

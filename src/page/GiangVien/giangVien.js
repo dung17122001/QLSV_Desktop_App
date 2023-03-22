@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HeaderQL from '../../components/HeaderQL/HeaderQL';
 import {
     DataGridPremium,
@@ -12,41 +12,164 @@ import { IoIosAddCircle } from 'react-icons/io';
 import { FaRegWindowClose } from 'react-icons/fa';
 import { AiFillSave } from 'react-icons/ai';
 import { BsFillEraserFill } from 'react-icons/bs';
-
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-
+import { themNhanVien, timKiemNhanVien } from '../../services/nhanVienService';
+import { capNhatNhanVien } from '../../services/nhanVienService';
 import { IoMdAdd } from 'react-icons/io';
 import { TiCancel } from 'react-icons/ti';
+import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 
+import { getTatCaKhoa } from '../../services/khoaService';
+import { getTatCaChucVu } from '../../services/chucVuService';
+import { register } from '../../services/authService';
+import { getTatCaNhanVien } from '../../services/nhanVienService';
+import { exportToExcel } from './exportToExcel';
+import classNames from 'classnames/bind';
+import style from './NhanVien.module.scss';
 function GiangVien() {
-    const dsKhoa = ['Công nghệ thông tin', 'Khoa học cơ bản', 'Điện - điện tử'];
-
+    let [listKhoa, setListKhoa] = useState([]);
+    let [listChucVu, setListChucVu] = useState([]);
+    const cx = classNames.bind(style);
+    const dispatch = useDispatch();
+    const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
+    var accessToken = userLoginData.accessToken;
+    var axiosJWT = getAxiosJWT(dispatch, userLoginData);
     const [open, setOpen] = useState(false);
-    const [valueTenGV, setValueTenGV] = useState('');
-    const [valueGioiTinh, setValueGioiTinh] = useState('');
-    const [valueSDT, setValueSDT] = useState('');
-    const [selectedOptionGT, setSelectedOptionGT] = useState('null');
-    const [selectedOptionKhoa, setSelectedOptionKhoa] = useState(dsKhoa[0]);
-    const [valueNgaySinh, setValueNgaySinh] = useState('');
-    const [valueEmail, setValueEmail] = useState('');
-    const [valueKhoa, setValueKhoa] = useState('');
-    const [valueChucVu, setValueChucVu] = useState('');
-    const [soCMND, setSoCMND] = useState('');
-    const [ngayCapCMND, setNgayCapCMND] = useState('');
-    const [noiCap, setNoiCap] = useState('');
+    const [tenNhanVien, setTenNhanVien] = useState('');
+    const [maNhanVien, setMaNhanVien] = useState('');
+    const [gioiTinh, setGioiTinh] = useState('');
+    const [soDienThoai, setSoDienThoai] = useState('');
+
+    const [ngaySinh, setNgaySinh] = useState('');
+    const [email, setEmail] = useState('');
+    const [khoa, setKhoa] = useState('null');
+    const [chucVu, setChucVu] = useState('null');
+    const [soCCCD, setsoCCCD] = useState('');
+    const [ngayCapCCCD, setNgayCapCCCD] = useState('');
+    const [noiCapCCCD, setNoiCapCCCD] = useState('');
     const [diaChi, setDiaChi] = useState('');
     const [noiSinh, setNoiSinh] = useState('');
     const [doiTuong, setDoiTuong] = useState('');
     const [ngayVaoDoan, setNgayVaoDoan] = useState('');
     const [ngayVaoDang, setNgayVaoDang] = useState('');
     const [trangThai, setTrangThai] = useState('');
+    const [linkAnh, setLinkAnh] = useState('');
 
-    const handleClickOpen = () => {
+    let nhanVien = {
+        maNhanVien,
+        diaChi,
+        doiTuong,
+        email,
+        ngayCapCCCD,
+        ngaySinh,
+        ngayVaoDang,
+        ngayVaoDoan,
+        noiCapCCCD,
+        noiSinh,
+        soDienThoai,
+        gioiTinh,
+        tenNhanVien,
+        trangThai,
+        chucVu,
+        soCCCD,
+        khoa,
+    };
+
+    const [listNV, setListNV] = useState();
+    const [selectedNhanVien, setSelectedNhanVien] = useState('');
+    useEffect(() => {
+        const getALLKhoa = async () => {
+            try {
+                const getKhoa = await getTatCaKhoa(accessToken, axiosJWT, dispatch);
+                setListKhoa(getKhoa);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        getALLKhoa();
+    }, []);
+
+    useEffect(() => {
+        const getALLChucVu = async () => {
+            try {
+                const getChucVu = await getTatCaChucVu(accessToken, axiosJWT, dispatch);
+                setListChucVu(getChucVu);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        getALLChucVu();
+    }, []);
+
+    useEffect(() => {
+        let getALLNhanVien = async () => {
+            let getTatCaNV = await getTatCaNhanVien(accessToken, axiosJWT, dispatch);
+
+            setListNV(getTatCaNV);
+        };
+        getALLNhanVien();
+    }, []);
+    const reload = async () => {
+        let getTatCaNV = await getTatCaNhanVien(accessToken, axiosJWT, dispatch);
+
+        setListNV(getTatCaNV);
+    };
+
+    const handleClickOpenCapNhat = () => {
+        if (!!selectedNhanVien) {
+            setTenNhanVien(selectedNhanVien.tenNhanVien);
+            setMaNhanVien(selectedNhanVien.maNhanVien);
+            setSoDienThoai(selectedNhanVien.soDienThoai);
+            setGioiTinh(selectedNhanVien.gioiTinh);
+            setNgaySinh(selectedNhanVien.ngaySinh);
+            setEmail(selectedNhanVien.email);
+            setKhoa(selectedNhanVien.khoa?.maKhoa);
+            setChucVu(selectedNhanVien.chucVu?.maChucVu);
+            setsoCCCD(selectedNhanVien.soCCCD);
+            setNgayCapCCCD(selectedNhanVien.ngayCapCCCD);
+            setNoiCapCCCD(selectedNhanVien.noiCapCCCD);
+            setDiaChi(selectedNhanVien.diaChi);
+            setNoiSinh(selectedNhanVien.noiSinh);
+            setDoiTuong(selectedNhanVien.doiTuong);
+            setNgayVaoDoan(selectedNhanVien.ngayVaoDoan);
+            setNgayVaoDang(selectedNhanVien.ngayVaoDang);
+            setTrangThai(selectedNhanVien.trangThai);
+            setLinkAnh(selectedNhanVien.linkAnh);
+            setOpen(true);
+        } else {
+            alert('Vui lòng chọn nhân viên');
+        }
+    };
+    const xoaTrang = () => {
+        setTenNhanVien('');
+
+        setSoDienThoai('');
+        setGioiTinh('');
+        setNgaySinh('');
+        setEmail('');
+        setKhoa('');
+        setChucVu('');
+        setsoCCCD('');
+        setNgayCapCCCD('');
+        setNoiCapCCCD('');
+        setDiaChi('');
+        setNoiSinh('');
+        setDoiTuong('');
+        setNgayVaoDoan('');
+        setNgayVaoDang('');
+        setTrangThai('');
+        setLinkAnh('');
+    };
+    const handleClickOpenThem = () => {
+        setMaNhanVien('');
+        xoaTrang();
         setOpen(true);
     };
 
@@ -54,153 +177,135 @@ function GiangVien() {
         setOpen(false);
     };
 
-    const columns = [
-        {
-            field: 'STT',
-            renderHeader: () => <strong>STT</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            filterable: false,
-            width: 50,
-            align: 'center',
-        },
-        {
-            field: 'maGV',
-            renderHeader: () => <strong>Mã Giảng Viên</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
+    const handleSelectNhanVien = (item) => {
+        setSelectedNhanVien(item);
+    };
+    const luuNhanVien = async () => {
+        if (!!selectedNhanVien) {
+            nhanVien.maNhanVien = selectedNhanVien.maNhanVien;
 
-        {
-            field: 'tenGV',
-            renderHeader: () => <strong>Tên Giảng Viên</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 250,
-            align: 'center',
-        },
-        {
-            field: 'ngaySinh',
-            renderHeader: () => <strong>Ngày sinh</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
-        {
-            field: 'gioiTinh',
-            renderHeader: () => <strong>Giới tính</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
-        {
-            field: 'khoa',
-            renderHeader: () => <strong>Khoa</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 200,
-            align: 'center',
-        },
-        {
-            field: 'chucVu',
-            renderHeader: () => <strong>Chức vụ</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
+            let suaNhanVien = await capNhatNhanVien(nhanVien, accessToken, axiosJWT);
 
-        {
-            field: 'trangThai',
-            renderHeader: () => <strong>Trạng thái</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
-    ];
+            if (suaNhanVien) {
+                setOpen(false);
+                alert('Cập nhật thành công');
+                reload();
+            }
+        } else {
+            let role = '';
+            let addNhanVien = await themNhanVien(nhanVien, accessToken, axiosJWT);
+            console.log(addNhanVien);
+            if (addNhanVien.chucVu.maChucVu === 'CV001') {
+                role = 'ROLE_QUANLY';
+            } else if (addNhanVien.chucVu.maChucVu === 'CV002') {
+                role = 'ROLE_PHONGDAOTAO';
+            } else {
+                role = 'ROLE_GIANGVIEN';
+            }
+            const nhanVienRegister = { username: addNhanVien.maNhanVien, password: '123456', role: role };
 
-    const row = [
-        {
-            id: 1,
-            maGV: '1028383',
-            tenGV: 'Nguyen Thi Lan',
-            ngaySinh: '2022-11-22',
-            gioiTinh: 'Nu',
-            khoa: 'CNTT',
-            chucVu: 'Giảng Viên',
-            trangThai: '',
-        },
-        {
-            id: 2,
-            maGV: '1028383',
-            tenGV: 'Nguyen Thi Lan',
-            ngaySinh: '2022-11-22',
-            gioiTinh: 'Nu',
-            khoa: 'CNTT',
-            chucVu: 'Giảng Viên',
-            trangThai: '',
-        },
-        {
-            id: 3,
-            maGV: '1028383',
-            tenGV: 'Nguyen Thi Lan',
-            ngaySinh: '2022-11-22',
-            gioiTinh: 'Nu',
-            khoa: 'CNTT',
-            chucVu: 'Giảng Viên',
-            trangThai: '',
-        },
-    ];
-
-    const ToolbarTable = () => {
-        return (
-            <GridToolbarContainer>
-                <GridToolbarExport fileName="Danh sách phim" />
-                <GridToolbarColumnsButton />
-            </GridToolbarContainer>
-        );
+            console.log(nhanVienRegister);
+            await register(nhanVienRegister);
+            if (addNhanVien && nhanVienRegister) {
+                setOpen(false);
+                alert('Thêm thành công');
+                reload();
+            }
+        }
     };
 
+    const handleClickSearch = async (value) => {
+        const timNhanVien = await timKiemNhanVien(value, accessToken, axiosJWT);
+        setListNV(timNhanVien);
+    };
     function handleSelectGT(event) {
-        setSelectedOptionGT(event.target.value);
+        setGioiTinh(event.target.value);
+    }
+    function handleSelectTrangThai(event) {
+        setTrangThai(event.target.value);
     }
 
     function handleSelectKhoa(event) {
-        setSelectedOptionKhoa(event.target.value);
+        setKhoa(event.target.value);
     }
+    function handleSelectChucVu(event) {
+        setChucVu(event.target.value);
+    }
+
+    const handleClick = () => {
+        exportToExcel('data-nv', 'Danh sách nhân viên');
+    };
 
     return (
         <div className="h-full mt-5 w-full">
             <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý giảng viên</div>
             <HeaderQL
                 placeholder="Mã, tên giảng viên"
-                onPressSearch={(value) => console.log(value)}
-                onPressAdd={handleClickOpen}
-                onPressUpdate={handleClickOpen}
+                onPressSearch={handleClickSearch}
+                onPressAdd={handleClickOpenThem}
+                onPressUpdate={handleClickOpenCapNhat}
+                onChangeSearch={handleClickSearch}
             ></HeaderQL>
 
             <div className="h-3/4 mr-11 ml-10">
-                <DataGridPremium
-                    columns={columns}
-                    rows={row.map((item, index) => ({ STT: index + 1, ...item }))}
-                    getRowId={(row) => row.STT}
-                    checkboxSelection
-                    showCellRightBorder={true}
-                    showColumnRightBorder={true}
-                    //onRowClick={(row) => alert(row.id)}
-                    // loading={loading}
-                    // localeText={{
-                    //     toolbarColumns: 'Thay đổi cột',
-                    //     toolbarExport: 'Xuất báo cáo',
-                    //     MuiTablePagination: {
-                    //         labelDisplayedRows: ({ from, to, count }) => `${from} - ${to} của ${count}`,
-                    //     },
-                    // }}
-                    // autoPageSize
+                <div>
+                    <Button type="primary" onClick={handleClick}>
+                        Export Excel
+                    </Button>
+                    <div className="m-2">
+                        <div className="">
+                            <table className={cx('table-SV')} id="data-sv">
+                                <thead className="text-sv-blue-5">
+                                    <tr className={cx(' bg-blue-100')}>
+                                        <th></th>
+                                        <th className={cx('')}>STT</th>
+                                        <th className={cx('')}>Mã số nhân viên</th>
+                                        <th className={cx('')}>Họ tên</th>
+                                        <th className={cx('')}>Giới tính</th>
+                                        <th className={cx('')}>Ngày sinh</th>
 
-                    pagination
-                    localeText={viVN.components.MuiDataGrid.defaultProps.localeText}
-                    components={{
-                        Toolbar: ToolbarTable,
-                    }}
-                />
+                                        <th>Khoa</th>
+                                        <th>Chức vụ</th>
+                                        <th className={cx('')}>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {listNV?.map((item, index) => (
+                                        <tr
+                                            key={item.maNhanVien}
+                                            onClick={() => handleSelectNhanVien(item)}
+                                            className={`${
+                                                selectedNhanVien.maNhanVien === `${item.maNhanVien}`
+                                                    ? 'bg-orange-200'
+                                                    : ''
+                                            } hover:cursor-pointer`}
+                                        >
+                                            <td>
+                                                <input
+                                                    type="radio"
+                                                    className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                                                    name="radio-group-mon"
+                                                    value={item.maNhanVien}
+                                                    checked={selectedNhanVien.maNhanVien === `${item.maNhanVien}`}
+                                                    onChange={() => handleSelectNhanVien(item)}
+                                                />
+                                            </td>
+                                            <td>{index + 1}</td>
+                                            <td>{item.maNhanVien}</td>
+                                            <td align="left">{item.tenNhanVien}</td>
+                                            <td>{item.gioiTinh ? 'Nam' : 'Nữ'}</td>
+                                            <td>{item.ngaySinh}</td>
+                                            <td align="left">{item.khoa?.tenKhoa}</td>
+                                            <td align="left">{item.chucVu.tenChucVu}</td>
+
+                                            <td>{item.trangThai}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
@@ -224,31 +329,17 @@ function GiangVien() {
                     <div className="w-full flex flex-row justify-between">
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
-                                <label htmlFor="">Mã hồ sơ:</label>
-                            </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Mã hồ sơ"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
-                            />
-                        </div>
-
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
                                 <label htmlFor="">Mã giảng viên:</label>
                             </div>
                             <input
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Mã giảng viên"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                placeholder="Mã giảng viên tự động tạo"
+                                disabled
+                                value={maNhanVien}
+                                onChange={(e) => {
+                                    setMaNhanVien(e.target.value);
+                                }}
                             />
                         </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
@@ -259,9 +350,23 @@ function GiangVien() {
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Họ và tên"
-                                value={valueTenGV}
+                                value={tenNhanVien}
                                 onChange={(e) => {
-                                    setValueTenGV(e.target.value);
+                                    setTenNhanVien(e.target.value);
+                                }}
+                            />
+                        </div>
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Ảnh:</label>
+                            </div>
+                            <input
+                                type="file"
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder="Link ảnh"
+                                value={linkAnh}
+                                onChange={(e) => {
+                                    setLinkAnh(e.target.value);
                                 }}
                             />
                         </div>
@@ -276,9 +381,9 @@ function GiangVien() {
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
-                                value={valueSDT}
+                                value={soDienThoai}
                                 onChange={(e) => {
-                                    setValueSDT(e.target.value);
+                                    setSoDienThoai(e.target.value);
                                 }}
                             />
                         </div>
@@ -290,12 +395,12 @@ function GiangVien() {
                             <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
                                     className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={selectedOptionGT}
+                                    value={gioiTinh}
                                     onChange={handleSelectGT}
                                 >
                                     <option value="null">Giới tính</option>
-                                    <option value="Nam">Nam</option>
-                                    <option value="Nu">Nữ</option>
+                                    <option value="true">Nam</option>
+                                    <option value="false">Nữ</option>
                                 </select>
                             </div>
                         </div>
@@ -307,9 +412,9 @@ function GiangVien() {
                                 type="date"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
-                                value={valueNgaySinh}
+                                value={ngaySinh}
                                 onChange={(e) => {
-                                    setValueNgaySinh(e.target.value);
+                                    setNgaySinh(e.target.value);
                                 }}
                             />
                         </div>
@@ -324,9 +429,9 @@ function GiangVien() {
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Email"
-                                value={valueEmail}
+                                value={email}
                                 onChange={(e) => {
-                                    setValueEmail(e.target.value);
+                                    setEmail(e.target.value);
                                 }}
                             />
                         </div>
@@ -338,12 +443,13 @@ function GiangVien() {
                             <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
                                     className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={selectedOptionKhoa}
+                                    value={khoa}
                                     onChange={handleSelectKhoa}
                                 >
-                                    {dsKhoa.map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
+                                    <option value="">Khoa</option>
+                                    {listKhoa.map((option) => (
+                                        <option key={option.maKhoa} value={option.maKhoa}>
+                                            {option.tenKhoa}
                                         </option>
                                     ))}
                                 </select>
@@ -353,15 +459,20 @@ function GiangVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Chức vụ:</label>
                             </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Chức vụ"
-                                value={valueChucVu}
-                                onChange={(e) => {
-                                    setValueChucVu(e.target.value);
-                                }}
-                            />
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    value={chucVu}
+                                    onChange={handleSelectChucVu}
+                                >
+                                    <option value="">Chức vụ</option>
+                                    {listChucVu.map((option) => (
+                                        <option key={option.maChucVu} value={option.maChucVu}>
+                                            {option.tenChucVu}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -374,9 +485,9 @@ function GiangVien() {
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số CCCD"
-                                value={soCMND}
+                                value={soCCCD}
                                 onChange={(e) => {
-                                    setSoCMND(e.target.value);
+                                    setsoCCCD(e.target.value);
                                 }}
                             />
                         </div>
@@ -388,10 +499,10 @@ function GiangVien() {
                             <input
                                 type="date"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                //placeholder="Mã giảng viên"
-                                value={ngayCapCMND}
+                                placeholder="Ngày cấp căn cước công dân"
+                                value={ngayCapCCCD}
                                 onChange={(e) => {
-                                    setNgayCapCMND(e.target.value);
+                                    setNgayCapCCCD(e.target.value);
                                 }}
                             />
                         </div>
@@ -403,9 +514,9 @@ function GiangVien() {
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Nơi cấp"
-                                value={noiCap}
+                                value={noiCapCCCD}
                                 onChange={(e) => {
-                                    setNoiCap(e.target.value);
+                                    setNoiCapCCCD(e.target.value);
                                 }}
                             />
                         </div>
@@ -491,15 +602,16 @@ function GiangVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Trạng thái:</label>
                             </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Trạng thái"
-                                value={trangThai}
-                                onChange={(e) => {
-                                    setTrangThai(e.target.value);
-                                }}
-                            />
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    value={trangThai}
+                                    onChange={handleSelectTrangThai}
+                                >
+                                    <option value="Bình thường">Bình thường</option>
+                                    <option value="Tạm ngưng">Tạm ngưng</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -509,7 +621,9 @@ function GiangVien() {
                             size="small"
                             startIcon={<AiFillSave />}
                             color="success"
-                            //onClick={() => onPressSearch(valueSearch)}
+                            onClick={() => {
+                                luuNhanVien();
+                            }}
                         >
                             Lưu
                         </Button>
@@ -519,7 +633,7 @@ function GiangVien() {
                                 size="small"
                                 startIcon={<BsFillEraserFill />}
                                 color="success"
-                                //onClick={() => onPressSearch(valueSearch)}
+                                onClick={() => xoaTrang()}
                             >
                                 Xóa trắng
                             </Button>
