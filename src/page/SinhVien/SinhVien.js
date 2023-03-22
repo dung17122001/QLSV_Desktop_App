@@ -7,10 +7,16 @@ import { BsFillEraserFill } from 'react-icons/bs';
 import { TiCancel } from 'react-icons/ti';
 import Autocomplete from '@mui/material/Autocomplete';
 import { AiFillSave } from 'react-icons/ai';
-import classNames from 'classnames';
 import DialogContent from '@mui/material/DialogContent';
-import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import { exportToExcel } from '../../function/exportToExcel';
+import { useSelector } from 'react-redux';
+import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
+import { useDispatch } from 'react-redux';
+import classNames from 'classnames/bind';
+import style from './SinhVien.module.scss';
+import { getTatCaSinhVien } from '../../services/sinhVienService';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -20,18 +26,14 @@ import {
 } from '@mui/x-data-grid-premium';
 
 import HeaderQl from '../../components/HeaderQL';
-import { textAlign } from '@mui/system';
-import { Height } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
-import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
-import { useDispatch } from 'react-redux';
-import TableSinhVien from '../../components/TableSinhVien/TableSinhVien';
-import { green, red } from '@mui/material/colors';
-import { getTatCaSinhVien } from '../../services/sinhVienService';
+//import TableSinhVien from '../../components/TableSinhVien/TableSinhVien';
+
+const cx = classNames.bind(style);
+
 function SinhVien() {
     const options = ['Option 1', 'Option 2'];
-    const [open, setOpen] = React.useState(false);
-    const cx = classNames.bind();
+    const [open, setOpen] = useState(false);
+    const [listChecked, setListChecked] = useState([]);
     const navigate = useNavigate();
     const [value, setValue] = useState('');
     const [inputValue, setInputValue] = useState('');
@@ -42,9 +44,34 @@ function SinhVien() {
     var accessToken = userLoginData.accessToken;
     var axiosJWT = getAxiosJWT(dispatch, userLoginData);
 
+    // const handleCheckboxChange = (item) => {
+    //     //setIsChecked(event.target.checked);
+    //     item.isCheck = true;
+    // };
+    const handleExportExcel = () => {
+        exportToExcel('data-sv', 'Danh sách sinh viên');
+    };
+
+    const getAllChecked = (item, index) => {
+        //setTick(!tick);
+        //console.log(item);
+        const temp = [...listSV];
+        if (temp[index].maSinhVien === item.maSinhVien) {
+            temp[index].isChecked = !item.isChecked;
+        }
+        //console.log(item);
+        if (item.isChecked) setListChecked((prev) => [...prev, item.maSinhVien]);
+        else {
+            var arrRemove = listChecked.filter((e) => e !== item.maSinhVien);
+            setListChecked(arrRemove);
+        }
+        setListSV(temp);
+    };
+
     useEffect(() => {
         const getALLSinhVien = async () => {
             const getTatCaSV = await getTatCaSinhVien(accessToken, axiosJWT, dispatch);
+
             setListSV(getTatCaSV);
         };
         getALLSinhVien();
@@ -554,8 +581,63 @@ function SinhVien() {
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý sinh viên</div>
                 <HeaderQl onPressAdd={handleClickOpen} placeholder={'Nhập thông tin tìm kiếm'} />
 
-                <div style={{}} className="h-3/4 mr-11 ml-10">
-                    <TableSinhVien />
+                <div style={{}} className="h-3/4 mr-5 ml-10">
+                    <div>
+                        <Button type="primary" onClick={handleExportExcel}>
+                            Export Excel
+                        </Button>
+                        <div className="m-2">
+                            <div className="">
+                                <table className={cx('table-SV')} id="data-sv">
+                                    <thead className="text-sv-blue-5">
+                                        <tr className={cx(' bg-blue-100')}>
+                                            <th></th>
+                                            <th>STT</th>
+                                            <th>Mã số SV</th>
+                                            <th>Họ tên</th>
+                                            <th>Giới tính</th>
+                                            <th>Ngày sinh</th>
+                                            <th>Lớp</th>
+                                            <th>Khoa</th>
+                                            <th>Khóa học</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {listSV?.map((item, index) => (
+                                            <tr
+                                                key={item.maSinhVien}
+                                                onClick={() => getAllChecked(item, index)}
+                                                className="cursor-pointer"
+                                            >
+                                                <td>
+                                                    <div className="flex items-center justify-center">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
+                                                            checked={item.isChecked}
+                                                            //checked=={item.isChecked ? 'checked' : 'unchecked'}
+                                                            //status={item.isChecked ? 'checked' : 'unchecked'}
+                                                            //onChange={(item) => handleCheckboxChange(item)}
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td>{index + 1}</td>
+                                                <td>{item.maSinhVien}</td>
+                                                <td align="left">{item.tenSinhVien}</td>
+                                                <td>{item.gioiTinh ? 'Nam' : 'Nữ'}</td>
+                                                <td></td>
+                                                <td align="left">{item.lopHoc.tenLop}</td>
+                                                <td align="left">{item.lopHoc.nganhHoc.khoa.tenKhoa}</td>
+                                                <td align="left">{item.lopHoc.khoaHoc}</td>
+                                                <td>{item.trangThai}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                     {/* <DataGridPremium
                         columns={columns}
                         rows={row.map((item, index) => ({ STT: index + 1, ...item }))}
