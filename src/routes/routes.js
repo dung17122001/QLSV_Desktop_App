@@ -14,6 +14,7 @@ import CoSoVatChat from '../page/CoSoVatChat';
 import PhongHoc from '../page/CoSoVatChat/PhongHoc';
 import DayNha from '../page/CoSoVatChat/DayNha';
 import LopHoc from '../page/Daotao/LopHocPhan';
+import ChuongTrinhKhung from '../page/Daotao/ChuongTrinhKhung';
 
 import DanhSachLopHoc from '../page/Daotao/DanhSachLopHoc';
 
@@ -75,6 +76,10 @@ const publicRoutes = [
     {
         path: route.dslophp,
         component: DanhSachLopHoc,
+    },
+    {
+        path: route.chuongtrinhkhung,
+        component: ChuongTrinhKhung,
     },
 ];
 const privateRoutes = [];
