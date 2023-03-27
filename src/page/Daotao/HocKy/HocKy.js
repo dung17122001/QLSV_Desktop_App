@@ -1,125 +1,103 @@
+import { Button } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
-
-import { capNhatKhoa, getTatCaKhoa, themKhoa, timKiemKhoa } from '../../services/khoaService';
+import HeaderQL from '../../../components/HeaderQL';
+import { exportToExcel } from '../../../function/exportToExcel';
+import classNames from 'classnames/bind';
+import style from './HocKy.module.scss';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
+import { getTatCaHocKy, capNhatHocKy, themHocKy, timKiemHocKy } from '../../../services/hocKyService';
+
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
-import {
-    DataGridPremium,
-    GridToolbarColumnsButton,
-    GridToolbarContainer,
-    GridToolbarExport,
-    viVN,
-} from '@mui/x-data-grid-premium';
+import { TiCancel } from 'react-icons/ti';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
 import { FaRegWindowClose } from 'react-icons/fa';
 import { AiFillSave } from 'react-icons/ai';
 import { BsFillEraserFill } from 'react-icons/bs';
-import HeaderQL from '../../components/HeaderQL';
 import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import { TiCancel } from 'react-icons/ti';
-import classNames from 'classnames/bind';
-import style from './Khoa.module.scss';
-import { exportToExcel } from './exportToExcel';
-function Khoa() {
-    const dispatch = useDispatch();
-    const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
-    var accessToken = userLoginData.accessToken;
-    var axiosJWT = getAxiosJWT(dispatch, userLoginData);
-    const cx = classNames.bind(style);
-
-    const [listKhoa, setListKhoa] = useState();
-    const [valueSearch, setValueSearch] = useState('');
-    const [selectedKhoa, setSelectedKhoa] = useState('');
-    const [maKhoa, setMaKhoa] = useState('');
-    const [tenKhoa, setTenKhoa] = useState('');
+function HocKy() {
+    const [listHK, setListHK] = useState();
+    const [selectedHocKy, setSelectedHocKy] = useState('');
+    const [maHocKy, setMaHocKy] = useState('');
+    const [tenHocKy, setTenHocKy] = useState('');
     const [trangThai, setTrangThai] = useState('');
-    let khoa = {
-        maKhoa,
-        tenKhoa,
-        trangThai,
-    };
-    const reload = async () => {
-        let getallKhoa = await getTatCaKhoa(accessToken, axiosJWT, dispatch);
-
-        setListKhoa(getallKhoa);
-    };
-    useEffect(() => {
-        const getALLKhoa = async () => {
-            try {
-                const getKhoa = await getTatCaKhoa(accessToken, axiosJWT, dispatch);
-                setListKhoa(getKhoa);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        getALLKhoa();
-    }, []);
-
-    const ToolbarTable = () => {
-        return (
-            <GridToolbarContainer>
-                <GridToolbarExport fileName="Danh sách môn học" />
-                <GridToolbarColumnsButton />
-            </GridToolbarContainer>
-        );
-    };
-    const [open, setOpen] = useState(false);
-    function handleSelectTrangThai(event) {
-        setTrangThai(event.target.value);
-    }
-    const handleClickOpenCapNhat = () => {
-        if (!!selectedKhoa) {
-            setMaKhoa(selectedKhoa.maKhoa);
-            setTenKhoa(selectedKhoa.tenKhoa);
-            setTrangThai(selectedKhoa.trangThai);
-            setOpen(true);
-        } else {
-            alert('Vui lòng chọn khoa');
-        }
-    };
-    const xoaTrang = () => {
-        setTenKhoa('');
-        setTrangThai('Bình thường');
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-    const handleClick = () => {
-        exportToExcel('data-khoa', 'Danh sách khoa');
-    };
-    const handleSelectKhoa = (item) => {
-        setSelectedKhoa(item);
-    };
-    const handleClickOpenThem = () => {
-        setMaKhoa('');
-        setSelectedKhoa('');
+    const handleClickOpenAdd = () => {
+        setMaHocKy('');
+        setSelectedHocKy('');
         xoaTrang();
         setOpen(true);
     };
-    const handleClickSearch = async (value) => {
-        const timKhoa = await timKiemKhoa(value, accessToken, axiosJWT);
-        setListKhoa(timKhoa);
+    const handleClickOpenUpdate = () => {
+        if (!!selectedHocKy) {
+            setMaHocKy(selectedHocKy.maHocKy);
+            setTenHocKy(selectedHocKy.tenHocKy);
+            setTrangThai(selectedHocKy.trangThai);
+            setOpen(true);
+        } else {
+            alert('Vui lòng chọn 1 học kỳ');
+        }
     };
+    const xoaTrang = () => {
+        setTenHocKy('');
+        setTrangThai('Bình thường');
+    };
+    const cx = classNames.bind(style);
+    const dispatch = useDispatch();
+    const [open, setOpen] = useState(false);
+    const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
+    var accessToken = userLoginData.accessToken;
+    var axiosJWT = getAxiosJWT(dispatch, userLoginData);
+    let hocKy = {
+        maHocKy,
+        tenHocKy,
+        trangThai,
+    };
+    const handleClick = () => {
+        exportToExcel('data-hk', 'Danh sách học kỳ');
+    };
+    const handleSelectHocKy = (item) => {
+        setSelectedHocKy(item);
+    };
+    function handleSelectTrangThai(event) {
+        setTrangThai(event.target.value);
+    }
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const handleClickSearch = async (value) => {
+        const timHK = await timKiemHocKy(value, accessToken, axiosJWT);
+        setListHK(timHK);
+    };
+    const reload = async () => {
+        let getALLHocKy = await getTatCaHocKy(accessToken, axiosJWT, dispatch);
 
-    const luuKhoa = async () => {
-        if (!!selectedKhoa) {
-            khoa.maKhoa = selectedKhoa.maKhoa;
+        setListHK(getALLHocKy);
+    };
+    useEffect(() => {
+        const getALLHocKy = async () => {
+            const getTatCaHK = await getTatCaHocKy(accessToken, axiosJWT, dispatch);
 
-            let suaKhoa = await capNhatKhoa(khoa, accessToken, axiosJWT);
+            setListHK(getTatCaHK);
+        };
+        getALLHocKy();
+    }, []);
 
-            if (suaKhoa) {
+    const luuHocKy = async () => {
+        if (!!selectedHocKy) {
+            hocKy.maHocKy = selectedHocKy.maHocKy;
+
+            let suaHocKy = await capNhatHocKy(hocKy, accessToken, axiosJWT);
+
+            if (suaHocKy) {
                 setOpen(false);
                 alert('Cập nhật thành công');
                 reload();
             }
         } else {
-            let addKhoa = await themKhoa(khoa, accessToken, axiosJWT);
+            let addHocKy = await themHocKy(hocKy, accessToken, axiosJWT);
 
-            if (addKhoa) {
+            if (addHocKy) {
                 setOpen(false);
                 alert('Thêm thành công');
                 reload();
@@ -129,13 +107,14 @@ function Khoa() {
     return (
         <>
             <div className="w-full h-screen mt-3">
-                <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý khoa</div>
+                <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý học kỳ</div>
                 <HeaderQL
-                    placeholder="Mã, tên khoa"
+                    placeholder="Mã, tên học kỳ"
                     onPressSearch={handleClickSearch}
-                    onPressAdd={handleClickOpenThem}
-                    onPressUpdate={handleClickOpenCapNhat}
+                    onPressAdd={handleClickOpenAdd}
+                    onPressUpdate={handleClickOpenUpdate}
                 ></HeaderQL>
+
                 <div className="h-3/4 mr-11 ml-10">
                     <div>
                         <Button type="primary" onClick={handleClick}>
@@ -143,23 +122,24 @@ function Khoa() {
                         </Button>
                         <div className="m-2">
                             <div className="">
-                                <table className={cx('table-Khoa')} id="data-khoa">
+                                <table className={cx('table-SV')} id="data-nv">
                                     <thead className="text-sv-blue-5">
                                         <tr className={cx(' bg-blue-100')}>
                                             <th></th>
                                             <th className={cx('')}>STT</th>
-                                            <th className={cx('')}>Mã số khoa</th>
-                                            <th className={cx('')}>Tên khoa</th>
+                                            <th className={cx('')}>Mã số nhân viên</th>
+                                            <th className={cx('')}>Họ tên</th>
+
                                             <th className={cx('')}>Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {listKhoa?.map((item, index) => (
+                                        {listHK?.map((item, index) => (
                                             <tr
-                                                key={item.maKhoa}
-                                                onClick={() => handleSelectKhoa(item)}
+                                                key={item?.maHocKy}
+                                                onClick={() => handleSelectHocKy(item)}
                                                 className={`${
-                                                    selectedKhoa.maKhoa === `${item.maKhoa}` ? 'bg-orange-200' : ''
+                                                    selectedHocKy.maHocKy === `${item.maHocKy}` ? 'bg-orange-200' : ''
                                                 } hover:cursor-pointer`}
                                             >
                                                 <td>
@@ -167,14 +147,14 @@ function Khoa() {
                                                         type="radio"
                                                         className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
                                                         name="radio-group-mon"
-                                                        value={item.maKhoa}
-                                                        checked={selectedKhoa.maKhoa === `${item.maKhoa}`}
-                                                        onChange={() => handleSelectKhoa(item)}
+                                                        value={item.maHocKy}
+                                                        checked={selectedHocKy.maHocKy === `${item.maHocKy}`}
+                                                        onChange={() => handleSelectHocKy(item)}
                                                     />
                                                 </td>
                                                 <td>{index + 1}</td>
-                                                <td>{item.maKhoa}</td>
-                                                <td align="left">{item.tenKhoa}</td>
+                                                <td>{item.maHocKy}</td>
+                                                <td align="left">{item.tenHocKy}</td>
 
                                                 <td>{item.trangThai}</td>
                                             </tr>
@@ -185,7 +165,6 @@ function Khoa() {
                         </div>
                     </div>
                 </div>
-
                 <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
                     <div className="w-full flex justify-between mt-5 border-b-2">
                         <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin khoa</div>
@@ -207,31 +186,31 @@ function Khoa() {
                         <div className="w-full flex flex-row justify-between">
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
-                                    <label htmlFor="">Mã khoa:</label>
+                                    <label htmlFor="">Mã học Kỳ:</label>
                                 </div>
                                 <input
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Mã khoa tự động tạo"
+                                    placeholder="Mã học kỳ tự động tạo"
                                     disabled
-                                    value={maKhoa}
+                                    value={maHocKy}
                                     onChange={(e) => {
-                                        setMaKhoa(e.target.value);
+                                        setMaHocKy(e.target.value);
                                     }}
                                 />
                             </div>
 
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
-                                    <label htmlFor="">Tên khoa:</label>
+                                    <label htmlFor="">Tên học kỳ:</label>
                                 </div>
                                 <input
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Tên khoa"
-                                    value={tenKhoa}
+                                    placeholder="Tên học kỳ"
+                                    value={tenHocKy}
                                     onChange={(e) => {
-                                        setTenKhoa(e.target.value);
+                                        setTenHocKy(e.target.value);
                                     }}
                                 />
                             </div>
@@ -254,7 +233,7 @@ function Khoa() {
                                 startIcon={<AiFillSave />}
                                 color="success"
                                 onClick={() => {
-                                    luuKhoa();
+                                    luuHocKy();
                                 }}
                             >
                                 Lưu
@@ -289,4 +268,4 @@ function Khoa() {
     );
 }
 
-export default Khoa;
+export default HocKy;

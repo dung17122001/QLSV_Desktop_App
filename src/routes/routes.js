@@ -4,7 +4,7 @@ import DangNhap from '~/page/Login';
 import LoginLayout from '~/layout/LoginLayout';
 import Home from '~/page/Home';
 import SinhVien from '~/page/SinhVien';
-import GiangVien from '~/page/GiangVien';
+import GiangVien from '~/page/NhanVien';
 import Khoa from '../page/Khoa';
 import DaoTao from '~/page/Daotao';
 import MonHoc from '../page/Daotao/MonHoc';
@@ -13,6 +13,7 @@ import Nganh from '../page/Daotao/Nganh';
 import CoSoVatChat from '../page/CoSoVatChat';
 import PhongHoc from '../page/CoSoVatChat/PhongHoc';
 import DayNha from '../page/CoSoVatChat/DayNha';
+import HocKy from '../page/Daotao/HocKy';
 import LopHoc from '../page/Daotao/LopHocPhan';
 
 import DanhSachLopHoc from '../page/Daotao/DanhSachLopHoc';
@@ -59,6 +60,10 @@ const publicRoutes = [
     {
         path: route.monhoc,
         component: MonHoc,
+    },
+    {
+        path: route.hocky,
+        component: HocKy,
     },
     {
         path: route.nganh,

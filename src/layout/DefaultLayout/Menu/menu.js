@@ -38,7 +38,7 @@ function Header() {
                         <div className={cx('flex flex-row items-center ')}>
                             <Button to={route.giangvien} navLink={true} className={cx(' flex items-center ')}>
                                 <FaUserTie size={20} className={cx('')} />
-                                <div className="ml-2">Giảng viên</div>
+                                <div className="ml-2">Nhân viên</div>
                             </Button>
                         </div>
                     </div>
@@ -64,6 +64,7 @@ function Header() {
                                         },
                                         { name: 'Ngành', to: 'dao-tao/nganh', icon: <FaUniversity /> },
                                         { name: 'Điểm', to: 'dao-tao/diem', icon: <FaUniversity /> },
+                                        { name: 'Học Kỳ', to: 'dao-tao/hoc-ky', icon: <FaUniversity /> },
                                     ],
                                 },
                             ]}

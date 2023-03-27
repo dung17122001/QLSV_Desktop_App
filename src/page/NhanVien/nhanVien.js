@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import HeaderQL from '../../components/HeaderQL/HeaderQL';
-import {
-    DataGridPremium,
-    GridToolbarColumnsButton,
-    GridToolbarContainer,
-    GridToolbarExport,
-    viVN,
-} from '@mui/x-data-grid-premium';
+
 import { Avatar, Button, Link } from '@mui/material';
 import { IoIosAddCircle } from 'react-icons/io';
 import { FaRegWindowClose } from 'react-icons/fa';
@@ -16,13 +10,12 @@ import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
+
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+
 import { themNhanVien, timKiemNhanVien } from '../../services/nhanVienService';
 import { capNhatNhanVien } from '../../services/nhanVienService';
-import { IoMdAdd } from 'react-icons/io';
+
 import { TiCancel } from 'react-icons/ti';
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 
@@ -169,8 +162,10 @@ function GiangVien() {
     };
     const handleClickOpenThem = () => {
         setMaNhanVien('');
+        setSelectedNhanVien('');
         xoaTrang();
         setOpen(true);
+        console.log(selectedNhanVien);
     };
 
     const handleClose = () => {
@@ -254,7 +249,7 @@ function GiangVien() {
                     </Button>
                     <div className="m-2">
                         <div className="">
-                            <table className={cx('table-SV')} id="data-sv">
+                            <table className={cx('table-SV')} id="data-nv">
                                 <thead className="text-sv-blue-5">
                                     <tr className={cx(' bg-blue-100')}>
                                         <th></th>

@@ -17,6 +17,9 @@ import { useDispatch } from 'react-redux';
 import classNames from 'classnames/bind';
 import style from './SinhVien.module.scss';
 import { getTatCaSinhVien } from '../../services/sinhVienService';
+import { getTatCaKhoa } from '../../services/khoaService';
+import { getNganhHocByKhoa } from '../../services/nganhService';
+import { getLopHocByNganhHoc } from '../../services/lopHocService';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -35,15 +38,30 @@ function SinhVien() {
     const [open, setOpen] = useState(false);
     const [listChecked, setListChecked] = useState([]);
     const navigate = useNavigate();
-    const [value, setValue] = useState('');
-    const [inputValue, setInputValue] = useState('');
-    const [listSV, setListSV] = useState();
 
+    const [inputValue, setInputValue] = useState('');
+
+    let [listKhoa, setListKhoa] = useState([]);
+    const [khoa, setKhoa] = useState();
+    const [lopHoc, setLopHoc] = useState();
+    const [email, setEmail] = useState();
+    const [listLH, setListLH] = useState([]);
+    const [maSinhVien, setMaSinhVien] = useState();
+    const [tenSinhVien, setTenSinhVien] = useState();
+    const [nganhHoc, setNganhHoc] = useState();
+    const [value, setValue] = useState(null);
+    const [listSV, setListSV] = useState();
+    const [maLop, setMaLop] = useState();
+    const [soDienThoai, setSoDienThoai] = useState();
+    const [linkAnh, setLinkAnh] = useState();
+    const [gioiTinh, setGioiTinh] = useState();
+    const [ngaySinh, setNgaySinh] = useState();
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
+    const [khoaHoc, setKhoaHoc] = useState();
     var accessToken = userLoginData.accessToken;
     var axiosJWT = getAxiosJWT(dispatch, userLoginData);
-
+    const [listNganh, setListNganh] = useState([]);
     // const handleCheckboxChange = (item) => {
     //     //setIsChecked(event.target.checked);
     //     item.isCheck = true;
@@ -69,6 +87,18 @@ function SinhVien() {
     };
 
     useEffect(() => {
+        const getALLKhoa = async () => {
+            try {
+                const getKhoa = await getTatCaKhoa(accessToken, axiosJWT, dispatch);
+                setListKhoa(getKhoa);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        getALLKhoa();
+    }, []);
+
+    useEffect(() => {
         const getALLSinhVien = async () => {
             const getTatCaSV = await getTatCaSinhVien(accessToken, axiosJWT, dispatch);
 
@@ -84,91 +114,9 @@ function SinhVien() {
     const handleClose = () => {
         setOpen(false);
     };
-    const columns = [
-        {
-            field: 'STT',
-            renderHeader: () => <strong>STT</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            filterable: false,
-            width: 50,
-
-            align: 'center',
-        },
-        {
-            field: 'MSSV',
-            renderHeader: () => <strong>Mã số sinh viên</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-        },
-        {
-            field: 'HoTen',
-
-            renderHeader: () => <strong>Họ tên sinh viên</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 250,
-
-            align: 'left',
-        },
-        {
-            field: 'GioiTinh',
-            renderHeader: () => <strong>Giới tính</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 80,
-        },
-        {
-            field: 'NgaySinh',
-            renderHeader: () => <strong>Ngày sinh</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'right',
-        },
-        {
-            field: 'Lop',
-            renderHeader: () => <strong>Lớp</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-        },
-        {
-            field: 'Khoa',
-            renderHeader: () => <strong>Khoa</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
-        {
-            field: 'KhoaHoc',
-            renderHeader: () => <strong>Khóa học</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-        },
-        {
-            field: 'TrangThai',
-            renderHeader: () => <strong>Trạng thái</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 100,
-        },
-    ];
-
-    const row = [
-        {
-            id: 1,
-
-            MSSV: '19496481',
-            HoTen: 'Nguyễn Tuấn Thanh',
-            GioiTinh: 'Nam',
-            chucNang: '',
-        },
-        {
-            id: 2,
-
-            ten: 'Phan Huu Trong',
-        },
-        {
-            id: 3,
-
-            ten: 'Phan Huu Trong',
-        },
-    ];
+    function handleSelectKhoa(event) {
+        setKhoa(event.target.value);
+    }
 
     const ToolbarTable = () => {
         return (
@@ -178,7 +126,40 @@ function SinhVien() {
             </GridToolbarContainer>
         );
     };
+    const handleClickAddLopHoc = () => {
+        if (options.includes(inputValue)) {
+            setValue(inputValue);
+            console.log(value);
+        } else {
+            console.log(inputValue);
+        }
+    };
+    // console.log(value);
 
+    useEffect(() => {
+        if (khoa) {
+            const getNganh = async () => {
+                const getNganhTheoKhoa = await getNganhHocByKhoa(khoa, accessToken, axiosJWT);
+
+                setListNganh(getNganhTheoKhoa);
+                console.log(getNganhTheoKhoa);
+            };
+            getNganh();
+        }
+    }, [khoa]);
+    useEffect(() => {
+        if (nganhHoc) {
+            const getLopHoc = async () => {
+                const getLopHocTheoNganh = await getLopHocByNganhHoc(nganhHoc, accessToken, axiosJWT);
+
+                setListLH(getLopHocTheoNganh);
+                console.log(getLopHocByNganhHoc);
+            };
+            getLopHoc();
+        }
+    }, [nganhHoc]);
+
+    console.log(listSV);
     return (
         <>
             <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
@@ -192,33 +173,19 @@ function SinhVien() {
                     <div className="w-full flex flex-row justify-between">
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
-                                <label htmlFor="">Mã hồ sơ:</label>
-                            </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
-                            />
-                        </div>
-
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
                                 <label htmlFor="">Mã số sinh viên:</label>
                             </div>
                             <input
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                value={maSinhVien}
+                                onChange={(e) => {
+                                    setMaSinhVien(e.target.value);
+                                }}
                             />
                         </div>
+
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Họ và tên:</label>
@@ -226,11 +193,25 @@ function SinhVien() {
                             <input
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                placeholder="Họ và tên"
+                                value={tenSinhVien}
+                                onChange={(e) => {
+                                    setTenSinhVien(e.target.value);
+                                }}
+                            />
+                        </div>
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Hình ảnh:</label>
+                            </div>
+                            <input
+                                type="file"
+                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder="link hình ảnh"
+                                value={linkAnh}
+                                onChange={(e) => {
+                                    setLinkAnh(e.target.value);
+                                }}
                             />
                         </div>
                     </div>
@@ -244,10 +225,10 @@ function SinhVien() {
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                value={soDienThoai}
+                                onChange={(e) => {
+                                    setSoDienThoai(e.target.value);
+                                }}
                             />
                         </div>
 
@@ -257,7 +238,7 @@ function SinhVien() {
                             </div>
                             <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
-                                    onChange={(e) => console.log(e.target.value)}
+                                    onChange={(e) => setGioiTinh(e.target.value)}
                                     name="selectedFruit"
                                     className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
                                 >
@@ -275,10 +256,10 @@ function SinhVien() {
                                 type="date"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                value={ngaySinh}
+                                onChange={(e) => {
+                                    setNgaySinh(e.target.value);
+                                }}
                             />
                         </div>
                     </div>
@@ -290,13 +271,16 @@ function SinhVien() {
                             </div>
                             <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
-                                    onChange={(e) => console.log(e.target.value)}
-                                    name="selectedFruit"
+                                    value={khoa}
+                                    onChange={handleSelectKhoa}
                                     className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
                                 >
                                     <option value="null">Khoa</option>
-                                    <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-                                    <option value="Kế toán -  kiểm toán">Kế toán - Kiểm toán</option>
+                                    {listKhoa.map((option) => (
+                                        <option key={option.maKhoa} value={option.maKhoa}>
+                                            {option.tenKhoa}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
@@ -307,13 +291,17 @@ function SinhVien() {
                             </div>
                             <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
-                                    onChange={(e) => console.log(e.target.value)}
+                                    value={nganhHoc}
+                                    onChange={(e) => setNganhHoc(e.target.value)}
                                     name="selectedFruit"
                                     className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
                                 >
                                     <option value="null">Ngành</option>
-                                    <option value="Kỹ thuật phần mền">Kỹ thuật phần mềm</option>
-                                    <option value="Kế toán">Kế toán</option>
+                                    {listNganh.map((option) => (
+                                        <option key={option?.maNganh} value={option?.maNganh}>
+                                            {option?.tenNganh}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
@@ -321,18 +309,24 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Lớp học:</label>
                             </div>
-                            <div className=" w-60 h-9 flex justify-center items-center m-4">
+                            <div
+                                className=" w-60 h-9 flex justify-center items-center m-4"
+                                onClick={handleClickAddLopHoc}
+                            >
                                 <Autocomplete
-                                    value={inputValue}
+                                    value={value}
                                     onChange={(event, newValue) => {
                                         setValue(newValue);
                                     }}
-                                    inputValue={inputValue}
+                                    inputValue={maLop}
                                     onInputChange={(event, newInputValue) => {
-                                        setInputValue(newInputValue);
+                                        setLopHoc(newInputValue);
                                     }}
                                     id="controllable-states-demo"
-                                    options={options}
+                                    options={listLH.map((option) => ({
+                                        value: option?.maLop,
+                                        label: option?.tenLop,
+                                    }))}
                                     sx={{
                                         width: 240,
 
@@ -367,11 +361,11 @@ function SinhVien() {
                             <input
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                }}
                             />
                         </div>
 
@@ -379,15 +373,16 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Khóa học:</label>
                             </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
-                            />
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    value={khoaHoc}
+                                    onChange={(e) => setKhoaHoc(e.target.value)}
+                                >
+                                    <option value="Bình thường">Bình thường</option>
+                                    <option value="Tạm ngưng">Tạm ngưng</option>
+                                </select>
+                            </div>
                         </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
@@ -615,8 +610,8 @@ function SinhVien() {
                                                         <input
                                                             type="checkbox"
                                                             className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
-                                                            checked={item.isChecked}
-                                                            //checked=={item.isChecked ? 'checked' : 'unchecked'}
+                                                            // checked={item.isChecked}
+                                                            // checked=={item.isChecked ? 'checked' : 'unchecked'}
                                                             //status={item.isChecked ? 'checked' : 'unchecked'}
                                                             //onChange={(item) => handleCheckboxChange(item)}
                                                         />
@@ -629,7 +624,7 @@ function SinhVien() {
                                                 <td></td>
                                                 <td align="left">{item.lopHoc.tenLop}</td>
                                                 <td align="left">{item.lopHoc.nganhHoc.khoa.tenKhoa}</td>
-                                                <td align="left">{item.lopHoc.khoaHoc}</td>
+                                                <td align="left">{item.khoaHoc.tenKhoaHoc}</td>
                                                 <td>{item.trangThai}</td>
                                             </tr>
                                         ))}
