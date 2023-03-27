@@ -16,8 +16,10 @@ function DefaultLayout({ children }) {
     const dispatch = useDispatch();
     const [curNhanVien, setCurNhanVien] = useState();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
-    var accessToken = userLoginData.accessToken;
-    var axiosJWT = getAxiosJWT(dispatch, userLoginData);
+    var accessToken = userLoginData?.accessToken;
+    if (!!userLoginData) {
+        var axiosJWT = getAxiosJWT(dispatch, userLoginData);
+    }
     useEffect(() => {
         const getNhanVien = async () => {
             const getNV = await getNhanVienById(userLoginData?.username, accessToken, axiosJWT);
@@ -31,8 +33,8 @@ function DefaultLayout({ children }) {
         return <Navigate replace to="/dang-nhap" />;
     } else {
         return (
-            <div className={cx('w-full h-screen  flex flex-row')}>
-                <div className={cx('w-full h-full overflow-hidden relative')}>
+            <div className={cx('w-full  flex flex-row')}>
+                <div className={cx('w-full h-full relative')}>
                     <Header userLoginData={curNhanVien} />
                     <div className="w-full flex ">
                         <div className="h-screen w-1/12 mr-10 mt-5">

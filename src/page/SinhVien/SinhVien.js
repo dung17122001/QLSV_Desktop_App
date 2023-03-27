@@ -618,7 +618,7 @@ function SinhVien() {
                                                     </div>
                                                 </td>
                                                 <td>{index + 1}</td>
-                                                <td>{item.maSinhVien}</td>
+                                                <td>{item?.maSinhVien}</td>
                                                 <td align="left">{item.tenSinhVien}</td>
                                                 <td>{item.gioiTinh ? 'Nam' : 'Nữ'}</td>
                                                 <td></td>

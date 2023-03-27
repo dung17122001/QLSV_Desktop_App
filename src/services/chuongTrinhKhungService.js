@@ -1,22 +1,6 @@
-export const getNganhHocByKhoa = async (khoa, accessToken, axiosJWT) => {
+export const getTatCaChuongTrinhKhung = async (accessToken, axiosJWT) => {
     try {
-        const res = await axiosJWT.get('nganh/khoa', {
-            params: {
-                khoaId: khoa,
-            },
-            headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        if (!!res) {
-            return res.data;
-        } else return null;
-    } catch (error) {
-        console.log(error);
-        return null;
-    }
-};
-export const getTatCaNganh = async (accessToken, axiosJWT) => {
-    try {
-        const res = await axiosJWT.get('/nganh', {
+        const res = await axiosJWT.get('/chuongtrinhkhung', {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -29,9 +13,9 @@ export const getTatCaNganh = async (accessToken, axiosJWT) => {
     }
 };
 
-export const addNganh = async (nganh, accessToken, axiosJWT) => {
+export const addChuongTrinhKhung = async (ctk, accessToken, axiosJWT) => {
     try {
-        const res = await axiosJWT.post(`/nganh`, nganh, {
+        const res = await axiosJWT.post(`/chuongtrinhkhung`, ctk, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -41,9 +25,21 @@ export const addNganh = async (nganh, accessToken, axiosJWT) => {
     }
 };
 
-export const capNhatNganh = async (nganh, accessToken, axiosJWT) => {
+export const capNhatChuongTrinhKhung = async (ctk, accessToken, axiosJWT) => {
     try {
-        const res = await axiosJWT.put(`/nganh`, nganh, {
+        const res = await axiosJWT.put(`/chuongtrinhkhung`, ctk, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const addChiTietHK = async (ctHocKy, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.post(`/chuongtrinhkhung/addCTK`, ctHocKy, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 

@@ -14,6 +14,7 @@ const lophocphan = '/dao-tao/lop-hoc-phan';
 const monhoc = '/dao-tao/mon-hoc';
 const nganh = '/dao-tao/nganh';
 const hocky = '/dao-tao/hoc-ky';
+const chuongtrinhkhung = '/dao-tao/chuongtrinhkhung';
 const phonghoc = '/co-so-vat-chat/phong-hoc';
 const daynha = '/co-so-vat-chat/day-nha';
 
@@ -33,6 +34,7 @@ const routes = {
     lophocphan: lophocphan,
     monhoc: monhoc,
     nganh: nganh,
+    chuongtrinhkhung: chuongtrinhkhung,
     cosovatchat: cosovatchat,
     phonghoc: phonghoc,
     daynha: daynha,

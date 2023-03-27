@@ -142,8 +142,13 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
             setSoTCLT(selectedMon.soTCLT);
             setSoTCTH(selectedMon.soTCTH);
             setSelectTrangThai(selectedMon.trangThai);
+
             //setListHocTruoc(selectedMon.danhSachMonHocHocTruoc.danhSachMonHocHocTruoc[0]);
         }
+        setListCheckedHocTruoc([]);
+        setListCheckedSongSong([]);
+        setListCheckedTienQuyet([]);
+        setReload(!reload);
         setOpen(true);
     };
 

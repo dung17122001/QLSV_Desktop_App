@@ -63,6 +63,11 @@ function Header() {
                                             icon: <BsFillDoorOpenFill />,
                                         },
                                         { name: 'Ngành', to: 'dao-tao/nganh', icon: <FaUniversity /> },
+                                        {
+                                            name: 'Chương trình khung',
+                                            to: 'dao-tao/chuongtrinhkhung',
+                                            icon: <FaUniversity />,
+                                        },
                                         { name: 'Điểm', to: 'dao-tao/diem', icon: <FaUniversity /> },
                                         { name: 'Học Kỳ', to: 'dao-tao/hoc-ky', icon: <FaUniversity /> },
                                     ],
