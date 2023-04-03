@@ -47,3 +47,21 @@ export const getHocPhanTheoKhoaHoc = async (startDate, endDate, maCTK, accessTok
         return null;
     }
 };
+
+export const getHocPhanTheoMaMH = async (maMH, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/hocphan/monhoc', {
+            params: {
+                maMH: maMH,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
