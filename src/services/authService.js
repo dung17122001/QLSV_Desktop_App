@@ -37,7 +37,7 @@ export const loginUser = async (user, dispatch, navigate) => {
 export const getRefreshToken = async () => {
     try {
         const res = await httpRequest.post(
-            'auth/refresh',
+            'auth/refresh-token',
             {},
             {
                 withCredentials: true,

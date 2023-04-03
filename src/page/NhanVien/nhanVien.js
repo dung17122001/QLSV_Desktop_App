@@ -176,6 +176,7 @@ function GiangVien() {
         setSelectedNhanVien(item);
     };
     const luuNhanVien = async () => {
+        console.log(nhanVien);
         if (!!selectedNhanVien) {
             nhanVien.maNhanVien = selectedNhanVien.maNhanVien;
 

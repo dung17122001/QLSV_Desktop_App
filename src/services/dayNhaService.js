@@ -1,8 +1,6 @@
-import * as httpRequest from '~/utils/httpRequest';
-
-export const getTatCaSinhVien = async (accessToken, axiosJWT) => {
+export const getTatCaDayNha = async (accessToken, axiosJWT) => {
     try {
-        const res = await axiosJWT.get('/sinhvien', {
+        const res = await axiosJWT.get('/daynha', {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -14,9 +12,9 @@ export const getTatCaSinhVien = async (accessToken, axiosJWT) => {
         return null;
     }
 };
-export const themSinhVien = async (sinhvien, accessToken, axiosJWT) => {
+export const themDayNha = async (daynha, accessToken, axiosJWT) => {
     try {
-        const res = await axiosJWT.post('/sinhvien', sinhvien, {
+        const res = await axiosJWT.post('/daynha', daynha, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         if (!!res) {
@@ -27,12 +25,9 @@ export const themSinhVien = async (sinhvien, accessToken, axiosJWT) => {
         return null;
     }
 };
-export const countSVByLopHoc = async (classID, accessToken, axiosJWT) => {
+export const capNhatDayNha = async (daynha, accessToken, axiosJWT) => {
     try {
-        const res = await axiosJWT.get('/sinhvien/count', {
-            params: {
-                classID: classID,
-            },
+        const res = await axiosJWT.put('/daynha', daynha, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         if (!!res) {
@@ -43,22 +38,9 @@ export const countSVByLopHoc = async (classID, accessToken, axiosJWT) => {
         return null;
     }
 };
-export const capNhatSinhVien = async (sinhvien, accessToken, axiosJWT) => {
+export const timKiemDayNha = async (text, accessToken, axiosJWT) => {
     try {
-        const res = await axiosJWT.put('/sinhvien', sinhvien, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        if (!!res) {
-            return res.data;
-        } else return null;
-    } catch (error) {
-        console.log(error);
-        return null;
-    }
-};
-export const timKiemSinhVien = async (text, accessToken, axiosJWT) => {
-    try {
-        const res = await axiosJWT.get('sinhvien/timkiem', {
+        const res = await axiosJWT.get('daynha/timkiem', {
             params: {
                 value: text,
             },

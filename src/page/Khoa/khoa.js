@@ -36,6 +36,7 @@ function Khoa() {
     const [maKhoa, setMaKhoa] = useState('');
     const [tenKhoa, setTenKhoa] = useState('');
     const [trangThai, setTrangThai] = useState('');
+    console.log(trangThai);
     let khoa = {
         maKhoa,
         tenKhoa,
@@ -106,6 +107,7 @@ function Khoa() {
     };
 
     const luuKhoa = async () => {
+        console.log(khoa);
         if (!!selectedKhoa) {
             khoa.maKhoa = selectedKhoa.maKhoa;
 

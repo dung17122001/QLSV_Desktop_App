@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
@@ -16,74 +16,116 @@ import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 import { useDispatch } from 'react-redux';
 import classNames from 'classnames/bind';
 import style from './SinhVien.module.scss';
-import { getTatCaSinhVien } from '../../services/sinhVienService';
+import {
+    getTatCaSinhVien,
+    capNhatSinhVien,
+    themSinhVien,
+    countSVByLopHoc,
+    timKiemSinhVien,
+} from '../../services/sinhVienService';
 import { getTatCaKhoa } from '../../services/khoaService';
 import { getNganhHocByKhoa } from '../../services/nganhService';
-import { getLopHocByNganhHoc } from '../../services/lopHocService';
-import {
-    DataGridPremium,
-    GridToolbarColumnsButton,
-    GridToolbarContainer,
-    GridToolbarExport,
-    viVN,
-} from '@mui/x-data-grid-premium';
+import { getLopHocByNganhHoc, themLopHoc } from '../../services/lopHocService';
+import { getTatCaKhoaHoc } from '../../services/khoaHocService';
+import { register } from '../../services/authService';
+import moment from 'moment';
 
 import HeaderQl from '../../components/HeaderQL';
+import { checkValidTen, checkValidSDT, checkValidNgaySinh, checkValidKhoa } from '../../regex/regex';
+
 //import TableSinhVien from '../../components/TableSinhVien/TableSinhVien';
 
 const cx = classNames.bind(style);
 
 function SinhVien() {
     const options = ['Option 1', 'Option 2'];
+    const refLopHoc = useRef('');
     const [open, setOpen] = useState(false);
     const [listChecked, setListChecked] = useState([]);
+    const [khoaHoc, setKhoaHoc] = useState('null');
+
+    const [listKhoaHocALL, setListKhoaHocALL] = useState([]);
+    const [listKhoaHoc, setListKhoaHoc] = useState([]);
+
     const navigate = useNavigate();
+
+    const [ngayVaoTruong, setNgayVaoTruong] = useState(new Date().toISOString().substr(0, 10));
 
     const [inputValue, setInputValue] = useState('');
 
     let [listKhoa, setListKhoa] = useState([]);
-    const [khoa, setKhoa] = useState();
-    const [lopHoc, setLopHoc] = useState();
-    const [email, setEmail] = useState();
+    const [khoa, setKhoa] = useState('');
+    const [lopHoc, setLopHoc] = useState('');
+    const [maLop, setMaLop] = useState('');
     const [listLH, setListLH] = useState([]);
-    const [maSinhVien, setMaSinhVien] = useState();
-    const [tenSinhVien, setTenSinhVien] = useState();
-    const [nganhHoc, setNganhHoc] = useState();
-    const [value, setValue] = useState(null);
+    const [email, setEmail] = useState('');
+    const [maSinhVien, setMaSinhVien] = useState('');
+    const [tenSinhVien, setTenSinhVien] = useState('');
+    const [nganhHoc, setNganhHoc] = useState('');
+    const [soCCCD, setSoCCCD] = useState('');
+    const [noiCapCCCD, setNoiCapCCCD] = useState('');
     const [listSV, setListSV] = useState();
-    const [maLop, setMaLop] = useState();
-    const [soDienThoai, setSoDienThoai] = useState();
-    const [linkAnh, setLinkAnh] = useState();
-    const [gioiTinh, setGioiTinh] = useState();
-    const [ngaySinh, setNgaySinh] = useState();
+    const [soDienThoai, setSoDienThoai] = useState('');
+    const [linkAnh, setLinkAnh] = useState('');
+    const [gioiTinh, setGioiTinh] = useState('');
+    const [ngaySinh, setNgaySinh] = useState('');
+    const [ngayCapCCCD, setNgayCapCCCD] = useState('');
+    const [diaChi, setDiaChi] = useState('');
+    const [noiSinh, setNoiSinh] = useState('');
+    const [doiTuong, setDoiTuong] = useState('');
+    const [ngayVaoDang, setNgayVaoDang] = useState('');
+    const [ngayVaoDoan, setNgayVaoDoan] = useState('');
+    const [trangThai, setTrangThai] = useState('');
+    const [selectedSinhVien, setSelectedSinhVien] = useState('');
+    const [validTenSinhVien, setValidTenSinhVien] = useState('');
+    const [validSDT, setValidSDT] = useState('');
+    const [validGT, setValidGT] = useState('');
+    const [validNgaySinh, setValidNgaySinh] = useState('');
+    const [validKhoa, setValidKhoa] = useState('');
+    const [validKhoaHoc, setValidKhoaHoc] = useState('');
+    const [validLopHoc, setValidLopHoc] = useState('');
+    let [countSV, setCountSV] = useState(0);
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
-    const [khoaHoc, setKhoaHoc] = useState();
+
     var accessToken = userLoginData.accessToken;
     var axiosJWT = getAxiosJWT(dispatch, userLoginData);
     const [listNganh, setListNganh] = useState([]);
-    // const handleCheckboxChange = (item) => {
-    //     //setIsChecked(event.target.checked);
-    //     item.isCheck = true;
-    // };
-    const handleExportExcel = () => {
-        exportToExcel('data-sv', 'Danh sách sinh viên');
+
+    const checkValidTenSV = () => {
+        var valueTenSV = tenSinhVien;
+        if (
+            valueTenSV === '' ||
+            !valueTenSV.match(
+                /^[a-zA-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$/,
+            )
+        ) {
+            setValidTenSinhVien('');
+            return false;
+        } else {
+            setValidTenSinhVien('hidden');
+
+            return true;
+        }
     };
 
-    const getAllChecked = (item, index) => {
-        //setTick(!tick);
-        //console.log(item);
-        const temp = [...listSV];
-        if (temp[index].maSinhVien === item.maSinhVien) {
-            temp[index].isChecked = !item.isChecked;
+    const checkValidKhoaHoc = (event) => {
+        if (event && event.target && event.target.value !== null && event.target.value !== undefined) {
+            setKhoaHoc(event.target.value);
+            var valueKhoaHoc = event.target.value;
+            if (valueKhoaHoc === 'null') {
+                setValidKhoaHoc('');
+                return '';
+            } else {
+                setValidKhoaHoc('hidden');
+                return khoaHoc;
+            }
         }
-        //console.log(item);
-        if (item.isChecked) setListChecked((prev) => [...prev, item.maSinhVien]);
-        else {
-            var arrRemove = listChecked.filter((e) => e !== item.maSinhVien);
-            setListChecked(arrRemove);
-        }
-        setListSV(temp);
+    };
+
+    // console.log(lopHoc);
+    const handleExportExcel = () => {
+        exportToExcel('data-sv', 'Danh sách sinh viên');
     };
 
     useEffect(() => {
@@ -97,6 +139,17 @@ function SinhVien() {
         };
         getALLKhoa();
     }, []);
+    useEffect(() => {
+        const getALLKhoaHoc = async () => {
+            try {
+                const getKhoaHoc = await getTatCaKhoaHoc(accessToken, axiosJWT, dispatch);
+                setListKhoaHoc(getKhoaHoc);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        getALLKhoaHoc();
+    }, []);
 
     useEffect(() => {
         const getALLSinhVien = async () => {
@@ -107,42 +160,74 @@ function SinhVien() {
         getALLSinhVien();
     }, []);
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
     const handleClose = () => {
         setOpen(false);
     };
     function handleSelectKhoa(event) {
         setKhoa(event.target.value);
     }
-
-    const ToolbarTable = () => {
-        return (
-            <GridToolbarContainer>
-                <GridToolbarExport fileName="Danh sách sinh viên" />
-                <GridToolbarColumnsButton />
-            </GridToolbarContainer>
-        );
+    const xoaTrang = () => {
+        setTenSinhVien('');
+        setLinkAnh('');
+        setSoDienThoai('');
+        setGioiTinh('true');
+        setNgaySinh('');
+        setKhoa('');
+        setNganhHoc('null');
+        setLopHoc('null');
+        setEmail('');
+        setKhoaHoc('null');
+        setNgayVaoTruong(new Date().toISOString().substr(0, 10));
+        setSoCCCD('');
+        setNgayCapCCCD('');
+        setNoiCapCCCD('');
+        setDiaChi('');
+        setNoiSinh('');
+        setDoiTuong('');
+        setNgayVaoDang('');
+        setNgayVaoDoan('');
+        setTrangThai('Bình thường');
     };
-    const handleClickAddLopHoc = () => {
-        if (options.includes(inputValue)) {
-            setValue(inputValue);
-            console.log(value);
+    const handleClickOpenThem = () => {
+        setMaSinhVien('');
+
+        setSelectedSinhVien('');
+        xoaTrang();
+        setOpen(true);
+    };
+
+    const handleSelectSinhVien = (item) => {
+        setSelectedSinhVien(item);
+    };
+    const handleClickSearch = async (value) => {
+        const timSinhVien = await timKiemSinhVien(value, accessToken, axiosJWT);
+        setListSV(timSinhVien);
+    };
+
+    const handleClickAddLopHoc = async () => {
+        const lop = {
+            maLop: maLop,
+            tenLop: refLopHoc.current.value,
+            nganhHoc: nganhHoc,
+        };
+        console.log(lop);
+        if (lop.tenLop !== '' && nganhHoc != null) {
+            const addLop = await themLopHoc(lop, accessToken, axiosJWT);
+            if (addLop) {
+                alert('Thêm thành công');
+
+                setListLH((prev) => [addLop, ...prev]);
+            }
         } else {
-            console.log(inputValue);
+            alert('Vui lòng nhập tên lớp');
         }
     };
-    // console.log(value);
-
     useEffect(() => {
         if (khoa) {
             const getNganh = async () => {
                 const getNganhTheoKhoa = await getNganhHocByKhoa(khoa, accessToken, axiosJWT);
 
                 setListNganh(getNganhTheoKhoa);
-                console.log(getNganhTheoKhoa);
             };
             getNganh();
         }
@@ -153,13 +238,120 @@ function SinhVien() {
                 const getLopHocTheoNganh = await getLopHocByNganhHoc(nganhHoc, accessToken, axiosJWT);
 
                 setListLH(getLopHocTheoNganh);
-                console.log(getLopHocByNganhHoc);
             };
             getLopHoc();
         }
     }, [nganhHoc]);
+    let sinhVien = {
+        maSinhVien,
+        tenSinhVien,
+        linkAnh,
+        soDienThoai,
+        gioiTinh,
+        ngaySinh,
+        khoa,
+        nganhHoc,
+        lopHoc,
+        email,
+        khoaHoc,
+        ngayVaoTruong,
+        soCCCD,
+        ngayCapCCCD,
+        noiCapCCCD,
+        diaChi,
+        noiSinh,
+        doiTuong,
+        ngayVaoDang,
+        ngayVaoDoan,
+        trangThai,
+    };
+    console.log(sinhVien);
+    const handleClickOpenCapNhat = () => {
+        if (!!selectedSinhVien) {
+            setTenSinhVien(selectedSinhVien.tenSinhVien);
+            setLinkAnh(selectedSinhVien.linkAnh);
+            setMaSinhVien(selectedSinhVien.maSinhVien);
+            setSoDienThoai(selectedSinhVien.soDienThoai);
+            setGioiTinh(selectedSinhVien?.gioiTinh);
+            setNgaySinh(selectedSinhVien.ngaySinh);
+            setEmail(selectedSinhVien.email);
+            setLopHoc(selectedSinhVien?.lopHoc);
+            setKhoaHoc(selectedSinhVien?.khoaHoc?.maKhoaHoc);
+            setNganhHoc(selectedSinhVien?.lopHoc?.nganhHoc?.maNganh);
+            setKhoa(selectedSinhVien?.lopHoc?.nganhHoc?.khoa?.maKhoa);
+            setSoCCCD(selectedSinhVien.soCCCD);
+            setNgayCapCCCD(selectedSinhVien.ngayCapCCCD);
+            setNoiCapCCCD(selectedSinhVien.noiCapCCCD);
+            setDiaChi(selectedSinhVien.diaChi);
+            setNoiSinh(selectedSinhVien.noiSinh);
+            setDoiTuong(selectedSinhVien.doiTuong);
+            setNgayVaoDoan(selectedSinhVien.ngayVaoDoan);
+            setNgayVaoDang(selectedSinhVien.ngayVaoDang);
+            setTrangThai(selectedSinhVien.trangThai);
+            setLinkAnh(selectedSinhVien.linkAnh);
+            setOpen(true);
+            console.log(selectedSinhVien);
+            console.log(selectedSinhVien?.lopHoc.nganhHoc.khoa.tenKhoa);
+            console.log(selectedSinhVien?.lopHoc.nganhHoc.tenNganh);
+        } else {
+            alert('Vui lòng chọn nhân viên');
+        }
+    };
+    const reload = async () => {
+        let getTatCaSV = await getTatCaSinhVien(accessToken, axiosJWT, dispatch);
 
-    console.log(listSV);
+        setListSV(getTatCaSV);
+    };
+
+    useEffect(() => {
+        var checkLopHoc = async () => {
+            if (lopHoc !== '') {
+                const countSVByLH = await countSVByLopHoc(lopHoc?.maLop, accessToken, axiosJWT);
+                setCountSV(countSVByLH);
+                for (let i = 0; i < listLH.length; i++) {
+                    if (lopHoc === null && refLopHoc !== listLH[i].tenLop) {
+                        alert('Vui lòng thêm lớp học mới!!');
+                    }
+                }
+                if (countSV >= 3) {
+                    alert('Lớp này đã đủ số lượng sinh viên.Vui lòng thêm lớp mới');
+                }
+            }
+        };
+        checkLopHoc();
+    }, [lopHoc]);
+
+    const luuSinhVien = async () => {
+        console.log(sinhVien);
+        if (!!selectedSinhVien) {
+            sinhVien.maSinhVien = selectedSinhVien.maSinhVien;
+
+            let suaSinhVien = await capNhatSinhVien(sinhVien, accessToken, axiosJWT);
+
+            if (suaSinhVien) {
+                setOpen(false);
+                alert('Cập nhật thành công');
+                reload();
+            }
+        } else {
+            let addSinhVien = await themSinhVien(sinhVien, accessToken, axiosJWT);
+
+            const sinhVienRegister = {
+                username: addSinhVien.maSinhVien,
+                password: '123456',
+                role: 'ROLE_SINHVIEN',
+            };
+
+            console.log(sinhVienRegister);
+            await register(sinhVienRegister);
+            if (addSinhVien && sinhVienRegister) {
+                setOpen(false);
+                alert('Thêm thành công');
+                reload();
+            }
+        }
+    };
+
     return (
         <>
             <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
@@ -190,16 +382,22 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Họ và tên:</label>
                             </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Họ và tên"
-                                value={tenSinhVien}
-                                onChange={(e) => {
-                                    setTenSinhVien(e.target.value);
-                                }}
-                            />
+                            <div className="h-16">
+                                <input
+                                    type="text"
+                                    className="block m-4 mb-0 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic"
+                                    placeholder="Họ tên sinh viên"
+                                    value={tenSinhVien}
+                                    onChange={(e) => setTenSinhVien(e.target.value)}
+                                />
+                                {!checkValidTen(tenSinhVien) && (
+                                    <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
+                                        Tên sinh viên không được rỗng và không chứa số!!
+                                    </span>
+                                )}
+                            </div>
                         </div>
+
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Hình ảnh:</label>
@@ -212,6 +410,10 @@ function SinhVien() {
                                 onChange={(e) => {
                                     setLinkAnh(e.target.value);
                                 }}
+                                onBlur={() => {
+                                    const test = checkValidTenSV();
+                                    console.log(test);
+                                }}
                             />
                         </div>
                     </div>
@@ -221,46 +423,58 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Số điện thoại:</label>
                             </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                value={soDienThoai}
-                                onChange={(e) => {
-                                    setSoDienThoai(e.target.value);
-                                }}
-                            />
+                            <div className="h-16">
+                                <input
+                                    type="text"
+                                    className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Số điện thoại"
+                                    value={soDienThoai}
+                                    onChange={(e) => setSoDienThoai(e.target.value)}
+                                />
+                                {!checkValidSDT(soDienThoai) && (
+                                    <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
+                                        Số điện thoại 10 số bắt đầu bằng số 0
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Giới tính:</label>
                             </div>
-                            <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    onChange={(e) => setGioiTinh(e.target.value)}
-                                    name="selectedFruit"
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                >
-                                    <option value="null">Giới tính</option>
-                                    <option value="Nam">Nam</option>
-                                    <option value="Nữ">Nữ</option>
-                                </select>
+                            <div className="">
+                                <div>
+                                    <select
+                                        value={gioiTinh}
+                                        onChange={(e) => setGioiTinh(e.target.value)}
+                                        name="selectedFruit"
+                                        className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    >
+                                        <option value="true">Nam</option>
+                                        <option value="false">Nữ</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Ngày sinh:</label>
                             </div>
-                            <input
-                                type="date"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                value={ngaySinh}
-                                onChange={(e) => {
-                                    setNgaySinh(e.target.value);
-                                }}
-                            />
+                            <div className="h-16">
+                                <input
+                                    type="date"
+                                    className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Ngày sinh"
+                                    value={ngaySinh}
+                                    onChange={(e) => setNgaySinh(e.target.value)}
+                                />
+                                {!checkValidNgaySinh(ngaySinh) && (
+                                    <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
+                                        Bắt buộc!!
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -269,19 +483,25 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Khoa:</label>
                             </div>
-                            <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
+
+                            <div className="h-16">
                                 <select
                                     value={khoa}
-                                    onChange={handleSelectKhoa}
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    onChange={(e) => setKhoa(e.target.value)}
+                                    className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 >
-                                    <option value="null">Khoa</option>
+                                    <option value="">Khoa</option>
                                     {listKhoa.map((option) => (
                                         <option key={option.maKhoa} value={option.maKhoa}>
                                             {option.tenKhoa}
                                         </option>
                                     ))}
                                 </select>
+                                {!checkValidKhoa(khoa) && (
+                                    <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
+                                        Bắt buộc
+                                    </span>
+                                )}
                             </div>
                         </div>
 
@@ -289,12 +509,12 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Ngành:</label>
                             </div>
-                            <div className="w-60 h-9 border border-sv-blue-4 rounded-md p-1 m-4">
+                            <div className="h-16">
                                 <select
                                     value={nganhHoc}
                                     onChange={(e) => setNganhHoc(e.target.value)}
                                     name="selectedFruit"
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 >
                                     <option value="null">Ngành</option>
                                     {listNganh.map((option) => (
@@ -303,51 +523,62 @@ function SinhVien() {
                                         </option>
                                     ))}
                                 </select>
+                                <span
+                                    className={cx(
+                                        'flex justify-start items-center text-red-500 text-xs mt-0',
+                                        validKhoa,
+                                    )}
+                                >
+                                    Bắt buộc
+                                </span>
                             </div>
                         </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Lớp học:</label>
                             </div>
-                            <div
-                                className=" w-60 h-9 flex justify-center items-center m-4"
-                                onClick={handleClickAddLopHoc}
-                            >
-                                <Autocomplete
-                                    value={value}
-                                    onChange={(event, newValue) => {
-                                        setValue(newValue);
-                                    }}
-                                    inputValue={maLop}
-                                    onInputChange={(event, newInputValue) => {
-                                        setLopHoc(newInputValue);
-                                    }}
-                                    id="controllable-states-demo"
-                                    options={listLH.map((option) => ({
-                                        value: option?.maLop,
-                                        label: option?.tenLop,
-                                    }))}
-                                    sx={{
-                                        width: 240,
+                            <div className=" w-60 h-9 flex justify-center items-center m-4">
+                                <div className="h-16">
+                                    <div className="flex flex-row w-60 items-center m-4 mb-0">
+                                        <Autocomplete
+                                            value={lopHoc}
+                                            onChange={(e, value) => setLopHoc(value)}
+                                            id="controllable-states-demo"
+                                            options={listLH}
+                                            getOptionLabel={(option) => option.tenLop || ''}
+                                            freeSolo
+                                            sx={{
+                                                width: 240,
 
-                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#47A9FF',
-                                            borderRadius: '5px',
-                                            border: '2',
-                                            height: 40,
-                                        },
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            size="small"
-                                            label="Lớp học"
-                                            placeholder="Chọn lớp học"
+                                                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#47A9FF',
+                                                    borderRadius: '5px',
+                                                    border: '2',
+                                                    height: 40,
+                                                },
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    size="small"
+                                                    label="Lớp học"
+                                                    placeholder="Chọn lớp học"
+                                                    inputRef={refLopHoc}
+                                                />
+                                            )}
                                         />
-                                    )}
-                                />
-                                <div className="ml-3">
-                                    <FaPlus size={20} color="green" />
+                                        <div className="ml-3">
+                                            <FaPlus size={20} color="green" onClick={handleClickAddLopHoc} />
+                                        </div>
+                                    </div>
+                                    <span
+                                        className={cx(
+                                            'flex justify-start items-center text-red-500 text-xs mt-0',
+                                            validLopHoc,
+                                        )}
+                                    >
+                                        Bắt buộc
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -377,10 +608,14 @@ function SinhVien() {
                                 <select
                                     className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
                                     value={khoaHoc}
-                                    onChange={(e) => setKhoaHoc(e.target.value)}
+                                    onChange={checkValidKhoaHoc}
                                 >
-                                    <option value="Bình thường">Bình thường</option>
-                                    <option value="Tạm ngưng">Tạm ngưng</option>
+                                    <option value="null">Khóa học</option>
+                                    {listKhoaHoc?.map((option) => (
+                                        <option key={option?.maKhoaHoc} value={option?.maKhoaHoc}>
+                                            {option?.tenKhoaHoc}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
@@ -389,13 +624,13 @@ function SinhVien() {
                                 <label htmlFor="">Ngày vào trường:</label>
                             </div>
                             <input
-                                type="text"
+                                type="date"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                placeholder="Ngày vào trường"
+                                value={ngayVaoTruong}
+                                onChange={(e) => {
+                                    setNgayVaoTruong(e.target.value);
+                                }}
                             />
                         </div>
                     </div>
@@ -408,11 +643,11 @@ function SinhVien() {
                             <input
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                placeholder="Số căn cước công dân"
+                                value={soCCCD}
+                                onChange={(e) => {
+                                    setSoCCCD(e.target.value);
+                                }}
                             />
                         </div>
 
@@ -423,11 +658,11 @@ function SinhVien() {
                             <input
                                 type="date"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                placeholder="Ngày cấp"
+                                value={ngayCapCCCD}
+                                onChange={(e) => {
+                                    setNgayCapCCCD(e.target.value);
+                                }}
                             />
                         </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
@@ -437,11 +672,11 @@ function SinhVien() {
                             <input
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                placeholder="Nơi cấp CCCD"
+                                value={noiCapCCCD}
+                                onChange={(e) => {
+                                    setNoiCapCCCD(e.target.value);
+                                }}
                             />
                         </div>
                     </div>
@@ -453,11 +688,11 @@ function SinhVien() {
                             <input
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                placeholder="Địa chỉ"
+                                value={diaChi}
+                                onChange={(e) => {
+                                    setDiaChi(e.target.value);
+                                }}
                             />
                         </div>
 
@@ -469,10 +704,10 @@ function SinhVien() {
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
+                                value={noiSinh}
+                                onChange={(e) => {
+                                    setNoiSinh(e.target.value);
+                                }}
                             />
                         </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
@@ -525,15 +760,16 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Trạng thái:</label>
                             </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
-                                // value={valueSDT}
-                                // onChange={(e) => {
-                                //     setValueTenGV(e.target.value);
-                                // }}
-                            />
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    // value={trangThai}
+                                    // onChange={handleSelectTrangThai}
+                                >
+                                    <option value="Bình thường">Bình thường</option>
+                                    <option value="Tạm ngưng">Tạm ngưng</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -543,7 +779,9 @@ function SinhVien() {
                             size="small"
                             startIcon={<AiFillSave />}
                             color="success"
-                            //onClick={() => onPressSearch(valueSearch)}
+                            onClick={() => {
+                                luuSinhVien();
+                            }}
                         >
                             Lưu
                         </Button>
@@ -574,7 +812,13 @@ function SinhVien() {
             </Dialog>
             <div className="w-full h-full mt-5 mr-5">
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý sinh viên</div>
-                <HeaderQl onPressAdd={handleClickOpen} placeholder={'Nhập thông tin tìm kiếm'} />
+                <HeaderQl
+                    placeholder="Mã, tên giảng viên"
+                    onPressSearch={handleClickSearch}
+                    onPressAdd={handleClickOpenThem}
+                    onPressUpdate={handleClickOpenCapNhat}
+                    onChangeSearch={handleClickSearch}
+                />
 
                 <div style={{}} className="h-3/4 mr-5 ml-10">
                     <div>
@@ -602,18 +846,24 @@ function SinhVien() {
                                         {listSV?.map((item, index) => (
                                             <tr
                                                 key={item.maSinhVien}
-                                                onClick={() => getAllChecked(item, index)}
-                                                className="cursor-pointer"
+                                                onClick={() => handleSelectSinhVien(item)}
+                                                className={`${
+                                                    selectedSinhVien.maSinhVien === `${item.maSinhVien}`
+                                                        ? 'bg-orange-200'
+                                                        : ''
+                                                } hover:cursor-pointer`}
                                             >
                                                 <td>
                                                     <div className="flex items-center justify-center">
                                                         <input
-                                                            type="checkbox"
-                                                            className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
-                                                            // checked={item.isChecked}
-                                                            // checked=={item.isChecked ? 'checked' : 'unchecked'}
-                                                            //status={item.isChecked ? 'checked' : 'unchecked'}
-                                                            //onChange={(item) => handleCheckboxChange(item)}
+                                                            type="radio"
+                                                            className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                                                            name="radio-group-mon"
+                                                            value={item.maSinhVien}
+                                                            checked={
+                                                                selectedSinhVien.maSinhVien === `${item.maSinhVien}`
+                                                            }
+                                                            onChange={() => handleSelectSinhVien(item)}
                                                         />
                                                     </div>
                                                 </td>
@@ -622,9 +872,9 @@ function SinhVien() {
                                                 <td align="left">{item.tenSinhVien}</td>
                                                 <td>{item.gioiTinh ? 'Nam' : 'Nữ'}</td>
                                                 <td></td>
-                                                <td align="left">{item.lopHoc.tenLop}</td>
-                                                <td align="left">{item.lopHoc.nganhHoc.khoa.tenKhoa}</td>
-                                                <td align="left">{item.khoaHoc.tenKhoaHoc}</td>
+                                                <td align="left">{item?.lopHoc?.tenLop}</td>
+                                                <td align="left">{item?.lopHoc?.nganhHoc?.khoa?.tenKhoa}</td>
+                                                <td align="left">{item?.khoaHoc?.tenKhoaHoc}</td>
                                                 <td>{item.trangThai}</td>
                                             </tr>
                                         ))}
@@ -633,29 +883,6 @@ function SinhVien() {
                             </div>
                         </div>
                     </div>
-                    {/* <DataGridPremium
-                        columns={columns}
-                        rows={row.map((item, index) => ({ STT: index + 1, ...item }))}
-                        getRowId={(row) => row.STT}
-                        checkboxSelection
-                        onRowClick={(row) => alert(row.id)}
-                        showCellRightBorder={true}
-                        // loading={loading}
-                        // localeText={{
-                        //     toolbarColumns: 'Thay Ä‘á»•i cá»™t',
-                        //     toolbarExport: 'Xuáº¥t bÃ¡o cÃ¡o',
-                        //     MuiTablePagination: {
-                        //         labelDisplayedRows: ({ from, to, count }) => `${from} - ${to} cá»§a ${count}`,
-                        //     },
-                        // }}
-                        // autoPageSize
-
-                        pagination
-                        localeText={viVN.components.MuiDataGrid.defaultProps.localeText}
-                        components={{
-                            Toolbar: ToolbarTable,
-                        }}
-                    /> */}
                 </div>
             </div>
         </>
