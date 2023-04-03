@@ -35,7 +35,7 @@ import { getTatCaKhoa } from '~/services/khoaService';
 import { getTatCaKhoaHoc } from '~/services/khoaHocService';
 import { getHocKyTheoKhoaHoc, getHocKyTheoMaCTK, addChiTietHocPhan } from '~/services/hocKyService';
 import { getTatCaMonHoc } from '~/services/monHocService';
-import { addHocPhan, getHocPhanTheoHocKy, getHocPhanTheoKhoaHoc } from '~/services/hocPhanService';
+import { addHocPhan, getHocPhanTheoHocKy, getHocPhanTheoKhoaHoc, getHocPhanTheoMaMH } from '~/services/hocPhanService';
 
 const cx = classNames.bind(style);
 
@@ -273,9 +273,12 @@ function ChuongTrinhKhung() {
                     monHoc: listChecked[i].maMonHoc,
                     trangThai: 'Bình thường',
                 };
-                var resultHP = await addHocPhan(hp, accessToken, axiosJWT);
+                var resultHP;
+                var hpDaCo = await getHocPhanTheoMaMH(listChecked[i].maMonHoc, accessToken, axiosJWT); //Kiểm tra nếu học phần đã có thì không thêm mới
+                //console.log(hpDaCo + 'kk');
+                if (hpDaCo === '') resultHP = await addHocPhan(hp, accessToken, axiosJWT);
                 var ctHP = {
-                    hocPhan: resultHP.maHocPhan,
+                    hocPhan: hpDaCo !== '' ? hpDaCo.maHocPhan : resultHP.maHocPhan,
                     hocKy: selectedHK.maHocKy,
                     chuongTrinhKhung: selectedCTK?.maChuongTrinhKhung,
                     trangThai: typeHocPhan === 'Bắt buộc' ? 'Bắt buộc' : 'Tự chọn',

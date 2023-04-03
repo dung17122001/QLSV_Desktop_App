@@ -71,3 +71,20 @@ export const capNhatNhanVien = async (nhanvien, accessToken, axiosJWT) => {
         return null;
     }
 };
+
+export const getNhanVienTheoKhoa = async (maKhoa, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('nhanvien/khoa', {
+            params: {
+                maKhoa: maKhoa,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
