@@ -5,9 +5,10 @@ import * as httpRequest from '~/utils/httpRequest';
 
 const ROLE_NAME = {
     QUAN_LY: 'ROLE_QUANLY',
-    PHONG_DT: 'PHONG_DT',
-    GIANG_VIEN: 'GIANG_VIEN',
-    SINH_VIEN: 'SINH_VIEN',
+    PHONG_DT: 'ROLE_PHONGDAOTAO',
+    GIANG_VIEN: 'ROLE_GIANGVIEN',
+    SINH_VIEN: 'ROLE_SINHVIEN',
+   
 };
 
 export const loginUser = async (user, dispatch, navigate) => {
