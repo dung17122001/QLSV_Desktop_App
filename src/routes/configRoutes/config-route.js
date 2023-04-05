@@ -15,6 +15,7 @@ const monhoc = '/dao-tao/mon-hoc';
 const nganh = '/dao-tao/nganh';
 const hocky = '/dao-tao/hoc-ky';
 const chuongtrinhkhung = '/dao-tao/chuongtrinhkhung';
+const kqht = '/dao-tao/ket-qua-hoc-tap';
 const phonghoc = '/co-so-vat-chat/phong-hoc';
 const daynha = '/co-so-vat-chat/day-nha';
 
@@ -40,5 +41,6 @@ const routes = {
     daynha: daynha,
     dslophp: dslophp,
     hocky: hocky,
+    kqht: kqht,
 };
 export default routes;

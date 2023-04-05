@@ -19,6 +19,8 @@ import ChuongTrinhKhung from '../page/Daotao/ChuongTrinhKhung';
 
 import DanhSachLopHoc from '../page/Daotao/DanhSachLopHoc';
 
+import KetQuaHocTap from '~/page/Daotao/KetQuaHocTap';
+
 //public
 
 const route = routeConfig.routeConfig;
@@ -85,6 +87,10 @@ const publicRoutes = [
     {
         path: route.chuongtrinhkhung,
         component: ChuongTrinhKhung,
+    },
+    {
+        path: route.kqht,
+        component: KetQuaHocTap,
     },
 ];
 const privateRoutes = [];
