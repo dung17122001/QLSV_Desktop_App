@@ -68,7 +68,7 @@ function Header() {
                                             to: 'dao-tao/chuongtrinhkhung',
                                             icon: <FaUniversity />,
                                         },
-                                        { name: 'Điểm', to: 'dao-tao/diem', icon: <FaUniversity /> },
+                                        { name: 'Điểm', to: 'dao-tao/ket-qua-hoc-tap', icon: <FaUniversity /> },
                                         { name: 'Học Kỳ', to: 'dao-tao/hoc-ky', icon: <FaUniversity /> },
                                     ],
                                 },

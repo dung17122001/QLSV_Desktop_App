@@ -3,6 +3,7 @@ import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import storage from 'redux-persist/lib/storage';
 
 import authSlice from './Slice/authSlice';
+import nhanVienSlice from './Slice/nhanVienSlice';
 
 const persistConfig = {
     key: 'root',
@@ -12,6 +13,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
     auth: authSlice,
+    nhanVienSlice: nhanVienSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
