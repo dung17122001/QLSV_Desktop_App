@@ -17,3 +17,20 @@ export const getChiTietPhieuTheoMaLHP = async (maLHP, maNhom, accessToken, axios
         return null;
     }
 };
+
+export const getChiTietPhieuDKByTextSearch = async (valueSearch, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('phieudkhp/chitietpdk/search', {
+            params: {
+                valueSearch: valueSearch,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

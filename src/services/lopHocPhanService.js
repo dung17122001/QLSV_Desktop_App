@@ -116,3 +116,68 @@ export const getALLNhomTHTheoMaHP = async (maLHP, accessToken, axiosJWT) => {
         return null;
     }
 };
+
+export const getThongTinSVByMaLHP = async (maLHP, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/lophocphan/bangdiem', {
+            params: {
+                maLHP: maLHP,
+            },
+
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const addBangDiem = async (bangdiem, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.post('/lophocphan/bangdiem', bangdiem, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+export const updateBangDiem = async (bangdiem, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.put('/lophocphan/bangdiem', bangdiem, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const getLopHocPhanByTextSearch = async (valueSearch, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('lophocphan/search', {
+            params: {
+                valueSearch: valueSearch,
+            },
+
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

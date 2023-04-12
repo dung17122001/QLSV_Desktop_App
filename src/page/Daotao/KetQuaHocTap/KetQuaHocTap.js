@@ -20,6 +20,7 @@ import { getTatCaHocKy } from '~/services/hocKyService';
 import { exportToExcel } from '~/function/exportToExcel';
 import { getHocPhanTheoHocKy, getHocPhanTheoMaGVVaHK } from '~/services/hocPhanService';
 import { getChiTietPhieuTheoMaLHP } from '~/services/pheuDangKyHP';
+import { getThongTinSVByMaLHP, addBangDiem, updateBangDiem } from '~/services/lopHocPhanService';
 import {
     getLopHocPhanTheoMaHP,
     addLopHocPhan,
@@ -47,9 +48,11 @@ function LopHoc() {
     const [listLHP, setListLHP] = useState();
     const [listLichHoc, setListLichHoc] = useState();
     const [selectedLichHoc, setSelectedLichHoc] = useState('');
-    const [listThongTinLHP, setThongTinLHP] = useState();
+    const [listThongTinLHP, setListThongTinLHP] = useState();
     const [selectedNhom, setSelectNhom] = useState('');
     const [listNhomTH, setListNhomTH] = useState();
+    const [listDiemLHP, setListDiemLHP] = useState();
+    const [diemSV, setDiemSV] = useState();
 
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
@@ -57,6 +60,220 @@ function LopHoc() {
     //console.log(curNhanVien);
     var accessToken = userLoginData.accessToken;
     var axiosJWT = getAxiosJWT(dispatch, userLoginData);
+
+    // Tạo state để lưu trữ danh sách điểm của sinh viên
+    const [diemSinhVienList, setDiemSinhVienList] = useState([]);
+
+    const renderThongTinSinhVien = () => {
+        var listRow = [];
+
+        if (!!listThongTinLHP && listThongTinLHP.length > 0) {
+            for (let i = 0; i < listThongTinLHP?.length; i++) {
+                var diem = listDiemLHP.find(
+                    (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+                );
+                // listThongTinLHP[i].giuaKy = listThongTinLHP[i].giuaKy === '' ? diem.giuaKy : listThongTinLHP[i].giuaKy;
+                // listThongTinLHP[i].thuongKy1 = '';
+                // listThongTinLHP[i].thuongKy2 = '';
+                // listThongTinLHP[i].thuongKy3 = '';
+                // listThongTinLHP[i].thuongKy4 = '';
+                // listThongTinLHP[i].thuongKy5 = '';
+                // listThongTinLHP[i].thucHanh1 = '';
+                // listThongTinLHP[i].thucHanh2 = '';
+                // listThongTinLHP[i].thucHanh3 = '';
+                ///console.log(diem);
+                var Comp = (
+                    <tr>
+                        <td>{i + 1}</td>
+                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien}</td>
+                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.tenSinhVien}</td>
+                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.gioiTinh === false ? 'Nữ' : 'Nam'}</td>
+                        <td>{convertDateFormat(listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.ngaySinh)}</td>
+                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.lopHoc.tenLop}</td>
+                        <td>{listThongTinLHP[i].loaiDangKyHP.tenLoaiDKHP}</td>
+                        <td align="center">
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-7 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem.giuaKy}
+                                // eslint-disable-next-line no-loop-func
+                                onChange={(e) => {
+                                    //diem.giuaKy = '';
+                                    const newValue = e.target.value;
+
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'giuaKy', newValue);
+                                }}
+                            />
+                        </td>
+                        <td align="center">
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem?.thuongKy1}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy1', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem?.thuongKy2}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy2', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem?.thuongKy3}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy3', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem?.thuongKy4}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy4', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem?.thuongKy5}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy5', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem?.thucHanh1}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh1', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem?.thucHanh2}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh2', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                defaultValue={diem?.thucHanh3}
+                                value={diem?.thucHanh3}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh3', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="checkbox"
+                                className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
+                                //checked={item.isChecked}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                            />
+                        </td>
+                    </tr>
+                );
+                listRow.push(Comp);
+            }
+            if (listRow.length > 0) return listRow;
+        }
+        return <></>;
+    };
+
+    const handleLuuBangDiem = async () => {
+        for (let i = 0; i < listThongTinLHP.length; i++) {
+            var diemSV = listDiemLHP.filter(
+                (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+            );
+            //console.log(diemSV);
+            let bangDiem = {
+                sinhVien: listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+                hocPhan: listThongTinLHP[i].nhomThucHanh.lopHocPhan.hocPhan.maHocPhan,
+                thuongKy1: listThongTinLHP[i].thuongKy1 !== '' ? listThongTinLHP[i].thuongKy1 : diemSV[0]?.thuongKy1,
+                thuongKy2: listThongTinLHP[i].thuongKy2 !== '' ? listThongTinLHP[i].thuongKy2 : diemSV[0]?.thuongKy2,
+                thuongKy3: listThongTinLHP[i].thuongKy3 !== '' ? listThongTinLHP[i].thuongKy3 : diemSV[0]?.thuongKy3,
+                thuongKy4: listThongTinLHP[i].thuongKy4 !== '' ? listThongTinLHP[i].thuongKy4 : diemSV[0]?.thuongKy4,
+                thuongKy5: listThongTinLHP[i].thuongKy5 !== '' ? listThongTinLHP[i].thuongKy5 : diemSV[0]?.thuongKy5,
+                thucHanh1: listThongTinLHP[i].thucHanh1 !== '' ? listThongTinLHP[i].thucHanh1 : diemSV[0]?.thucHanh1,
+                thucHanh2: listThongTinLHP[i].thucHanh2 !== '' ? listThongTinLHP[i].thucHanh2 : diemSV[0]?.thucHanh2,
+                thucHanh3: listThongTinLHP[i].thucHanh3 !== '' ? listThongTinLHP[i].thucHanh3 : diemSV[0]?.thucHanh3,
+                giuaKy: !listThongTinLHP[i].giuaKy !== '' ? listThongTinLHP[i].giuaKy : diemSV[0]?.giuaKy,
+            };
+            //console.log(bangDiem);
+            if (
+                !diemSV[0]?.thuongKy1 &&
+                !diemSV[0]?.thuongKy2 &&
+                !diemSV[0]?.thuongKy3 &&
+                !diemSV[0]?.thuongKy4 &&
+                !diemSV[0]?.thuongKy5 &&
+                !diemSV[0]?.thucHanh1 &&
+                !diemSV[0]?.thucHanh1 &&
+                !diemSV[0]?.thucHanh3 &&
+                !diemSV[0]?.giuaKy
+            )
+                await addBangDiem(bangDiem, accessToken, axiosJWT);
+            else {
+                await updateBangDiem(bangDiem, accessToken, axiosJWT);
+                // console.log(bangDiem);
+                // console.log('okkkk');
+            }
+        }
+        let resultBangDiem = await getThongTinSVByMaLHP(
+            selectedLHP,
+
+            accessToken,
+            axiosJWT,
+        );
+        //console.log(resultBangDiem);
+        if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
+        alert('Đã lưu');
+    };
+
+    const handleGetDiemSV = (item, index, cot, value) => {
+        console.log(value);
+        const temp = [...listThongTinLHP];
+        let valueTemp = {};
+        if (temp[index].phieuDangKyHocPhan.sinhVien.maSinhVien === item.phieuDangKyHocPhan.sinhVien.maSinhVien) {
+            temp[index][cot] = value;
+        }
+        setListThongTinLHP(temp);
+    };
 
     const handleSelectHK = async (e) => {
         setSelectedOptionHK(e.target.value);
@@ -83,22 +300,52 @@ function LopHoc() {
     };
 
     const handleSelectLHP = async (e) => {
+        //setListThongTinLHP();
         setSelectedLHP(e.target.value);
         if (!!e.target.value) {
             let result = await getALLNhomTHTheoMaHP(e.target.value, accessToken, axiosJWT);
             if (!!result) setListNhomTH(result);
+            let resultBangDiem = await getThongTinSVByMaLHP(
+                e.target.value,
+
+                accessToken,
+                axiosJWT,
+            );
+            //console.log(resultBangDiem);
+            if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
         }
     };
 
     const handelSelectNhomTH = async (e) => {
         setSelectNhom(e.target.value);
         let result = await getChiTietPhieuTheoMaLHP(selectedLHP, e.target.value, accessToken, axiosJWT);
-        console.log(result);
-        if (!!result) setThongTinLHP(result);
+        if (!!result) {
+            for (let i = 0; i < result.length; i++) {
+                result[i].giuaKy = '';
+                result[i].thuongKy1 = '';
+                result[i].thuongKy2 = '';
+                result[i].thuongKy3 = '';
+                result[i].thuongKy4 = '';
+                result[i].thuongKy5 = '';
+                result[i].thucHanh1 = '';
+                result[i].thucHanh2 = '';
+                result[i].thucHanh3 = '';
+            }
+            //console.log(result);
+            setListThongTinLHP(result);
+        }
+        // let resultBangDiem = await getThongTinSVByMaLHP(
+        //     selectedLHP,
+
+        //     accessToken,
+        //     axiosJWT,
+        // );
+        // //console.log(resultBangDiem);
+        // if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
     };
 
     const handleExportExcel = () => {
-        exportToExcel('data-nganh', 'Danh sách ngành học');
+        exportToExcel('data', 'Danh điểm thành phần của lớp ' + selectedLHP);
     };
 
     function convertDateFormat(dateString) {
@@ -182,25 +429,25 @@ function LopHoc() {
                     </div>
                 </div>
             </div>
-            <div className="w-full flex flex-row justify-center items-center">
-                {/* <div className="flex flex-row items-center ">
-                    <div className="w-24 text-left">
-                        <label htmlFor="">Học kỳ:</label>
-                    </div>
-                    <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                        <select
-                            className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                            value={selectedOptionHK}
-                            onChange={(e) => handleSelectHK(e)}
-                        >
-                            {listHocKy?.map((item) => (
-                                <option key={item.maHocKy} value={item.maHocKy}>
-                                    {item.tenHocKy}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div> */}
+
+            <div className="w-full flex flex-row items-center">
+                <div className="w-24 text-left ml-28">
+                    <label htmlFor="">Nhóm:</label>
+                </div>
+                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                    <select
+                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                        value={selectedNhom}
+                        onChange={(e) => handelSelectNhomTH(e)}
+                    >
+                        <option value="">Chọn nhóm</option>
+                        {listNhomTH?.map((item) => (
+                            <option key={item.maNhom} value={item.maNhom}>
+                                {item.tenNhom === 'Nhóm 0' ? 'Lý thuyết' : item.tenNhom}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 <input
                     type="text"
                     className="block p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
@@ -221,22 +468,10 @@ function LopHoc() {
                     </Button>
                 </div>
                 <div className="flex flex-row items-center ">
-                    <div className="w-24 text-left ml-6">
-                        <label htmlFor="">Nhóm:</label>
-                    </div>
-                    <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                        <select
-                            className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                            value={selectedNhom}
-                            onChange={(e) => handelSelectNhomTH(e)}
-                        >
-                            <option value="">Chọn nhóm</option>
-                            {listNhomTH?.map((item) => (
-                                <option key={item.maNhom} value={item.maNhom}>
-                                    {item.tenNhom === 'Nhóm 0' ? 'Lý thuyết' : item.tenNhom}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="ml-6">
+                        <Button variant="contained" size="small" startIcon={<AiFillSave />} onClick={handleLuuBangDiem}>
+                            Lưu
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -244,7 +479,7 @@ function LopHoc() {
                 <div className="border border-gray-300 w-[96%]"></div>
             </div>
             <div className="w-full flex justify-start items-center mt-3 mr-11 ml-10">
-                <div className="text-lg font-bold ">Danh sách học phần cần quản lý trong học kỳ</div>
+                <div className="text-lg font-bold ">Danh sách điểm số các sinh viên trong lớp học phần</div>
             </div>
             <div style={{}} className=" mt-2 mr-11 ml-10">
                 <div>
@@ -292,138 +527,7 @@ function LopHoc() {
                                     </tr>
                                 </thead>
 
-                                <tbody>
-                                    {listThongTinLHP?.map((item, index) => (
-                                        <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>{item.phieuDangKyHocPhan.sinhVien.maSinhVien}</td>
-                                            <td>{item.phieuDangKyHocPhan.sinhVien.tenSinhVien}</td>
-                                            <td>
-                                                {item.phieuDangKyHocPhan.sinhVien.gioiTinh === false ? 'Nữ' : 'Nam'}
-                                            </td>
-                                            <td>{convertDateFormat(item.phieuDangKyHocPhan.sinhVien.ngaySinh)}</td>
-                                            <td>{item.phieuDangKyHocPhan.sinhVien.lopHoc.tenLop}</td>
-                                            <td>{item.loaiDangKyHP.tenLoaiDKHP}</td>
-                                            <td align="center">
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-7 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td align="center">
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="checkbox"
-                                                    className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
-                                                    //checked={item.isChecked}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="text"
-                                                    className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                                    //placeholder="Sỉ số"
-                                                    // value={siSo}
-                                                    // onChange={(e) => {
-                                                    //     setSiSo(e.target.value);
-                                                    // }}
-                                                />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
+                                <tbody>{renderThongTinSinhVien()}</tbody>
                             </table>
                         </div>
                     </div>

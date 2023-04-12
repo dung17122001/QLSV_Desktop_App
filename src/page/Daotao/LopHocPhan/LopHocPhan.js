@@ -25,12 +25,13 @@ import {
     addNhomTH,
     getNhomTHTheoMaHP,
     updateLopHocPhan,
+    getLopHocPhanByTextSearch,
 } from '~/services/lopHocPhanService';
 import { getTatCaDayNha, getPhongHocConTrong } from '~/services/phongService';
 import { getTatCaCaHoc } from '~/services/caHocService';
 import { getTatCaKhoa } from '~/services/khoaService';
-import { getNhanVienTheoKhoa } from '~/services/nhanVienService';
-import { getLichTheoLHP, themLich, updateLich } from '~/services/lichService';
+import { getNhanVienTheoKhoa, getTatCaNhanVien } from '~/services/nhanVienService';
+import { getLichTheoLHP, themLich, updateLich, getLichTheoMa } from '~/services/lichService';
 import classNames from 'classnames/bind';
 import HeaderQL from '../../../components/HeaderQL';
 const cx = classNames.bind(style);
@@ -95,29 +96,39 @@ function LopHoc() {
         exportToExcel('data-nganh', 'Danh sách ngành học');
     };
 
+    const handleSearchLHP = async (value) => {
+        setSoTietLT(selectedHP.monHoc?.soTCLT * 15);
+        setSoTietTH(selectedHP.monHoc?.soTCLT * 30);
+        let result = await getLopHocPhanByTextSearch(value, accessToken, axiosJWT);
+        setListLHP(result);
+        setListLichHoc();
+    };
+
     const renderDanhSachDieuKien = (item) => {
-        let arrFilterHocTruoc = item.danhSachMonHocHocTruoc.map((monHoc) => {
+        let arrFilterHocTruoc = item?.danhSachMonHocHocTruoc?.map((monHoc) => {
             return (
                 <>
                     {monHoc.maMonHoc} <span className="text-red-500"> (a)</span>
                 </>
             );
         });
-        let arrFilterTienQuyet = item.danhSachMonHocTienQuyet.map((monHoc) => {
+        let arrFilterTienQuyet = item?.danhSachMonHocTienQuyet?.map((monHoc) => {
             return (
                 <>
                     {monHoc.maMonHoc} <span className="text-red-500"> (b)</span>
                 </>
             );
         });
-        let arrFilterSongHanh = item.danhSachMonHocSongHanh.map((monHoc) => {
+        let arrFilterSongHanh = item?.danhSachMonHocSongHanh?.map((monHoc) => {
             return (
                 <>
                     {monHoc.maMonHoc} <span className="text-red-500"> (c)</span>
                 </>
             );
         });
-        let newArrDieuKien = [...arrFilterHocTruoc, ...arrFilterTienQuyet, ...arrFilterSongHanh];
+        let newArrDieuKien = [];
+        if (!!arrFilterHocTruoc && !!arrFilterSongHanh && !!arrFilterTienQuyet)
+            newArrDieuKien = [...arrFilterHocTruoc, ...arrFilterTienQuyet, ...arrFilterSongHanh] || [];
 
         let nodeDieuKien = [];
         for (let i = 0; i < newArrDieuKien.length - 1; i++) {
@@ -183,9 +194,11 @@ function LopHoc() {
     const handleClickOpenModalLichHoc = () => {
         setReloadPhong(!reloadPhong);
         setOpenModalLichHoc(true);
+        setSelectedLichHoc('');
     };
     const handleClickOpenModalUpdateLichHoc = () => {
         setReloadPhong(!reloadPhong);
+        //setSelectedLichHoc('');
         if (!!selectedLichHoc) {
             setMaLich(selectedLichHoc.maLich);
             setLoaiLich(selectedLichHoc.loaiLich);
@@ -274,6 +287,12 @@ function LopHoc() {
         //console.log(result);
     };
 
+    const handleSearchLich = async (value) => {
+        let result = await getLichTheoMa(value, accessToken, axiosJWT);
+        //console.log(result);
+        if (!!result && result.length !== 0) setListLichHoc(result);
+    };
+
     function convertDateFormat(dateString) {
         let date = new Date(dateString);
         let day = date.getDate().toString().padStart(2, '0');
@@ -290,43 +309,63 @@ function LopHoc() {
     }
 
     const handleThemLich = async () => {
-        let ngayHocDauTien = new Date(ngayHoc);
-        var nth = {
-            tenNhom: loaiLich === 'LP001' ? 'Nhóm 0' : 'Nhóm ' + nhomTH,
-            soLuongSV: loaiLich === 'LP001' ? selectedLHP.siSo : soLuongSV,
-            lopHocPhan: selectedLHP.maLopHocPhan,
-            trangThai: 'Bình thường',
-        };
-        //console.log(nth.tenNhom);
-        var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP.maLopHocPhan, accessToken, axiosJWT);
-        //console.log(dsNhomTHDaCo);
-        for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
-            if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
-                alert('Tên nhóm thực hành này đã tồn tại');
-                return;
+        if (!selectedLichHoc || selectedLichHoc === '') {
+            let ngayHocDauTien = new Date(ngayHoc);
+            var nth = {
+                tenNhom: loaiLich === 'LP001' ? 'Nhóm 0' : 'Nhóm ' + nhomTH,
+                soLuongSV: loaiLich === 'LP001' ? selectedLHP.siSo : soLuongSV,
+                lopHocPhan: selectedLHP.maLopHocPhan,
+                trangThai: 'Bình thường',
+            };
+            //console.log(nth.tenNhom);
+            var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP.maLopHocPhan, accessToken, axiosJWT);
+            //console.log(dsNhomTHDaCo);
+            for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
+                if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
+                    alert('Tên nhóm thực hành này đã tồn tại');
+                    return;
+                }
+            }
+            var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
+            for (let i = 0; i < soLuong; i++) {
+                let lich = {
+                    maLich: maLich,
+                    tenLich: '',
+                    loaiLich: loaiLich === 'LP001' ? 'Lý thuyết' : 'Thực hành',
+                    ngayHoc: ngayHocDauTien,
+                    trangThai: trangThaiLich,
+                    phong: phongHoc,
+                    nhanVien: giangVien,
+                    lopHocPhan: selectedLHP.maLopHocPhan,
+                    caHoc: caHoc,
+                    nhomThucHanh: resultNTH.maNhom,
+                    //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
+                };
+                //console.log(lich);
+                await themLich(lich, accessToken, axiosJWT);
+                ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
             }
         }
-        var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
-        for (let i = 0; i < soLuong; i++) {
+        //update lich
+        else {
+            //console.log(selectedLichHoc);
             let lich = {
-                maLich: maLich,
+                maLich: selectedLichHoc.maLich,
                 tenLich: '',
                 loaiLich: loaiLich === 'LP001' ? 'Lý thuyết' : 'Thực hành',
-                ngayHoc: ngayHocDauTien,
+                ngayHoc: ngayHoc,
                 trangThai: trangThaiLich,
                 phong: phongHoc,
                 nhanVien: giangVien,
                 lopHocPhan: selectedLHP.maLopHocPhan,
                 caHoc: caHoc,
-                nhomThucHanh: resultNTH.maNhom,
+                nhomThucHanh: selectedLichHoc.nhomThucHanh.maNhom,
                 //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
             };
-            //console.log(lich);
-            await themLich(lich, accessToken, axiosJWT);
-            ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+            await updateLich(lich, accessToken, axiosJWT);
         }
-        //}
         alert('Đã lưu lịch học');
+        handleClickCloseModalLichHoc();
         let result = await getLichTheoLHP(selectedLHP.maLopHocPhan, accessToken, axiosJWT);
         if (!!result) setListLichHoc(result);
         setReloadPhong(!reloadPhong);
@@ -353,11 +392,19 @@ function LopHoc() {
 
             setListKhoa(khoa);
         };
+        const getALLGV = async () => {
+            const gv = await getTatCaNhanVien(accessToken, axiosJWT, dispatch);
+
+            setListGV(gv);
+        };
         getALLHocKy();
         getALLCaHoc();
         getALLDayNha();
         getALLKhoa();
+        getALLGV();
     }, []);
+
+    //console.log(selectedLichHoc);
 
     useEffect(() => {
         if (!!selectedLHP) {
@@ -475,6 +522,7 @@ function LopHoc() {
                 placeholder={'Nhập tên, mã LHP'}
                 onPressAdd={handleClickOpenModalLHP}
                 onPressUpdate={handleClickOpenModalUpdateLHP}
+                onPressSearch={(value) => handleSearchLHP(value)}
             />
             <div style={{}} className=" mt-2 mr-11 ml-10">
                 <div>
@@ -535,9 +583,10 @@ function LopHoc() {
                 <div className="text-lg font-bold ">Lịch học của lớp học phần</div>
             </div>
             <HeaderQL
-                placeholder={'Nhập tên, mã lịch dạy'}
+                placeholder={'Nhập mã lịch'}
                 onPressAdd={handleClickOpenModalLichHoc}
                 onPressUpdate={handleClickOpenModalUpdateLichHoc}
+                onPressSearch={(value) => handleSearchLich(value)}
             />
             <div style={{}} className=" mt-2 mr-11 ml-10">
                 <div>

@@ -48,3 +48,22 @@ export const addChiTietHK = async (ctHocKy, accessToken, axiosJWT) => {
         console.log(error);
     }
 };
+
+export const getCTKByTextSearch = async (valueSearch, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('chuongtrinhkhung/search', {
+            params: {
+                valueSearch: valueSearch,
+            },
+
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
