@@ -95,7 +95,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-7 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem.giuaKy}
+                                defaultValue={diem?.giuaKy}
                                 // eslint-disable-next-line no-loop-func
                                 onChange={(e) => {
                                     //diem.giuaKy = '';
