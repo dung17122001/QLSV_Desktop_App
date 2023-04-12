@@ -104,3 +104,24 @@ export const addChiTietHocPhan = async (hp, accessToken, axiosJWT) => {
         console.log(error);
     }
 };
+
+export const removeMonHocOfChuongTrinhKhung = async (maCTK, maHK, maHP, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.delete('hocky/cthp/delete', {
+            params: {
+                maCTK: maCTK,
+                maHK: maHK,
+                maHP: maHP,
+            },
+
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

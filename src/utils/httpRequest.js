@@ -24,6 +24,10 @@ export const put = async (path, data) => {
     if (resp.status === STATUS.FORBIDDEN) return null;
     return resp.data;
 };
-// put
-// delete
+
+export const del = async (path) => {
+    const resp = await request.delete(path);
+    if (resp.status === STATUS.FORBIDDEN) return null;
+    return resp.data;
+};
 export default request;

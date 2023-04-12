@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import { AiOutlineSearch, AiFillSetting, AiFillDelete } from 'react-icons/ai';
+import { AiOutlineSearch, AiFillSetting, AiFillDelete, AiFillCloseCircle } from 'react-icons/ai';
 import { IoIosAddCircle } from 'react-icons/io';
 import { TiCancel } from 'react-icons/ti';
 import DialogContent from '@mui/material/DialogContent';
@@ -30,12 +30,19 @@ import {
     addChuongTrinhKhung,
     capNhatChuongTrinhKhung,
     addChiTietHK,
+    getCTKByTextSearch,
 } from '~/services/chuongTrinhKhungService';
 import { getTatCaKhoa } from '~/services/khoaService';
 import { getTatCaKhoaHoc } from '~/services/khoaHocService';
-import { getHocKyTheoKhoaHoc, getHocKyTheoMaCTK, addChiTietHocPhan } from '~/services/hocKyService';
-import { getTatCaMonHoc } from '~/services/monHocService';
+import {
+    getHocKyTheoKhoaHoc,
+    getHocKyTheoMaCTK,
+    addChiTietHocPhan,
+    removeMonHocOfChuongTrinhKhung,
+} from '~/services/hocKyService';
+import { getTatCaMonHoc, getMonHocByTextSearch } from '~/services/monHocService';
 import { addHocPhan, getHocPhanTheoHocKy, getHocPhanTheoKhoaHoc, getHocPhanTheoMaMH } from '~/services/hocPhanService';
+import { tr } from 'date-fns/locale';
 
 const cx = classNames.bind(style);
 
@@ -60,11 +67,30 @@ function ChuongTrinhKhung() {
     const [listHPTheoKy, setListHPTheoKy] = useState();
     const [listHocPhanTheoKhoaHoc, setListHocPhanKhoaHoc] = useState();
     const [typeHocPhan, setTypeHocPhan] = useState('');
+    const [valueSearchMH, setValueSearchMH] = useState('');
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
     var accessToken = userLoginData.accessToken;
     var axiosJWT = getAxiosJWT(dispatch, userLoginData);
-    var sttHP = 1;
+    var sttHP = 1,
+        tongSoTCBB = 0,
+        tongSoTCTC = 0;
+
+    const tinhTongSoTC = () => {
+        if (!!listHocPhanTheoKhoaHoc && listHocPhanTheoKhoaHoc.length > 0) {
+            for (let i = 0; i < listHocPhanTheoKhoaHoc.length; i++) {
+                if (listHocPhanTheoKhoaHoc[i].trangThai === 'Tự chọn')
+                    tongSoTCTC +=
+                        listHocPhanTheoKhoaHoc[i].hocPhan.monHoc.soTCLT +
+                        listHocPhanTheoKhoaHoc[i].hocPhan.monHoc.soTCTH;
+                else
+                    tongSoTCBB +=
+                        listHocPhanTheoKhoaHoc[i].hocPhan.monHoc.soTCLT +
+                        listHocPhanTheoKhoaHoc[i].hocPhan.monHoc.soTCTH;
+            }
+        }
+    };
+    tinhTongSoTC();
 
     useEffect(() => {
         const getALLNganh = async () => {
@@ -92,6 +118,12 @@ function ChuongTrinhKhung() {
         getALLCTK();
         getALLKhoaHoc();
     }, [reload]);
+
+    const handleTimKiemMH = async () => {
+        const getTatCaMH = await getMonHocByTextSearch(valueSearchMH, accessToken, axiosJWT);
+        getTatCaMH.isChecked = false;
+        setListMonHoc(getTatCaMH);
+    };
 
     const handleSelectCTK = async (item) => {
         setSelectedCTK(item);
@@ -207,6 +239,10 @@ function ChuongTrinhKhung() {
             setReload(!reload);
         }
     };
+    const hanldeSearchCTK = async (value) => {
+        let dsCTK = await getCTKByTextSearch(value, accessToken, axiosJWT);
+        setDanhSachCTK(dsCTK);
+    };
     const handleDisplay = async (maHK) => {
         // console.log('1 ' + maHK);
         display === `${maHK}` ? setDisplay('') : setDisplay(`${maHK}`);
@@ -214,21 +250,21 @@ function ChuongTrinhKhung() {
         // setListHPTheoKy(dsHP);
     };
     const renderDanhSachDieuKien = (item) => {
-        let arrFilterHocTruoc = item.danhSachMonHocHocTruoc.map((monHoc) => {
+        let arrFilterHocTruoc = item.danhSachMonHocHocTruoc?.map((monHoc) => {
             return (
                 <>
                     {monHoc.maMonHoc} <span className="text-red-500"> (a)</span>
                 </>
             );
         });
-        let arrFilterTienQuyet = item.danhSachMonHocTienQuyet.map((monHoc) => {
+        let arrFilterTienQuyet = item.danhSachMonHocTienQuyet?.map((monHoc) => {
             return (
                 <>
                     {monHoc.maMonHoc} <span className="text-red-500"> (b)</span>
                 </>
             );
         });
-        let arrFilterSongHanh = item.danhSachMonHocSongHanh.map((monHoc) => {
+        let arrFilterSongHanh = item.danhSachMonHocSongHanh?.map((monHoc) => {
             return (
                 <>
                     {monHoc.maMonHoc} <span className="text-red-500"> (c)</span>
@@ -250,7 +286,10 @@ function ChuongTrinhKhung() {
     const getAllChecked = (item, index) => {
         //setTick(!tick);
         //console.log(item);
-        const temp = [...listMonHoc];
+        const filteredMonHoc = listMonHoc?.filter(
+            (item) => !listHocPhanTheoKhoaHoc.some((hocPhan) => hocPhan.hocPhan.monHoc.maMonHoc === item.maMonHoc),
+        );
+        const temp = [...filteredMonHoc];
         if (temp[index].maMonHoc === item.maMonHoc) {
             temp[index].isChecked = !item.isChecked;
         }
@@ -303,13 +342,84 @@ function ChuongTrinhKhung() {
         }
     };
 
+    const handleRemoveMonHoc = async (item) => {
+        var hocKy = selectedHK.maHocKy;
+
+        await removeMonHocOfChuongTrinhKhung(
+            selectedCTK?.maChuongTrinhKhung,
+            hocKy,
+            item.hocPhan.maHocPhan,
+            accessToken,
+            axiosJWT,
+        );
+        if (!!selectedCTK?.khoaHoc?.tenKhoaHoc) {
+            const startYear = selectedCTK?.khoaHoc?.tenKhoaHoc.substring(0, 4);
+            const endYear = selectedCTK?.khoaHoc?.tenKhoaHoc.substring(5);
+            var listHocPhanTheoKhoaHoc = await getHocPhanTheoKhoaHoc(
+                `${startYear}-08-01`,
+                `${endYear}-06-01`,
+                selectedCTK.maChuongTrinhKhung,
+                accessToken,
+                axiosJWT,
+            );
+            setListHocPhanKhoaHoc(listHocPhanTheoKhoaHoc);
+        }
+    };
+
+    const renderMonHoc = () => {
+        var listRow = [];
+
+        if (!!listMonHoc && listMonHoc.length > 0 && !!listHocPhanTheoKhoaHoc && listHocPhanTheoKhoaHoc.length > 0) {
+            // Gộp hai danh sách lại với nhau
+            const mergedList = listMonHoc.filter((monHoc) => {
+                return !listHocPhanTheoKhoaHoc.some((hocPhan) => hocPhan.hocPhan.monHoc.maMonHoc === monHoc.maMonHoc);
+            });
+            //console.log(mergedList);
+            for (let i = 0; i < mergedList?.length; i++) {
+                var mh = mergedList[i];
+                //console.log(diemSV);
+                // Hàm trợ giúp để tạo ra phiên bản độc lập của Comp
+                const createComp = (mh, i) => (
+                    <>
+                        <tr
+                            onClick={() => getAllChecked(mh, i)}
+                            //className="cursor-pointer"
+                            className={`${mh.isChecked ? 'bg-orange-200' : ''} hover:cursor-pointer`}
+                        >
+                            <td>
+                                <div className="flex mhs-center justify-center">
+                                    <input
+                                        type="checkbox"
+                                        className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
+                                        checked={mh.isChecked}
+                                    />
+                                </div>
+                            </td>
+                            <td>{i + 1}</td>
+                            <td>{mh.maMonHoc}</td>
+                            <td align="left">{mh.tenMonHoc}</td>
+                            <td>{mh.soTCLT}</td>
+                            <td>{mh.soTCTH}</td>
+                            <td>{renderDanhSachDieuKien(mh)}</td>
+                            <td>{mh.trangThai}</td>
+                        </tr>
+                    </>
+                );
+                var Comp = createComp(mh, i);
+                listRow.push(Comp);
+            }
+            if (listRow.length > 0) return listRow;
+        }
+        return <></>;
+    };
+
     return (
         <>
             <div className="w-full mt-3 ">
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý chương trình khung</div>
                 <HeaderQL
-                    placeholder="Mã, tên chương trình khung"
-                    onPressSearch={(value) => console.log(value)}
+                    placeholder="Mã CTK, mã, tên ngành học"
+                    onPressSearch={(value) => hanldeSearchCTK(value)}
                     onPressAdd={handleClickOpen}
                     onPressUpdate={handleClickOpenUpdate}
                 ></HeaderQL>
@@ -417,8 +527,9 @@ function ChuongTrinhKhung() {
                                                 <td
                                                     className="cursor-pointer"
                                                     onClick={() => handleClickOpenModalMonHoc(item)}
+                                                    align="center"
                                                 >
-                                                    Thêm
+                                                    <IoIosAddCircle size={25} color="green"></IoIosAddCircle>
                                                 </td>
                                             </tr>
                                             {listHocPhanTheoKhoaHoc?.map((itemSub, indexSub1) =>
@@ -439,7 +550,12 @@ function ChuongTrinhKhung() {
                                                         <td>{itemSub.hocPhan.monHoc.soTCLT}</td>
                                                         <td>{itemSub.hocPhan.monHoc.soTCTH}</td>
                                                         <td>{itemSub.trangThai}</td>
-                                                        <td></td>
+                                                        <td align="center" onClick={() => handleRemoveMonHoc(itemSub)}>
+                                                            <AiFillCloseCircle
+                                                                color="red"
+                                                                size={22}
+                                                            ></AiFillCloseCircle>
+                                                        </td>
                                                     </tr>
                                                 ) : (
                                                     <></>
@@ -454,8 +570,9 @@ function ChuongTrinhKhung() {
                                                 <td
                                                     className="cursor-pointer"
                                                     onClick={() => handleClickOpenModalMonHocTuChon(item)}
+                                                    align="center"
                                                 >
-                                                    Thêm
+                                                    <IoIosAddCircle size={25} color="green"></IoIosAddCircle>
                                                 </td>
                                             </tr>
                                             {listHocPhanTheoKhoaHoc?.map((itemSub, indexSub2) =>
@@ -476,7 +593,12 @@ function ChuongTrinhKhung() {
                                                         <td>{itemSub.hocPhan.monHoc.soTCLT}</td>
                                                         <td>{itemSub.hocPhan.monHoc.soTCTH}</td>
                                                         <td>{itemSub.trangThai}</td>
-                                                        <td></td>
+                                                        <td align="center" onClick={() => handleRemoveMonHoc(itemSub)}>
+                                                            <AiFillCloseCircle
+                                                                color="red"
+                                                                size={22}
+                                                            ></AiFillCloseCircle>
+                                                        </td>
                                                     </tr>
                                                 ) : (
                                                     <></>
@@ -488,21 +610,21 @@ function ChuongTrinhKhung() {
                                         <td className="font-bold text-sv-blue-5 " colSpan={4}>
                                             Tổng số TC yêu cầu
                                         </td>
-                                        <td className="font-bold text-red-500 ">128</td>
+                                        <td className="font-bold text-red-500 ">{tongSoTCBB + tongSoTCTC}</td>
                                         <td colSpan={5}></td>
                                     </tr>
                                     <tr className="bg-blue-100">
                                         <td className="font-bold text-sv-blue-5 " colSpan={4}>
                                             Tổng số TC bắt buộc
                                         </td>
-                                        <td className="font-bold text-red-500 ">96</td>
+                                        <td className="font-bold text-red-500 ">{tongSoTCBB}</td>
                                         <td colSpan={5}></td>
                                     </tr>
                                     <tr className="bg-blue-100">
                                         <td className="font-bold text-sv-blue-5 " colSpan={4}>
                                             Tổng số TC tự chọn
                                         </td>
-                                        <td className="font-bold text-red-500 ">32</td>
+                                        <td className="font-bold text-red-500 ">{tongSoTCTC}</td>
                                         <td colSpan={5}></td>
                                     </tr>
                                 </table>
@@ -682,6 +804,27 @@ function ChuongTrinhKhung() {
                         ></Box>
 
                         <div>
+                            <div className="flex flex-row  justify-center items-center">
+                                <input
+                                    type="text"
+                                    className="block p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Nhập mã, tên môn học"
+                                    value={valueSearchMH}
+                                    onChange={(e) => {
+                                        setValueSearchMH(e.target.value);
+                                    }}
+                                />
+                                <div className="ml-6">
+                                    <Button
+                                        variant="contained"
+                                        size="small"
+                                        startIcon={<AiOutlineSearch />}
+                                        onClick={handleTimKiemMH}
+                                    >
+                                        Tìm kiếm
+                                    </Button>
+                                </div>
+                            </div>
                             <div className="m-2">
                                 <div className="overflow-y-auto max-h-[480px] ">
                                     <table className={cx('table-nganh')} id="data-sv">
@@ -698,37 +841,42 @@ function ChuongTrinhKhung() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {listMonHoc?.map((item, index) => (
-                                                <tr
-                                                    key={item.maMonHoc}
-                                                    onClick={() => getAllChecked(item, index)}
-                                                    //className="cursor-pointer"
-                                                    className={`${
-                                                        item.isChecked ? 'bg-orange-200' : ''
-                                                    } hover:cursor-pointer`}
-                                                >
-                                                    <td>
-                                                        <div className="flex items-center justify-center">
-                                                            <input
-                                                                type="checkbox"
-                                                                className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
-                                                                checked={item.isChecked}
-                                                                //onChange={() => getAllChecked(item, index)}
-                                                                //checked=={item.isChecked ? 'checked' : 'unchecked'}
-                                                                //status={item.isChecked ? 'checked' : 'unchecked'}
-                                                                //onChange={(item) => handleCheckboxChange(item)}
-                                                            />
-                                                        </div>
-                                                    </td>
-                                                    <td>{index + 1}</td>
-                                                    <td>{item.maMonHoc}</td>
-                                                    <td align="left">{item.tenMonHoc}</td>
-                                                    <td>{item.soTCLT}</td>
-                                                    <td>{item.soTCTH}</td>
-                                                    <td>{renderDanhSachDieuKien(item)}</td>
-                                                    <td>{item.trangThai}</td>
-                                                </tr>
-                                            ))}
+                                            {listMonHoc
+                                                ?.filter(
+                                                    (item) =>
+                                                        !listHocPhanTheoKhoaHoc.some(
+                                                            (hocPhan) =>
+                                                                hocPhan.hocPhan.monHoc.maMonHoc === item.maMonHoc,
+                                                        ),
+                                                )
+                                                .map((item, index) => (
+                                                    <tr
+                                                        key={item.maMonHoc}
+                                                        onClick={() => getAllChecked(item, index)}
+                                                        className={`${
+                                                            item.isChecked ? 'bg-orange-200' : ''
+                                                        } hover:cursor-pointer`}
+                                                    >
+                                                        <td>
+                                                            <div className="flex items-center justify-center">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
+                                                                    checked={item.isChecked}
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td>{index + 1}</td>
+                                                        <td>{item.maMonHoc}</td>
+                                                        <td align="left">{item.tenMonHoc}</td>
+                                                        <td>{item.soTCLT}</td>
+                                                        <td>{item.soTCTH}</td>
+                                                        <td>{renderDanhSachDieuKien(item)}</td>
+                                                        <td>{item.trangThai}</td>
+                                                    </tr>
+                                                ))}
+
+                                            {/* {renderMonHoc()} */}
                                         </tbody>
                                     </table>
                                 </div>
