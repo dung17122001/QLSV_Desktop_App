@@ -130,7 +130,7 @@ function Nganh() {
                                                 <td>{item.maNganh}</td>
                                                 <td>{item.tenNganh}</td>
                                                 <td>{item.tongTinChi}</td>
-                                                <td>{item.khoa.tenKhoa}</td>
+                                                <td>{item.khoa?.tenKhoa}</td>
                                                 <td>{item.trangThai}</td>
                                             </tr>
                                         ))}

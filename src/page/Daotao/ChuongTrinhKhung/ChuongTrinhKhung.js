@@ -844,7 +844,7 @@ function ChuongTrinhKhung() {
                                             {listMonHoc
                                                 ?.filter(
                                                     (item) =>
-                                                        !listHocPhanTheoKhoaHoc.some(
+                                                        !listHocPhanTheoKhoaHoc?.some(
                                                             (hocPhan) =>
                                                                 hocPhan.hocPhan.monHoc.maMonHoc === item.maMonHoc,
                                                         ),
