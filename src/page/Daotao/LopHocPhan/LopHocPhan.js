@@ -341,7 +341,7 @@ function LopHoc() {
                     nhomThucHanh: resultNTH.maNhom,
                     //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
                 };
-                //console.log(lich);
+                console.log(lich);
                 await themLich(lich, accessToken, axiosJWT);
                 ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
             }
@@ -382,6 +382,7 @@ function LopHoc() {
 
             setListCaHoc(getTatCaCH);
         };
+        console.log(listCaHoc);
         const getALLDayNha = async () => {
             const getTatCaDN = await getTatCaDayNha(accessToken, axiosJWT, dispatch);
 
