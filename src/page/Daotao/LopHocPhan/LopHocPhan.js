@@ -1054,8 +1054,9 @@ function LopHoc() {
                                     onChange={(e) => setTrangThaiLich(e.target.value)}
                                 >
                                     <option value="Bình thường">Bình thường</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Lịch thi">Lịch thi</option>
                                     <option value="Tạm ngưng">Tạm ngưng</option>
-                                    <option value="Bị hủy">online</option>
                                 </select>
                             </div>
                         </div>

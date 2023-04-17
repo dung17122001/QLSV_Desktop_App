@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from '@mui/material/Button';
 import { AiOutlineSearch, AiFillSetting, AiFillDelete } from 'react-icons/ai';
 import Box from '@mui/material/Box';
@@ -20,7 +20,12 @@ import { getTatCaHocKy } from '~/services/hocKyService';
 import { exportToExcel } from '~/function/exportToExcel';
 import { getHocPhanTheoHocKy, getHocPhanTheoMaGVVaHK } from '~/services/hocPhanService';
 import { getChiTietPhieuTheoMaLHP } from '~/services/pheuDangKyHP';
-import { getThongTinSVByMaLHP, addBangDiem, updateBangDiem } from '~/services/lopHocPhanService';
+import {
+    getThongTinSVByMaLHP,
+    addBangDiem,
+    updateBangDiem,
+    getLopHocPhanByTextSearch,
+} from '~/services/lopHocPhanService';
 import {
     getLopHocPhanTheoMaHP,
     addLopHocPhan,
@@ -52,7 +57,8 @@ function LopHoc() {
     const [selectedNhom, setSelectNhom] = useState('');
     const [listNhomTH, setListNhomTH] = useState();
     const [listDiemLHP, setListDiemLHP] = useState();
-    const [diemSV, setDiemSV] = useState();
+    const diemRef = useRef(null); // Khởi tạo ref
+    const [resultSearchLHP, setResultSearch] = useState();
 
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
@@ -63,158 +69,6 @@ function LopHoc() {
 
     // Tạo state để lưu trữ danh sách điểm của sinh viên
     const [diemSinhVienList, setDiemSinhVienList] = useState([]);
-
-    const renderThongTinSinhVien = () => {
-        var listRow = [];
-
-        if (!!listThongTinLHP && listThongTinLHP.length > 0) {
-            for (let i = 0; i < listThongTinLHP?.length; i++) {
-                var diem = listDiemLHP.find(
-                    (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
-                );
-                // listThongTinLHP[i].giuaKy = listThongTinLHP[i].giuaKy === '' ? diem.giuaKy : listThongTinLHP[i].giuaKy;
-                // listThongTinLHP[i].thuongKy1 = '';
-                // listThongTinLHP[i].thuongKy2 = '';
-                // listThongTinLHP[i].thuongKy3 = '';
-                // listThongTinLHP[i].thuongKy4 = '';
-                // listThongTinLHP[i].thuongKy5 = '';
-                // listThongTinLHP[i].thucHanh1 = '';
-                // listThongTinLHP[i].thucHanh2 = '';
-                // listThongTinLHP[i].thucHanh3 = '';
-                ///console.log(diem);
-                var Comp = (
-                    <tr>
-                        <td>{i + 1}</td>
-                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien}</td>
-                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.tenSinhVien}</td>
-                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.gioiTinh === false ? 'Nữ' : 'Nam'}</td>
-                        <td>{convertDateFormat(listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.ngaySinh)}</td>
-                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.lopHoc.tenLop}</td>
-                        <td>{listThongTinLHP[i].loaiDangKyHP.tenLoaiDKHP}</td>
-                        <td align="center">
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-7 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.giuaKy}
-                                // eslint-disable-next-line no-loop-func
-                                onChange={(e) => {
-                                    //diem.giuaKy = '';
-                                    const newValue = e.target.value;
-
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'giuaKy', newValue);
-                                }}
-                            />
-                        </td>
-                        <td align="center">
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.thuongKy1}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy1', newValue);
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.thuongKy2}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy2', newValue);
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.thuongKy3}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy3', newValue);
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.thuongKy4}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy4', newValue);
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.thuongKy5}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy5', newValue);
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.thucHanh1}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh1', newValue);
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.thucHanh2}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh2', newValue);
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                defaultValue={diem?.thucHanh3}
-                                value={diem?.thucHanh3}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh3', newValue);
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="checkbox"
-                                className="form-checkbox h-5 w-5 text-green-500 cursor-pointer"
-                                //checked={item.isChecked}
-                            />
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                            />
-                        </td>
-                    </tr>
-                );
-                listRow.push(Comp);
-            }
-            if (listRow.length > 0) return listRow;
-        }
-        return <></>;
-    };
 
     const handleLuuBangDiem = async () => {
         for (let i = 0; i < listThongTinLHP.length; i++) {
@@ -233,8 +87,31 @@ function LopHoc() {
                 thucHanh1: listThongTinLHP[i].thucHanh1 !== '' ? listThongTinLHP[i].thucHanh1 : diemSV[0]?.thucHanh1,
                 thucHanh2: listThongTinLHP[i].thucHanh2 !== '' ? listThongTinLHP[i].thucHanh2 : diemSV[0]?.thucHanh2,
                 thucHanh3: listThongTinLHP[i].thucHanh3 !== '' ? listThongTinLHP[i].thucHanh3 : diemSV[0]?.thucHanh3,
-                giuaKy: !listThongTinLHP[i].giuaKy !== '' ? listThongTinLHP[i].giuaKy : diemSV[0]?.giuaKy,
+                giuaKy: listThongTinLHP[i].giuaKy !== '' ? listThongTinLHP[i].giuaKy : diemSV[0]?.giuaKy,
+                cuoiKy: listThongTinLHP[i].cuoiKy !== '' ? listThongTinLHP[i].cuoiKy : diemSV[0]?.cuoiKy,
             };
+
+            if (!!bangDiem.cuoiKy && bangDiem.cuoiKy !== '') {
+                let soTCLT = diemSV[0]?.hocPhan.monHoc.soTCLT;
+                let soTCTH = diemSV[0]?.hocPhan.monHoc.soTCTH;
+
+                let diemTongKet = tinhDiemTongKet(
+                    bangDiem.thuongKy1,
+                    bangDiem.thuongKy2,
+                    bangDiem.thuongKy3,
+                    bangDiem.thuongKy4,
+                    bangDiem.thuongKy5,
+                    bangDiem.giuaKy,
+                    bangDiem.cuoiKy,
+                    bangDiem.thucHanh1,
+                    bangDiem.thucHanh2,
+                    bangDiem.thucHanh3,
+                    soTCLT,
+                    soTCTH,
+                );
+                bangDiem = { ...bangDiem, diemTongKet: diemTongKet };
+            }
+
             //console.log(bangDiem);
             if (
                 !diemSV[0]?.thuongKy1 &&
@@ -245,7 +122,8 @@ function LopHoc() {
                 !diemSV[0]?.thucHanh1 &&
                 !diemSV[0]?.thucHanh1 &&
                 !diemSV[0]?.thucHanh3 &&
-                !diemSV[0]?.giuaKy
+                !diemSV[0]?.giuaKy &&
+                !diemSV[0]?.cuoiKy
             )
                 await addBangDiem(bangDiem, accessToken, axiosJWT);
             else {
@@ -265,8 +143,37 @@ function LopHoc() {
         alert('Đã lưu');
     };
 
+    const tinhDiemTongKet = (tk1, tk2, tk3, tk4, tk5, gk, ck, th1, th2, th3, soTCLT, soTCTH) => {
+        let countTK = 0;
+        let diemTongKet = 0;
+        if (tk1 !== null) countTK++;
+        if (tk2 !== null) countTK++;
+        if (tk3 !== null) countTK++;
+        if (tk4 !== null) countTK++;
+        if (tk5 !== null) countTK++;
+        let tbTK =
+            ((tk1 ? tk1 : 0) * 1 +
+                (tk2 ? tk2 : 0) * 1 +
+                (tk3 ? tk3 : 0) * 1 +
+                (tk4 ? tk4 : 0) * 1 +
+                (tk5 ? tk5 : 0) * 1) /
+            countTK;
+        let countTH = 0;
+        if (th1 !== null) countTH++;
+        if (th2 !== null) countTH++;
+        if (th3 !== null) countTH++;
+        let tbTH = ((th1 ? th1 : 0) * 1 + (th2 ? th2 : 0) * 1 + (th3 ? th3 : 0) * 1) / countTH;
+        // console.log(tbTK + 'tbTK');
+        // console.log(tbTH + 'th');
+        if (soTCTH > 0) {
+            diemTongKet = ((tbTK * 0.2 + gk * 0.3 + ck * 0.5) * soTCLT + tbTH * soTCTH) / (soTCLT + soTCTH);
+        } else diemTongKet = tbTK * 0.2 + gk * 0.3 + ck * 0.5;
+
+        return diemTongKet.toFixed(1);
+    };
+
     const handleGetDiemSV = (item, index, cot, value) => {
-        console.log(value);
+        //console.log(value);
         const temp = [...listThongTinLHP];
         let valueTemp = {};
         if (temp[index].phieuDangKyHocPhan.sinhVien.maSinhVien === item.phieuDangKyHocPhan.sinhVien.maSinhVien) {
@@ -300,42 +207,20 @@ function LopHoc() {
     };
 
     const handleSelectLHP = async (e) => {
-        //setListThongTinLHP();
+        setListThongTinLHP();
+        setListDiemLHP();
         setSelectedLHP(e.target.value);
         if (!!e.target.value) {
             let result = await getALLNhomTHTheoMaHP(e.target.value, accessToken, axiosJWT);
             if (!!result) setListNhomTH(result);
-            let resultBangDiem = await getThongTinSVByMaLHP(
-                e.target.value,
-
-                accessToken,
-                axiosJWT,
-            );
-            //console.log(resultBangDiem);
-            if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
         }
     };
 
     const handelSelectNhomTH = async (e) => {
         setSelectNhom(e.target.value);
-        let result = await getChiTietPhieuTheoMaLHP(selectedLHP, e.target.value, accessToken, axiosJWT);
-        if (!!result) {
-            for (let i = 0; i < result.length; i++) {
-                result[i].giuaKy = '';
-                result[i].thuongKy1 = '';
-                result[i].thuongKy2 = '';
-                result[i].thuongKy3 = '';
-                result[i].thuongKy4 = '';
-                result[i].thuongKy5 = '';
-                result[i].thucHanh1 = '';
-                result[i].thucHanh2 = '';
-                result[i].thucHanh3 = '';
-            }
-            //console.log(result);
-            setListThongTinLHP(result);
-        }
+
         // let resultBangDiem = await getThongTinSVByMaLHP(
-        //     selectedLHP,
+        //     e.target.value,
 
         //     accessToken,
         //     axiosJWT,
@@ -356,6 +241,232 @@ function LopHoc() {
         return `${day}/${month}/${year}`;
     }
 
+    const renderThongTinSinhVien = () => {
+        var listRow = [];
+
+        if (!!listThongTinLHP && listThongTinLHP.length > 0) {
+            for (let i = 0; i < listThongTinLHP?.length; i++) {
+                let diem = listDiemLHP?.find(
+                    (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+                );
+                diemRef.current = diem;
+                //console.log(diemRef);
+                //this.setState({ diem });
+                var Comp = (
+                    <tr>
+                        <td>{i + 1}</td>
+                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien}</td>
+                        <td align="left">{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.tenSinhVien}</td>
+                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.gioiTinh === false ? 'Nữ' : 'Nam'}</td>
+                        <td>{convertDateFormat(listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.ngaySinh)}</td>
+                        <td>{listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.lopHoc.tenLop}</td>
+                        <td>{listThongTinLHP[i].loaiDangKyHP.tenLoaiDKHP}</td>
+                        <td align="center">
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-7 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                //defaultValue={diem?.giuaKy}
+                                placeholder={diem?.giuaKy || '_'}
+                                value={listThongTinLHP[i].giuaKy || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'giuaKy', newValue);
+                                }}
+                            />
+                        </td>
+                        <td align="center">
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.thuongKy1 || '_'}
+                                value={listThongTinLHP[i].thuongKy1 || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy1', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.thuongKy2 || '_'}
+                                value={listThongTinLHP[i].thuongKy2 || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy2', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.thuongKy3 || '_'}
+                                value={listThongTinLHP[i].thuongKy3 || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy3', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.thuongKy4 || '_'}
+                                value={listThongTinLHP[i].thuongKy4 || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy4', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.thuongKy5 || '_'}
+                                value={listThongTinLHP[i].thuongKy5 || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thuongKy5', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.thucHanh1 || '_'}
+                                value={listThongTinLHP[i].thucHanh1 || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh1', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.thucHanh2 || '_'}
+                                value={listThongTinLHP[i].thucHanh2 || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh2', newValue);
+                                }}
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.thucHanh3 || '_'}
+                                value={listThongTinLHP[i].thucHanh3 || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'thucHanh3', newValue);
+                                }}
+                            />
+                        </td>
+                        <td align="center">
+                            <input
+                                type="text"
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                placeholder={diem?.cuoiKy || '_'}
+                                value={listThongTinLHP[i].cuoiKy || ''}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    handleGetDiemSV(listThongTinLHP[i], i, 'cuoiKy', newValue);
+                                }}
+                            />
+                        </td>
+
+                        <td align="center">{diem?.diemTongKet || ''}</td>
+                        <td>{diem?.diemTongKet ? chuyenDoiDiemHe10SangHe4(diem?.diemTongKet) : ''}</td>
+                        <td>{diem?.diemTongKet ? chuyenDoiDiemHe10SangHe4Chu(diem?.diemTongKet) : ''}</td>
+                        <td>{diem?.diemTongKet ? xepLoaiBangDiem(diem?.diemTongKet) : ''}</td>
+                    </tr>
+                );
+                listRow.push(Comp);
+            }
+            if (listRow.length > 0) return listRow;
+        }
+        return <></>;
+    };
+
+    function xepLoaiBangDiem(diemHe10) {
+        if (diemHe10 >= 9) {
+            return 'Xuất sắc';
+        } else if (diemHe10 >= 8) {
+            return 'Giỏi';
+        } else if (diemHe10 >= 6.5) {
+            return 'Khá';
+        } else if (diemHe10 >= 5) {
+            return 'Trung bình';
+        } else {
+            return 'Yếu';
+        }
+    }
+
+    function chuyenDoiDiemHe10SangHe4Chu(diemHe10) {
+        let diemHe4 = '';
+        if (diemHe10 >= 9) {
+            diemHe4 = 'A+';
+        } else if (diemHe10 >= 8.5) {
+            diemHe4 = 'A';
+        } else if (diemHe10 >= 8) {
+            diemHe4 = 'B+';
+        } else if (diemHe10 >= 7) {
+            diemHe4 = 'B';
+        } else if (diemHe10 >= 6.5) {
+            diemHe4 = 'C+';
+        } else if (diemHe10 >= 5.5) {
+            diemHe4 = 'C';
+        } else if (diemHe10 >= 5) {
+            diemHe4 = 'D+';
+        } else if (diemHe10 >= 4) {
+            diemHe4 = 'D';
+        } else {
+            diemHe4 = 'F';
+        }
+        return diemHe4;
+    }
+
+    function chuyenDoiDiemHe10SangHe4(diemHe10) {
+        if (diemHe10 >= 9) {
+            return 4;
+        } else if (diemHe10 >= 8.5) {
+            return 3.8;
+        } else if (diemHe10 >= 8) {
+            return 3.5;
+        } else if (diemHe10 >= 7) {
+            return 3;
+        } else if (diemHe10 >= 6.5) {
+            return 2.8;
+        } else if (diemHe10 >= 6) {
+            return 2.5;
+        } else if (diemHe10 >= 5.5) {
+            return 2;
+        } else if (diemHe10 >= 5) {
+            return 1.5;
+        } else if (diemHe10 >= 4) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    const handleTimKIem = async () => {
+        let result = await getLopHocPhanByTextSearch(resultSearchLHP, accessToken, axiosJWT);
+
+        if (result.length > 0) {
+            setSelectedHocPhan(result[0].hocPhan.maHocPhan);
+            setSelectedLHP(result[0].maLopHocPhan);
+        }
+    };
+
     useEffect(() => {
         const getALLHocKy = async () => {
             const getTatCaHK = await getTatCaHocKy(accessToken, axiosJWT, dispatch);
@@ -365,6 +476,39 @@ function LopHoc() {
 
         getALLHocKy();
     }, []);
+    useEffect(() => {
+        const getBangDiem = async () => {
+            let resultBangDiem = await getThongTinSVByMaLHP(
+                selectedLHP,
+
+                accessToken,
+                axiosJWT,
+            );
+            //console.log(resultBangDiem);
+            if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
+        };
+        getBangDiem();
+        const getTTLHP = async () => {
+            let result = await getChiTietPhieuTheoMaLHP(selectedLHP, selectedNhom, accessToken, axiosJWT);
+            if (!!result) {
+                for (let i = 0; i < result.length; i++) {
+                    result[i].giuaKy = '';
+                    result[i].thuongKy1 = '';
+                    result[i].thuongKy2 = '';
+                    result[i].thuongKy3 = '';
+                    result[i].thuongKy4 = '';
+                    result[i].thuongKy5 = '';
+                    result[i].thucHanh1 = '';
+                    result[i].thucHanh2 = '';
+                    result[i].thucHanh3 = '';
+                    result[i].cuoiKy = '';
+                }
+                //console.log(result);
+                setListThongTinLHP(result);
+            }
+        };
+        getTTLHP();
+    }, [selectedNhom]);
 
     return (
         <div className="w-full h-full justify-center items-center ">
@@ -451,19 +595,14 @@ function LopHoc() {
                 <input
                     type="text"
                     className="block p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                    placeholder="Mã, tên LHP"
-                    //value={valueSearch}
-                    // onChange={(e) => {
-                    //     setValueSearch(e.target.value);
-                    // }}
+                    placeholder="Mã LHP"
+                    value={resultSearchLHP}
+                    onChange={(e) => {
+                        setResultSearch(e.target.value);
+                    }}
                 />
                 <div className="ml-6">
-                    <Button
-                        variant="contained"
-                        size="small"
-                        startIcon={<AiOutlineSearch />}
-                        //onClick={() => onPressSearch(valueSearch)}
-                    >
+                    <Button variant="contained" size="small" startIcon={<AiOutlineSearch />} onClick={handleTimKIem}>
                         Tìm kiếm
                     </Button>
                 </div>
@@ -496,11 +635,11 @@ function LopHoc() {
                                         <th rowSpan={3}>Giữa kỳ</th>
                                         <th colSpan={5}>Thường xuyên</th>
                                         <th colSpan={3}>Thực hành</th>
-                                        <th rowSpan={3}>
-                                            Được
-                                            <br /> dự thi
-                                        </th>
-                                        <th rowSpan={3}>Ghi chú</th>
+                                        <th rowSpan={3}>Cuối kỳ</th>
+                                        <th rowSpan={3}>Điểm tổng kết</th>
+                                        <th rowSpan={3}>Thang điểm 4</th>
+                                        <th rowSpan={3}>Điểm chữ</th>
+                                        <th rowSpan={3}>Xếp loại</th>
                                     </tr>
                                     <tr className={cx(' bg-blue-100')}>
                                         <th colSpan={7}>LHP: {selectedLHP}</th>
@@ -511,7 +650,7 @@ function LopHoc() {
                                     </tr>
                                     <tr className={cx(' bg-blue-100')}>
                                         <th>Mã sinh viên</th>
-                                        <th>Tên sinh viên</th>
+                                        <th className={cx('name')}>Tên sinh viên</th>
                                         <th>Giới tính</th>
                                         <th>Ngày sinh</th>
                                         <th>Lớp học</th>

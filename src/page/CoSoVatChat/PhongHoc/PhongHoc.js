@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HeaderQL from '../../../components/HeaderQL/HeaderQL';
-import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import { Avatar, Button, Link } from '@mui/material';
 import { FaRegWindowClose } from 'react-icons/fa';
-import { BsFillEraserFill } from 'react-icons/bs';
 import { AiFillSave } from 'react-icons/ai';
+import { BsFillEraserFill } from 'react-icons/bs';
 import { TiCancel } from 'react-icons/ti';
+import { getTatCaDayNha, themDayNha, capNhatDayNha, timKiemDayNha } from '../../../services/dayNhaService';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -15,137 +12,122 @@ import {
     GridToolbarExport,
     viVN,
 } from '@mui/x-data-grid-premium';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import { Avatar, Button, Link } from '@mui/material';
+import { exportToExcel } from '~/function/exportToExcel';
+import classNames from 'classnames/bind';
+import style from './PhongHoc.module.scss';
+import { useSelector } from 'react-redux';
+import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
+import { useDispatch } from 'react-redux';
+import { getTatCaPhongHoc, getTatLoaiPhong, addPhongHoc, updatePhongHoc } from '~/services/phongService';
+const cx = classNames.bind(style);
+
 function PhongHoc() {
     const [open, setOpen] = useState(false);
-    const columns = [
-        {
-            field: 'STT',
-            renderHeader: () => <strong>STT</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            filterable: false,
-            width: 50,
-            align: 'center',
-        },
-        {
-            field: 'maPH',
-            renderHeader: () => <strong>Mã phòng học</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 250,
-            align: 'center',
-        },
+    const [reload, setReload] = useState(true);
+    const dispatch = useDispatch();
+    const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
 
-        {
-            field: 'tenPH',
-            renderHeader: () => <strong>Tên phòng học</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 300,
-            align: 'center',
-        },
-        {
-            field: 'loaiPhong',
-            renderHeader: () => <strong>Loại phòng</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
-        {
-            field: 'dayNha',
-            renderHeader: () => <strong>Dãy nhà</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 150,
-            align: 'center',
-        },
-        {
-            field: 'tang',
-            renderHeader: () => <strong>Tầng</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 220,
-            align: 'center',
-        },
+    var accessToken = userLoginData.accessToken;
+    var axiosJWT = getAxiosJWT(dispatch, userLoginData);
+    const [listDN, setListDN] = useState();
+    const [listPhong, setListPhong] = useState();
+    const [listloaiPhong, setListLoaiPhong] = useState();
+    const [selectedPhong, setSelectPhong] = useState('');
+    const [maPhong, setMaPhong] = useState();
+    const [tenPhong, setTenPhong] = useState();
+    const [loaiPhong, setLoaiPhong] = useState('');
+    const [dayNha, setDayNha] = useState('');
+    const [soGhe, setSoGhe] = useState(60);
+    const [trangThai, setTrangThai] = useState('Bình thường');
 
-        {
-            field: 'trangThai',
-            renderHeader: () => <strong>Trạng thái</strong>,
-            headerClassName: 'bg-2t-yellow-1 bg-opacity-10',
-            width: 200,
-            align: 'center',
-        },
-    ];
-
-    const row = [
-        {
-            id: 1,
-            maPH: 'H5.02',
-            tenPH: 'H5.02',
-            loaiPhong: 'Thực hành',
-            dayNha: 'H',
-            tang: '5',
-
-            trangThai: '',
-        },
-        {
-            id: 2,
-            maGV: '1028383',
-            tenGV: 'Nguyen Thi Lan',
-            ngaySinh: '2022-11-22',
-            gioiTinh: 'Nu',
-            khoa: 'CNTT',
-            chucVu: 'Giảng Viên',
-            trangThai: '',
-        },
-        {
-            id: 3,
-            maGV: '1028383',
-            tenGV: 'Nguyen Thi Lan',
-            ngaySinh: '2022-11-22',
-            gioiTinh: 'Nu',
-            khoa: 'CNTT',
-            chucVu: 'Giảng Viên',
-            trangThai: '',
-        },
-    ];
-
-    const ToolbarTable = () => {
-        return (
-            <GridToolbarContainer>
-                <GridToolbarExport fileName="Danh sách phim" />
-                <GridToolbarColumnsButton />
-            </GridToolbarContainer>
-        );
-    };
-    const listdaynha = [
-        {
-            ma: 'A',
-            ten: 'Dãy A',
-            sotang: 10,
-        },
-        {
-            ma: 'B',
-            ten: 'Dãy B',
-            sotang: 12,
-        },
-    ];
     const handleClickOpen = () => {
         setOpen(true);
+        setSelectPhong('');
+        handleXoaRong();
+    };
+    const handleClickUpdatePhong = () => {
+        if (!selectedPhong && selectedPhong.maPhong !== '') {
+            alert('Vui lòng chọn phòng cần cập nhật thông tin');
+        } else {
+            //console.log(selectedPhong);
+            setOpen(true);
+            setMaPhong(selectedPhong.maPhong);
+            setTenPhong(selectedPhong.tenPhong);
+            setSoGhe(selectedPhong.soGhe);
+            setDayNha(selectedPhong.dayNha?.maDayNha);
+            setLoaiPhong(selectedPhong.loaiPhong?.maLoaiPhong);
+            setTrangThai(selectedPhong.trangThai);
+        }
+    };
+    const handleXoaRong = () => {
+        setMaPhong('');
+        setTenPhong('');
+        setSoGhe('');
+        setDayNha('');
+        setLoaiPhong('');
+        setTrangThai('Bình thường');
     };
 
     const handleClose = () => {
         setOpen(false);
     };
-    const [dayNha, setDayNha] = useState(listdaynha[0].ten);
-    const [soTang, setSoTang] = useState([]);
-    let listTang = [];
-    function handleSelectDayNha(event) {
-        setDayNha(event.target.value);
-
-        for (let i = 0; i < dayNha.sotang; i++) {
-            listTang.push(i);
+    const handleAddPhong = async () => {
+        let phong = {
+            maPhong: maPhong,
+            tenPhong: tenPhong,
+            soGhe: soGhe,
+            loaiPhong: loaiPhong,
+            dayNha: dayNha,
+            trangThai: trangThai,
+        };
+        //console.log(phong);
+        if (!selectedPhong && selectedPhong.maPhong !== '') {
+            let result = await addPhongHoc(phong, accessToken, axiosJWT);
+            setReload(!reload);
+            handleClose();
+            if (!!result) alert('Đã thêm phòng học');
+        } else {
+            let result = await updatePhongHoc(phong, accessToken, axiosJWT);
+            setReload(!reload);
+            handleClose();
+            if (!!result) alert('Đã cập nhật thông tin phòng học');
         }
-        // console.log(listTang);
-        // return listTang;
-        setSoTang(listTang);
-    }
-    console.log(dayNha);
+    };
+
+    useEffect(() => {
+        const getALLDayNha = async () => {
+            try {
+                let getDayNha = await getTatCaDayNha(accessToken, axiosJWT, dispatch);
+                setListDN(getDayNha);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        const getAllPhong = async () => {
+            try {
+                let result = await getTatCaPhongHoc(accessToken, axiosJWT, dispatch);
+                setListPhong(result);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        const getAllLoaiPhong = async () => {
+            try {
+                let result = await getTatLoaiPhong(accessToken, axiosJWT, dispatch);
+                setListLoaiPhong(result);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        getALLDayNha();
+        getAllPhong();
+        getAllLoaiPhong();
+    }, [reload]);
+    //console.log(listPhong);
     return (
         <>
             <div className="h-full mt-5 w-full">
@@ -154,33 +136,61 @@ function PhongHoc() {
                     placeholder="Mã, tên phòng học"
                     onPressSearch={(value) => console.log(value)}
                     onPressAdd={handleClickOpen}
-                    onPressUpdate={handleClickOpen}
+                    onPressUpdate={handleClickUpdatePhong}
                 ></HeaderQL>
-                <div className="h-3/4 mr-11 ml-10">
-                    <DataGridPremium
-                        columns={columns}
-                        rows={row.map((item, index) => ({ STT: index + 1, ...item }))}
-                        getRowId={(row) => row.STT}
-                        checkboxSelection
-                        showCellRightBorder={true}
-                        showColumnRightBorder={true}
-                        //onRowClick={(row) => alert(row.id)}
-                        // loading={loading}
-                        // localeText={{
-                        //     toolbarColumns: 'Thay đổi cột',
-                        //     toolbarExport: 'Xuất báo cáo',
-                        //     MuiTablePagination: {
-                        //         labelDisplayedRows: ({ from, to, count }) => `${from} - ${to} của ${count}`,
-                        //     },
-                        // }}
-                        // autoPageSize
-
-                        pagination
-                        localeText={viVN.components.MuiDataGrid.defaultProps.localeText}
-                        components={{
-                            Toolbar: ToolbarTable,
-                        }}
-                    />
+                <div style={{}} className="h-3/4 mr-5 ml-10">
+                    <div>
+                        {/* <Button type="primary" onClick={handleExportExcel}>
+                            Export Excel
+                        </Button> */}
+                        <div className="m-2">
+                            <div className="">
+                                <table className={cx('table-DN')} id="data">
+                                    <thead className="text-sv-blue-5">
+                                        <tr className={cx(' bg-blue-100')}>
+                                            <th></th>
+                                            <th>STT</th>
+                                            <th>Mã phòng</th>
+                                            <th>Tên phòng</th>
+                                            <th>Số ghế</th>
+                                            <th>Dãy nhà</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {listPhong?.map((item, index) => (
+                                            <tr
+                                                key={item.maPhong}
+                                                onClick={() => setSelectPhong(item)}
+                                                className={`${
+                                                    selectedPhong.maPhong === `${item.maPhong}` ? 'bg-orange-200' : ''
+                                                } hover:cursor-pointer`}
+                                            >
+                                                <td>
+                                                    <div className="flex items-center justify-center">
+                                                        <input
+                                                            type="radio"
+                                                            className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                                                            name="radio-group-phong"
+                                                            value={item.maPhong}
+                                                            checked={selectedPhong.maPhong === `${item.maPhong}`}
+                                                            onChange={() => setSelectPhong(item)}
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td>{index + 1}</td>
+                                                <td>{item?.maPhong}</td>
+                                                <td>{item.tenPhong}</td>
+                                                <td>{item.soGhe}</td>
+                                                <td>{item.dayNha.tenDayNha}</td>
+                                                <td>{item.trangThai}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
                     <div className="w-full flex justify-between mt-5 border-b-2">
@@ -208,9 +218,9 @@ function PhongHoc() {
                                 <input
                                     type="text"
                                     disabled
-                                    className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    className="block p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                     placeholder="Mã phòng tự động tạo"
-                                    // value={valueSDT}
+                                    value={maPhong}
                                     // onChange={(e) => {
                                     //     setValueTenGV(e.target.value);
                                     // }}
@@ -223,52 +233,66 @@ function PhongHoc() {
                                 </div>
                                 <input
                                     type="text"
-                                    className="block m-4 p-2 pl-4 caret-sv-blue-4 text-sm w-60 rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    className="block p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                     placeholder="Tên phòng học"
                                     autoFocus
-                                    // value={valueSDT}
-                                    // onChange={(e) => {
-                                    //     setValueTenGV(e.target.value);
-                                    // }}
+                                    value={tenPhong}
+                                    onChange={(e) => {
+                                        setTenPhong(e.target.value);
+                                    }}
                                 />
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Số ghế:</label>
+                                </div>
+                                <input
+                                    type="number"
+                                    className="block p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    value={soGhe}
+                                    onChange={(e) => {
+                                        setSoGhe(e.target.value);
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="w-full flex flex-row justify-between mt-4">
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Dãy nhà:</label>
+                                </div>
+                                <div className="flex w-60 border h-8 border-sv-blue-4 rounded-lg p-1 ">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={dayNha}
+                                        onChange={(e) => setDayNha(e.target.value)}
+                                    >
+                                        <option value="">Dãy nhà</option>
+                                        {listDN?.map((item, index) => (
+                                            <option key={item.maDayNha} value={item.maDayNha}>
+                                                {item.tenDayNha}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Loại phòng:</label>
                                 </div>
-                                <div className="flex w-60 border h-8 border-sv-blue-4 rounded-lg p-1 m-4">
-                                    <select className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline">
-                                        <option value="Thực hành">Thực hành</option>
-                                        <option value="Lý thuyết">Lý thuyết</option>
-                                        <option value="Nu">Nữ</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="w-full flex flex-row justify-between">
-                            <div className="flex justify-center flex-row items-center w-1/3">
-                                <div className="w-32 text-left">
-                                    <label htmlFor="">Dãy nhà:</label>
-                                </div>
-                                <div className="flex w-60 border h-8 border-sv-blue-4 rounded-lg p-1 m-4">
-                                    <select className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline">
-                                        {listdaynha.map((item, index) => (
-                                            <option value={item.ten}>{item.ten}</option>
+                                <div className="flex w-60 border h-8 border-sv-blue-4 rounded-lg p-1">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={loaiPhong}
+                                        onChange={(e) => setLoaiPhong(e.target.value)}
+                                    >
+                                        <option value="">Loại phòng</option>
+                                        {listloaiPhong?.map((item, index) => (
+                                            <option key={item.maLoaiPhong} value={item.maLoaiPhong}>
+                                                {item.tenLoaiPhong}
+                                            </option>
                                         ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-center flex-row items-center w-1/3">
-                                <div className="w-32 text-left">
-                                    <label htmlFor="">Tầng:</label>
-                                </div>
-                                <div className="flex w-60 border h-8 border-sv-blue-4 rounded-lg p-1 m-4">
-                                    <select className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline">
-                                        <option value="Thực hành">Thực hành</option>
-                                        <option value="Lý thuyết">Lý thuyết</option>
-                                        <option value="Nu">Nữ</option>
                                     </select>
                                 </div>
                             </div>
@@ -276,10 +300,15 @@ function PhongHoc() {
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Trạng thái:</label>
                                 </div>
-                                <div className="flex w-60 border h-8 border-sv-blue-4 rounded-lg p-1 m-4">
-                                    <select className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline">
-                                        <option value="Hoạt động">Hoạt động</option>
-                                        <option value="Tạm ngưng">Tạm ngưng</option>
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={trangThai}
+                                        onChange={(e) => setTrangThai(e.target.value)}
+                                    >
+                                        <option value="Bình thường">Bình thường</option>
+                                        <option value="Tạm khóa">Tạm khóa</option>
+                                        <option value="Đang sửa chữa">Đang sửa chữa</option>
                                     </select>
                                 </div>
                             </div>
@@ -290,7 +319,7 @@ function PhongHoc() {
                                 size="small"
                                 startIcon={<AiFillSave />}
                                 color="success"
-                                //onClick={() => onPressSearch(valueSearch)}
+                                onClick={handleAddPhong}
                             >
                                 Lưu
                             </Button>
@@ -300,7 +329,7 @@ function PhongHoc() {
                                     size="small"
                                     startIcon={<BsFillEraserFill />}
                                     color="success"
-                                    //onClick={() => onPressSearch(valueSearch)}
+                                    onClick={handleXoaRong}
                                 >
                                     Xóa trắng
                                 </Button>
@@ -311,7 +340,7 @@ function PhongHoc() {
                                     size="small"
                                     color="error"
                                     startIcon={<TiCancel />}
-                                    //onClick={() => onPressSearch(valueSearch)}
+                                    onClick={handleClose}
                                 >
                                     Hủy bỏ
                                 </Button>
