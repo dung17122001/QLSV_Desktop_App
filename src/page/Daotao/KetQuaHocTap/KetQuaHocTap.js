@@ -109,7 +109,7 @@ function LopHoc() {
                     soTCLT,
                     soTCTH,
                 );
-                bangDiem = { ...bangDiem, diemTongKet: diemTongKet };
+                bangDiem = { ...bangDiem, diemTongKet: diemTongKet, trangThai: setTrangThaiHocPhan(diemTongKet) };
             }
 
             //console.log(bangDiem);
@@ -144,6 +144,7 @@ function LopHoc() {
     };
 
     const tinhDiemTongKet = (tk1, tk2, tk3, tk4, tk5, gk, ck, th1, th2, th3, soTCLT, soTCTH) => {
+        if (ck < 3) return 0;
         let countTK = 0;
         let diemTongKet = 0;
         if (tk1 !== null) countTK++;
@@ -166,7 +167,9 @@ function LopHoc() {
         // console.log(tbTK + 'tbTK');
         // console.log(tbTH + 'th');
         if (soTCTH > 0) {
-            diemTongKet = ((tbTK * 0.2 + gk * 0.3 + ck * 0.5) * soTCLT + tbTH * soTCTH) / (soTCLT + soTCTH);
+            if (soTCLT > 0)
+                diemTongKet = ((tbTK * 0.2 + gk * 0.3 + ck * 0.5) * soTCLT + tbTH * soTCTH) / (soTCLT + soTCTH);
+            else diemTongKet = tbTH / countTH;
         } else diemTongKet = tbTK * 0.2 + gk * 0.3 + ck * 0.5;
 
         return diemTongKet.toFixed(1);
@@ -373,7 +376,7 @@ function LopHoc() {
                         <td align="center">
                             <input
                                 type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-8 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder={diem.cuoiKy || '_'}
                                 value={listThongTinLHP[i].cuoiKy || ''}
                                 onChange={(e) => {
@@ -383,10 +386,18 @@ function LopHoc() {
                             />
                         </td>
 
-                        <td align="center">{diem.diemTongKet || ''}</td>
-                        <td>{diem.diemTongKet ? chuyenDoiDiemHe10SangHe4(diem.diemTongKet) : ''}</td>
-                        <td>{diem.diemTongKet ? chuyenDoiDiemHe10SangHe4Chu(diem.diemTongKet) : ''}</td>
-                        <td>{diem.diemTongKet ? xepLoaiBangDiem(diem.diemTongKet) : ''}</td>
+                        <td align="center">{!!diem.diemTongKet || diem.diemTongKet === 0 ? diem.diemTongKet : ''}</td>
+                        <td>
+                            {!!diem.diemTongKet || diem.diemTongKet === 0
+                                ? chuyenDoiDiemHe10SangHe4(diem.diemTongKet)
+                                : ''}
+                        </td>
+                        <td>
+                            {!!diem.diemTongKet || diem.diemTongKet === 0
+                                ? chuyenDoiDiemHe10SangHe4Chu(diem.diemTongKet)
+                                : ''}
+                        </td>
+                        <td>{!!diem.diemTongKet || diem.diemTongKet === 0 ? xepLoaiBangDiem(diem.diemTongKet) : ''}</td>
                     </tr>
                 );
                 listRow.push(Comp);
@@ -457,6 +468,11 @@ function LopHoc() {
             return 0;
         }
     }
+
+    const setTrangThaiHocPhan = (diem) => {
+        if (diem >= 4) return 'Đạt';
+        else return 'Không đạt';
+    };
 
     const handleTimKIem = async () => {
         let result = await getLopHocPhanByTextSearch(resultSearchLHP, accessToken, axiosJWT);

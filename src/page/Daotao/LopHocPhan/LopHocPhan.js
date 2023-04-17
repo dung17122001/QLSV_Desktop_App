@@ -28,7 +28,7 @@ import {
     getLopHocPhanByTextSearch,
 } from '~/services/lopHocPhanService';
 import { getTatCaDayNha, getPhongHocConTrong } from '~/services/phongService';
-import { getTatCaCaHoc } from '~/services/caHocService';
+import { getTatCaCaHoc, getTatCaCaHocKhongTrungLichDayGV } from '~/services/caHocService';
 import { getTatCaKhoa } from '~/services/khoaService';
 import { getNhanVienTheoKhoa, getTatCaNhanVien } from '~/services/nhanVienService';
 import { getLichTheoLHP, themLich, updateLich, getLichTheoMa } from '~/services/lichService';
@@ -62,6 +62,7 @@ function LopHoc() {
     const [trangThaiLich, setTrangThaiLich] = useState('Bình thường');
     const [khoaGV, setKhoaGV] = useState();
     const [giangVien, setGianngVien] = useState();
+    const [reloadCaHoc, setReloadCaHoc] = useState();
     const [listPhongHoc, setListPhongHoc] = useState();
     const [phongHoc, setPhonngHoc] = useState('');
     const [reloadPhong, setReloadPhong] = useState();
@@ -274,8 +275,9 @@ function LopHoc() {
         let result = await getNhanVienTheoKhoa(e.target.value, accessToken, axiosJWT);
         if (!!result) setListGV(result);
     };
-    const handleSelectGiangVien = (e) => {
+    const handleSelectGiangVien = async (e) => {
         setGianngVien(e.target.value);
+        setReloadCaHoc(!reloadCaHoc);
     };
 
     const handleSelectLHP = async (item) => {
@@ -429,6 +431,15 @@ function LopHoc() {
         }
         // } //else alert('Vui lòng chọn lớp học phần cần thêm lịch');
     }, [reloadPhong]);
+    useEffect(() => {
+        const getCaHocKhongTrung = async () => {
+            if (!!giangVien) {
+                let result = await getTatCaCaHocKhongTrungLichDayGV(giangVien, ngayHoc, accessToken, axiosJWT);
+                setListCaHoc(result);
+            }
+        };
+        getCaHocKhongTrung();
+    }, [reloadCaHoc, ngayHoc]);
 
     return (
         <div className="w-full h-full justify-center items-center ">
@@ -854,7 +865,67 @@ function LopHoc() {
                                 // }}
                             />
                         </div>
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Khoa:</label>
+                            </div>
 
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    value={khoaGV}
+                                    onChange={(e) => handleSelectKhoaGV(e)}
+                                    // id="valueKhoaHoc"
+                                >
+                                    <option value="">Khoa</option>
+                                    {listKhoa?.map((item) => (
+                                        <option key={item.maKhoa} value={item.maKhoa}>
+                                            {item.tenKhoa}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Giảng viên:</label>
+                            </div>
+
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    value={giangVien}
+                                    onChange={(e) => handleSelectGiangVien(e)}
+                                    // id="valueKhoaHoc"
+                                >
+                                    <option value="">Giảng viên</option>
+                                    {listGV?.map((item) => (
+                                        <option key={item.maNhanVien} value={item.maNhanVien}>
+                                            {item.tenNhanVien}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="w-full flex flex-row justify-between">
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Loại lịch:</label>
+                            </div>
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    value={loaiLich}
+                                    onChange={(e) => handleSelectLoaiLich(e)}
+                                    ///id="valueKhoaHoc"
+                                >
+                                    <option value="LP001">Lý thuyết</option>
+                                    <option value="LP002">Thực hành</option>
+                                </select>
+                            </div>
+                        </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Ngày trong tuần:</label>
@@ -894,22 +965,6 @@ function LopHoc() {
                     <div className="w-full flex flex-row justify-between">
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
-                                <label htmlFor="">Loại lịch:</label>
-                            </div>
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={loaiLich}
-                                    onChange={(e) => handleSelectLoaiLich(e)}
-                                    ///id="valueKhoaHoc"
-                                >
-                                    <option value="LP001">Lý thuyết</option>
-                                    <option value="LP002">Thực hành</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
                                 <label htmlFor="">Dãy nhà:</label>
                             </div>
 
@@ -944,51 +999,6 @@ function LopHoc() {
                                     {listPhongHoc?.map((item) => (
                                         <option key={item.maPhong} value={item.maPhong}>
                                             {item.tenPhong}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="w-full flex flex-row justify-between">
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Khoa:</label>
-                            </div>
-
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={khoaGV}
-                                    onChange={(e) => handleSelectKhoaGV(e)}
-                                    // id="valueKhoaHoc"
-                                >
-                                    <option value="">Khoa</option>
-                                    {listKhoa?.map((item) => (
-                                        <option key={item.maKhoa} value={item.maKhoa}>
-                                            {item.tenKhoa}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Giảng viên:</label>
-                            </div>
-
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={giangVien}
-                                    onChange={(e) => handleSelectGiangVien(e)}
-                                    // id="valueKhoaHoc"
-                                >
-                                    <option value="">Giảng viên</option>
-                                    {listGV?.map((item) => (
-                                        <option key={item.maNhanVien} value={item.maNhanVien}>
-                                            {item.tenNhanVien}
                                         </option>
                                     ))}
                                 </select>
