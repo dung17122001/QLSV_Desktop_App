@@ -32,6 +32,7 @@ import moment from 'moment';
 
 import HeaderQl from '../../components/HeaderQL';
 import { checkValidTen, checkValidSDT, checkValidNgaySinh, checkValidKhoa } from '../../regex/regex';
+import { uploadFile, deleteFile } from '~/services/fileService';
 
 //import TableSinhVien from '../../components/TableSinhVien/TableSinhVien';
 
@@ -84,7 +85,10 @@ function SinhVien() {
     const [validKhoa, setValidKhoa] = useState('');
     const [validKhoaHoc, setValidKhoaHoc] = useState('');
     const [validLopHoc, setValidLopHoc] = useState('');
+
     let [countSV, setCountSV] = useState(0);
+    const [valueAvatar, setValueAvatar] = useState(null);
+
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
 
@@ -222,6 +226,7 @@ function SinhVien() {
             alert('Vui lòng nhập tên lớp');
         }
     };
+
     useEffect(() => {
         if (khoa) {
             const getNganh = async () => {
@@ -242,6 +247,7 @@ function SinhVien() {
             getLopHoc();
         }
     }, [nganhHoc]);
+
     let sinhVien = {
         maSinhVien,
         tenSinhVien,
@@ -265,7 +271,7 @@ function SinhVien() {
         ngayVaoDoan,
         trangThai,
     };
-    console.log(sinhVien);
+    //console.log(sinhVien);
     const handleClickOpenCapNhat = () => {
         if (!!selectedSinhVien) {
             setTenSinhVien(selectedSinhVien.tenSinhVien);
@@ -322,7 +328,12 @@ function SinhVien() {
     }, [lopHoc]);
 
     const luuSinhVien = async () => {
-        console.log(sinhVien);
+        //console.log(sinhVien);
+        let formDataFile = new FormData();
+        formDataFile.append('file', valueAvatar);
+        let linkAvatar = (await uploadFile(formDataFile, accessToken, axiosJWT)) || '';
+        console.log(linkAvatar);
+        sinhVien = { ...sinhVien, linkAnh: linkAvatar };
         if (!!selectedSinhVien) {
             sinhVien.maSinhVien = selectedSinhVien.maSinhVien;
 
@@ -342,7 +353,7 @@ function SinhVien() {
                 role: 'ROLE_SINHVIEN',
             };
 
-            console.log(sinhVienRegister);
+            //console.log(sinhVienRegister);
             await register(sinhVienRegister);
             if (addSinhVien && sinhVienRegister) {
                 setOpen(false);
@@ -406,9 +417,10 @@ function SinhVien() {
                                 type="file"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="link hình ảnh"
-                                value={linkAnh}
+                                accept="image/*"
+                                //value={valueAvatar}
                                 onChange={(e) => {
-                                    setLinkAnh(e.target.value);
+                                    setValueAvatar(e.target.files[0]);
                                 }}
                                 onBlur={() => {
                                     const test = checkValidTenSV();

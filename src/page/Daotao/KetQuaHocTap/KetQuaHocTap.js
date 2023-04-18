@@ -269,7 +269,7 @@ function LopHoc() {
                                 type="text"
                                 className="text-center block p-1 h-7 caret-sv-blue-4 text-sm w-12 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 //defaultValue={diem?.giuaKy}
-                                placeholder={diem.giuaKy || '_'}
+                                placeholder={diem?.giuaKy || '_'}
                                 value={listThongTinLHP[i].giuaKy || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -281,7 +281,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.thuongKy1 || '_'}
+                                placeholder={diem?.thuongKy1 || '_'}
                                 value={listThongTinLHP[i].thuongKy1 || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -293,7 +293,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.thuongKy2 || '_'}
+                                placeholder={diem?.thuongKy2 || '_'}
                                 value={listThongTinLHP[i].thuongKy2 || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -305,7 +305,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.thuongKy3 || '_'}
+                                placeholder={diem?.thuongKy3 || '_'}
                                 value={listThongTinLHP[i].thuongKy3 || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -317,7 +317,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.thuongKy4 || '_'}
+                                placeholder={diem?.thuongKy4 || '_'}
                                 value={listThongTinLHP[i].thuongKy4 || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -329,7 +329,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.thuongKy5 || '_'}
+                                placeholder={diem?.thuongKy5 || '_'}
                                 value={listThongTinLHP[i].thuongKy5 || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -341,7 +341,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.thucHanh1 || '_'}
+                                placeholder={diem?.thucHanh1 || '_'}
                                 value={listThongTinLHP[i].thucHanh1 || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -353,7 +353,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.thucHanh2 || '_'}
+                                placeholder={diem?.thucHanh2 || '_'}
                                 value={listThongTinLHP[i].thucHanh2 || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -365,7 +365,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.thucHanh3 || '_'}
+                                placeholder={diem?.thucHanh3 || '_'}
                                 value={listThongTinLHP[i].thucHanh3 || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -377,7 +377,7 @@ function LopHoc() {
                             <input
                                 type="text"
                                 className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-8 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder={diem.cuoiKy || '_'}
+                                placeholder={diem?.cuoiKy || '_'}
                                 value={listThongTinLHP[i].cuoiKy || ''}
                                 onChange={(e) => {
                                     const newValue = e.target.value;
@@ -386,18 +386,22 @@ function LopHoc() {
                             />
                         </td>
 
-                        <td align="center">{!!diem.diemTongKet || diem.diemTongKet === 0 ? diem.diemTongKet : ''}</td>
+                        <td align="center">
+                            {!!diem?.diemTongKet || diem?.diemTongKet === 0 ? diem?.diemTongKet : ''}
+                        </td>
                         <td>
-                            {!!diem.diemTongKet || diem.diemTongKet === 0
+                            {!!diem?.diemTongKet || diem?.diemTongKet === 0
                                 ? chuyenDoiDiemHe10SangHe4(diem.diemTongKet)
                                 : ''}
                         </td>
                         <td>
-                            {!!diem.diemTongKet || diem.diemTongKet === 0
+                            {!!diem?.diemTongKet || diem?.diemTongKet === 0
                                 ? chuyenDoiDiemHe10SangHe4Chu(diem.diemTongKet)
                                 : ''}
                         </td>
-                        <td>{!!diem.diemTongKet || diem.diemTongKet === 0 ? xepLoaiBangDiem(diem.diemTongKet) : ''}</td>
+                        <td>
+                            {!!diem?.diemTongKet || diem?.diemTongKet === 0 ? xepLoaiBangDiem(diem?.diemTongKet) : ''}
+                        </td>
                     </tr>
                 );
                 listRow.push(Comp);

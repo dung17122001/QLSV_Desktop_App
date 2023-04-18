@@ -26,6 +26,8 @@ import { getTatCaNhanVien } from '../../services/nhanVienService';
 import { exportToExcel } from './exportToExcel';
 import classNames from 'classnames/bind';
 import style from './NhanVien.module.scss';
+import { uploadFile, deleteFile } from '~/services/fileService';
+
 function GiangVien() {
     let [listKhoa, setListKhoa] = useState([]);
     let [listChucVu, setListChucVu] = useState([]);
@@ -53,6 +55,7 @@ function GiangVien() {
     const [ngayVaoDoan, setNgayVaoDoan] = useState('');
     const [ngayVaoDang, setNgayVaoDang] = useState('');
     const [trangThai, setTrangThai] = useState('');
+    const [valueAvatar, setValueAvatar] = useState(null);
     const [linkAnh, setLinkAnh] = useState('');
 
     let nhanVien = {
@@ -176,7 +179,11 @@ function GiangVien() {
         setSelectedNhanVien(item);
     };
     const luuNhanVien = async () => {
-        console.log(nhanVien);
+        let formDataFile = new FormData();
+        formDataFile.append('file', valueAvatar);
+        let linkAvatar = (await uploadFile(formDataFile, accessToken, axiosJWT)) || '';
+        console.log(linkAvatar);
+        nhanVien = { ...nhanVien, linkAnh: linkAvatar };
         if (!!selectedNhanVien) {
             nhanVien.maNhanVien = selectedNhanVien.maNhanVien;
 
@@ -359,10 +366,10 @@ function GiangVien() {
                             <input
                                 type="file"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                accept="image/*"
                                 placeholder="Link ảnh"
-                                value={linkAnh}
                                 onChange={(e) => {
-                                    setLinkAnh(e.target.value);
+                                    setValueAvatar(e.target.files[0]);
                                 }}
                             />
                         </div>
