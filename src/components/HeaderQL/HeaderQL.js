@@ -38,18 +38,6 @@ function HeaderQL({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, pla
                         Sửa
                     </Button>
                 </div>
-
-                <div className="ml-6">
-                    <Button
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        startIcon={<AiFillDelete />}
-                        onClick={onPressDelete}
-                    >
-                        Xóa
-                    </Button>
-                </div>
             </div>
         </div>
     );

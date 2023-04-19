@@ -26,12 +26,15 @@ import {
     getNhomTHTheoMaHP,
     updateLopHocPhan,
     getLopHocPhanByTextSearch,
+    xoaLHPTheoMaLHP,
+    xoaNhomTHTheoMaLHP,
 } from '~/services/lopHocPhanService';
 import { getTatCaDayNha, getPhongHocConTrong } from '~/services/phongService';
 import { getTatCaCaHoc, getTatCaCaHocKhongTrungLichDayGV } from '~/services/caHocService';
 import { getTatCaKhoa } from '~/services/khoaService';
 import { getNhanVienTheoKhoa, getTatCaNhanVien } from '~/services/nhanVienService';
-import { getLichTheoLHP, themLich, updateLich, getLichTheoMa } from '~/services/lichService';
+import { getLichTheoLHP, themLich, updateLich, getLichTheoMa, xoaLichTheoMaLHP } from '~/services/lichService';
+import { xoaChiTietPDKTheoMaLHP } from '~/services/pheuDangKyHP';
 import classNames from 'classnames/bind';
 import HeaderQL from '../../../components/HeaderQL';
 const cx = classNames.bind(style);
@@ -55,17 +58,17 @@ function LopHoc() {
     const [trangThai, setTrangThai] = useState('Đang lên kế hoạch');
     const [listCaHoc, setListCaHoc] = useState();
     const [listDayNha, setListDayNha] = useState();
-    const [loaiLich, setLoaiLich] = useState('LP001');
+    const [loaiLich, setLoaiLich] = useState();
     const [ngayHoc, setNgayHoc] = useState();
-    const [caHoc, setCaHoc] = useState('CA001');
-    const [dayNha, setDayNha] = useState('D001');
+    const [caHoc, setCaHoc] = useState();
+    const [dayNha, setDayNha] = useState();
     const [trangThaiLich, setTrangThaiLich] = useState('Bình thường');
     const [khoaGV, setKhoaGV] = useState();
     const [giangVien, setGianngVien] = useState();
-    const [reloadCaHoc, setReloadCaHoc] = useState();
+    const [reloadCaHoc, setReloadCaHoc] = useState(false);
     const [listPhongHoc, setListPhongHoc] = useState();
     const [phongHoc, setPhonngHoc] = useState('');
-    const [reloadPhong, setReloadPhong] = useState();
+    const [reloadPhong, setReloadPhong] = useState(false);
     const [listKhoa, setListKhoa] = useState();
     const [listGV, setListGV] = useState();
     const [listLichHoc, setListLichHoc] = useState();
@@ -75,7 +78,7 @@ function LopHoc() {
     const [soTietLT, setSoTietLT] = useState(0);
     const [soTietTH, setSoTietTH] = useState(0);
     const [soBuoiHoc, setSoBuoiHoc] = useState(0);
-    const [nhomTH, setNhomTH] = useState(0);
+    const [nhomTH, setNhomTH] = useState(1);
     const [soLuongSV, setSoLuongSV] = useState(30);
 
     const dispatch = useDispatch();
@@ -98,8 +101,8 @@ function LopHoc() {
     };
 
     const handleSearchLHP = async (value) => {
-        setSoTietLT(selectedHP.monHoc?.soTCLT * 15);
-        setSoTietTH(selectedHP.monHoc?.soTCLT * 30);
+        //setSoTietLT(selectedHP.monHoc?.soTCLT * 15);
+        //setSoTietTH(selectedHP.monHoc?.soTCLT * 30);
         let result = await getLopHocPhanByTextSearch(value, accessToken, axiosJWT);
         setListLHP(result);
         setListLichHoc();
@@ -159,8 +162,8 @@ function LopHoc() {
 
     const handleSelectHocPhan = async (item) => {
         setSelectedHP(item);
-        setSoTietLT(item.monHoc?.soTCLT * 15);
-        setSoTietTH(item.monHoc?.soTCLT * 30);
+        // setSoTietLT(item.monHoc?.soTCLT * 15);
+        // setSoTietTH(item.monHoc?.soTCLT * 30);
         let result = await getLopHocPhanTheoMaHP(item.maHocPhan, selectedOptionHK, accessToken, axiosJWT);
         setListLHP(result);
         setListLichHoc();
@@ -195,7 +198,7 @@ function LopHoc() {
     const handleClickOpenModalLichHoc = () => {
         setReloadPhong(!reloadPhong);
         setOpenModalLichHoc(true);
-        setSelectedLichHoc('');
+        xoaRongModalThemLich();
     };
     const handleClickOpenModalUpdateLichHoc = () => {
         setReloadPhong(!reloadPhong);
@@ -213,6 +216,19 @@ function LopHoc() {
             setSoLuongSV(selectedLichHoc.nhomThucHanh.soLuongSV);
         }
         setOpenModalLichHoc(true);
+    };
+    const xoaRongModalThemLich = () => {
+        setMaLich();
+        setLoaiLich('LP001');
+        //setNgayHoc();
+        setCaHoc('');
+        //setDayNha();
+        setPhonngHoc('');
+        setTrangThaiLich('Bình thường');
+        setGianngVien('');
+        setNhomTH(0);
+        setSoLuongSV(30);
+        setSelectedLichHoc();
     };
     const handleClickCloseModalLichHoc = () => {
         setOpenModalLichHoc(false);
@@ -284,7 +300,7 @@ function LopHoc() {
         setSelectedLHP(item);
         setNgayHoc(item.ngayBatDau);
         //let soTietLT = item.hocPhan?.monhoc?.soTCLT;
-        let result = await getLichTheoLHP(item.maLopHocPhan, accessToken, axiosJWT);
+        let result = await getLichTheoLHP(item?.maLopHocPhan, accessToken, axiosJWT);
         if (!!result) setListLichHoc(result);
         //console.log(result);
     };
@@ -311,66 +327,105 @@ function LopHoc() {
     }
 
     const handleThemLich = async () => {
-        if (!selectedLichHoc || selectedLichHoc === '') {
-            let ngayHocDauTien = new Date(ngayHoc);
-            var nth = {
-                tenNhom: loaiLich === 'LP001' ? 'Nhóm 0' : 'Nhóm ' + nhomTH,
-                soLuongSV: loaiLich === 'LP001' ? selectedLHP.siSo : soLuongSV,
-                lopHocPhan: selectedLHP.maLopHocPhan,
-                trangThai: 'Bình thường',
-            };
-            //console.log(nth.tenNhom);
-            var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP.maLopHocPhan, accessToken, axiosJWT);
-            //console.log(dsNhomTHDaCo);
-            for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
-                if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
-                    alert('Tên nhóm thực hành này đã tồn tại');
-                    return;
+        if (!!selectedLHP || selectedLHP?.maLopHocPhan !== '') {
+            if (!selectedLichHoc || selectedLichHoc === '') {
+                //let ngayHocDauTien = new Date(ngayHoc);
+                var nth = {
+                    tenNhom: loaiLich === 'LP001' ? 'Nhóm 0' : 'Nhóm ' + nhomTH,
+                    soLuongSV: loaiLich === 'LP001' ? selectedLHP.siSo : soLuongSV,
+                    lopHocPhan: selectedLHP?.maLopHocPhan,
+                    trangThai: 'Bình thường',
+                };
+                //console.log(nth.tenNhom);
+                var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+                //console.log(dsNhomTHDaCo);
+                for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
+                    if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
+                        alert('Tên nhóm thực hành này đã tồn tại');
+                        return;
+                    }
+                }
+                var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
+                //console.log(soTietLT / 3);
+                if (loaiLich === 'LP001') {
+                    let ngayHocDauTien = new Date(ngayHoc);
+                    for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCLT * 15) / 3; i++) {
+                        let lich = {
+                            tenLich: '',
+                            loaiLich: loaiLich === 'LP001' ? 'Lý thuyết' : 'Thực hành',
+                            ngayHoc: ngayHocDauTien,
+                            trangThai: trangThaiLich,
+                            phong: phongHoc,
+                            nhanVien: giangVien,
+                            lopHocPhan: selectedLHP?.maLopHocPhan,
+                            caHoc: caHoc,
+                            nhomThucHanh: resultNTH.maNhom,
+                            //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
+                        };
+                        //console.log(lich);
+                        await themLich(lich, accessToken, axiosJWT);
+                        ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                    }
+                } else {
+                    let ngayHocDauTien = new Date(ngayHoc);
+                    for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCTH * 30) / 3; i++) {
+                        let lich = {
+                            tenLich: '',
+                            loaiLich: loaiLich === 'LP001' ? 'Lý thuyết' : 'Thực hành',
+                            ngayHoc: ngayHocDauTien,
+                            trangThai: trangThaiLich,
+                            phong: phongHoc,
+                            nhanVien: giangVien,
+                            lopHocPhan: selectedLHP?.maLopHocPhan,
+                            caHoc: caHoc,
+                            nhomThucHanh: resultNTH.maNhom,
+                            //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
+                        };
+                        //console.log(lich);
+                        await themLich(lich, accessToken, axiosJWT);
+                        ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                    }
                 }
             }
-            var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
-            for (let i = 0; i < soLuong; i++) {
+            //update lich
+            else {
+                //console.log(selectedLichHoc);
                 let lich = {
-                    maLich: maLich,
+                    maLich: selectedLichHoc.maLich,
                     tenLich: '',
                     loaiLich: loaiLich === 'LP001' ? 'Lý thuyết' : 'Thực hành',
-                    ngayHoc: ngayHocDauTien,
+                    ngayHoc: ngayHoc,
                     trangThai: trangThaiLich,
                     phong: phongHoc,
                     nhanVien: giangVien,
-                    lopHocPhan: selectedLHP.maLopHocPhan,
+                    lopHocPhan: selectedLHP?.maLopHocPhan,
                     caHoc: caHoc,
-                    nhomThucHanh: resultNTH.maNhom,
+                    nhomThucHanh: selectedLichHoc.nhomThucHanh.maNhom,
                     //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
                 };
-                console.log(lich);
-                await themLich(lich, accessToken, axiosJWT);
-                ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                await updateLich(lich, accessToken, axiosJWT);
             }
-        }
-        //update lich
-        else {
-            //console.log(selectedLichHoc);
-            let lich = {
-                maLich: selectedLichHoc.maLich,
-                tenLich: '',
-                loaiLich: loaiLich === 'LP001' ? 'Lý thuyết' : 'Thực hành',
-                ngayHoc: ngayHoc,
-                trangThai: trangThaiLich,
-                phong: phongHoc,
-                nhanVien: giangVien,
-                lopHocPhan: selectedLHP.maLopHocPhan,
-                caHoc: caHoc,
-                nhomThucHanh: selectedLichHoc.nhomThucHanh.maNhom,
-                //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
-            };
-            await updateLich(lich, accessToken, axiosJWT);
-        }
-        alert('Đã lưu lịch học');
-        handleClickCloseModalLichHoc();
-        let result = await getLichTheoLHP(selectedLHP.maLopHocPhan, accessToken, axiosJWT);
-        if (!!result) setListLichHoc(result);
-        setReloadPhong(!reloadPhong);
+            alert('Đã lưu lịch học');
+            handleClickCloseModalLichHoc();
+            let result = await getLichTheoLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+            if (!!result) setListLichHoc(result);
+            setReloadPhong(!reloadPhong);
+            setReloadCaHoc(!reloadCaHoc);
+        } else alert('Vui lòng chọn lớp học phần');
+    };
+
+    const handleXoaLopHP = async () => {
+        if (!!selectedLHP && selectedLHP?.maLopHocPhan !== '') {
+            await xoaLichTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+            await xoaChiTietPDKTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+            await xoaNhomTHTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+            await xoaLHPTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+
+            let result = await getLopHocPhanTheoMaHP(selectedHP.maHocPhan, selectedOptionHK, accessToken, axiosJWT);
+            setListLHP(result);
+            setSelectedLHP();
+            setListLichHoc();
+        } else alert('Vui lòng chọn lớp học phần cần xóa');
     };
 
     useEffect(() => {
@@ -410,14 +465,15 @@ function LopHoc() {
     //console.log(selectedLichHoc);
 
     useEffect(() => {
-        if (!!selectedLHP) {
-            // var date = new Date(selectedLHP?.ngayBatDau);
-            // var thuTongTuan = getNextDayOfWeek(date, ngayHoc);
-            // let formattedDate = `${thuTongTuan.getFullYear()}-${(thuTongTuan.getMonth() + 1)
-            //     .toString()
-            //     .padStart(2, '0')}-${thuTongTuan.getDate().toString().padStart(2, '0')}`;
-            //console.log(caHoc);
-            const getPhong = async () => {
+        //if (!!selectedLHP) {
+        // var date = new Date(selectedLHP?.ngayBatDau);
+        // var thuTongTuan = getNextDayOfWeek(date, ngayHoc);
+        // let formattedDate = `${thuTongTuan.getFullYear()}-${(thuTongTuan.getMonth() + 1)
+        //     .toString()
+        //     .padStart(2, '0')}-${thuTongTuan.getDate().toString().padStart(2, '0')}`;
+        //console.log(caHoc);
+        const getPhong = async () => {
+            if (!!loaiLich && !!dayNha && !!ngayHoc && !!caHoc) {
                 const getTatCaPhongTrong = await getPhongHocConTrong(
                     loaiLich,
                     dayNha,
@@ -427,9 +483,10 @@ function LopHoc() {
                     axiosJWT,
                 );
                 setListPhongHoc(getTatCaPhongTrong);
-            };
-            getPhong();
-        }
+            }
+        };
+        getPhong();
+        //}
         // } //else alert('Vui lòng chọn lớp học phần cần thêm lịch');
     }, [reloadPhong]);
     useEffect(() => {
@@ -530,12 +587,25 @@ function LopHoc() {
             <div className="w-full flex justify-start items-center mt-5 mr-11 ml-10">
                 <div className="text-lg font-bold ">Danh sách các lớp học phần</div>
             </div>
-            <HeaderQL
-                placeholder={'Nhập tên, mã LHP'}
-                onPressAdd={handleClickOpenModalLHP}
-                onPressUpdate={handleClickOpenModalUpdateLHP}
-                onPressSearch={(value) => handleSearchLHP(value)}
-            />
+            <div className="flex flex-row justify-center items-center">
+                <HeaderQL
+                    placeholder={'Nhập tên, mã LHP'}
+                    onPressAdd={handleClickOpenModalLHP}
+                    onPressUpdate={handleClickOpenModalUpdateLHP}
+                    onPressSearch={(value) => handleSearchLHP(value)}
+                />
+                <div className="ml-6">
+                    <Button
+                        variant="contained"
+                        color="error"
+                        size="small"
+                        startIcon={<AiFillDelete />}
+                        onClick={handleXoaLopHP}
+                    >
+                        Xóa
+                    </Button>
+                </div>
+            </div>
             <div style={{}} className=" mt-2 mr-11 ml-10">
                 <div>
                     {/* <Button type="primary" onClick={handleExportExcel}>
@@ -562,7 +632,7 @@ function LopHoc() {
                                             key={item?.maLopHocPhan}
                                             onClick={() => handleSelectLHP(item)}
                                             className={`${
-                                                selectedLHP.maLopHocPhan === `${item.maLopHocPhan}`
+                                                selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`
                                                     ? 'bg-orange-200'
                                                     : ''
                                             } hover:cursor-pointer`}
@@ -572,13 +642,13 @@ function LopHoc() {
                                                     type="radio"
                                                     className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
                                                     name="radio-group-lhp"
-                                                    value={item.maLopHocPhan}
-                                                    checked={selectedLHP.maLopHocPhan === `${item.maLopHocPhan}`}
+                                                    value={item?.maLopHocPhan}
+                                                    checked={selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`}
                                                     onChange={() => handleSelectLHP(item)}
                                                 />
                                             </td>
                                             <td>{index + 1}</td>
-                                            <td>{item.maLopHocPhan}</td>
+                                            <td>{item?.maLopHocPhan}</td>
                                             <td>{item.tenLopHocPhan}</td>
                                             <td>{item.siSo}</td>
                                             <td>{item.siSoThuc}</td>
@@ -629,7 +699,7 @@ function LopHoc() {
                                             key={item?.maLich}
                                             onClick={() => setSelectedLichHoc(item)}
                                             className={`${
-                                                selectedLichHoc.maLich === `${item.maLich}` ? 'bg-orange-200' : ''
+                                                selectedLichHoc?.maLich === `${item?.maLich}` ? 'bg-orange-200' : ''
                                             } hover:cursor-pointer`}
                                         >
                                             <td>
@@ -638,30 +708,30 @@ function LopHoc() {
                                                     className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
                                                     name="radio-group-lich"
                                                     value={item.maLich}
-                                                    checked={selectedLichHoc.maLich === `${item.maLich}`}
+                                                    checked={selectedLichHoc?.maLich === `${item?.maLich}`}
                                                     onChange={() => setSelectedLichHoc(item)}
                                                 />
                                             </td>
                                             <td>{index + 1}</td>
                                             <td>{item.maLich}</td>
                                             <td align="center">
-                                                {item.loaiLich === 'Lý thuyết' ? 'LT' : 'TH'} -{' '}
-                                                {getDayOfWeek(item.ngayHoc)} ({item.caHoc?.tenCaHoc})
+                                                {item?.loaiLich === 'Lý thuyết' ? 'LT' : 'TH'} -{' '}
+                                                {getDayOfWeek(item?.ngayHoc)} ({item?.caHoc?.tenCaHoc})
                                             </td>
                                             <td>
-                                                {item.nhomThucHanh?.tenNhom === 'Nhóm 0'
+                                                {item?.nhomThucHanh?.tenNhom === 'Nhóm 0'
                                                     ? ''
-                                                    : item.nhomThucHanh?.tenNhom}
+                                                    : item?.nhomThucHanh?.tenNhom}
                                             </td>
-                                            <td>{item.phong?.dayNha?.tenDayNha}</td>
-                                            <td>{item.phong?.tenPhong}</td>
-                                            <td>{item.nhanVien?.tenNhanVien}</td>
+                                            <td>{item?.phong?.dayNha?.tenDayNha}</td>
+                                            <td>{item?.phong?.tenPhong}</td>
+                                            <td>{item?.nhanVien?.tenNhanVien}</td>
                                             <td>
                                                 {/* {convertDateFormat(item.lopHocPhan?.ngayBatDau)} -{' '}
                                                 {convertDateFormat(item.lopHocPhan?.ngayKetThuc)} */}
-                                                {convertDateFormat(item.ngayHoc)}
+                                                {convertDateFormat(item?.ngayHoc)}
                                             </td>
-                                            <td>{item.trangThai}</td>
+                                            <td>{item?.trangThai}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -785,7 +855,6 @@ function LopHoc() {
                                     <option value="Chờ sinh viên đăng ký">Chờ sinh viên đăng ký</option>
                                     <option value="Đã khóa">Đã khóa</option>
                                     <option value="Chờ hủy lớp">Chờ hủy lớp</option>
-                                    <option value="Đã hủy">Đã hủy </option>
                                 </select>
                             </div>
                         </div>
@@ -953,6 +1022,7 @@ function LopHoc() {
                                     onChange={(e) => handleSelectCaHoc(e)}
                                     //id="a"
                                 >
+                                    <option value="">Ca học</option>
                                     {listCaHoc?.map((item) => (
                                         <option key={item.maCaHoc} value={item.maCaHoc}>
                                             {item.tenCaHoc}
@@ -976,6 +1046,7 @@ function LopHoc() {
                                     onChange={(e) => handleSelectDayNha(e)}
                                     //id="valueKhoaHoc"
                                 >
+                                    <option value="">Dãy nhà</option>
                                     {listDayNha?.map((item) => (
                                         <option key={item.maDayNha} value={item.maDayNha}>
                                             {item.tenDayNha}
@@ -1008,21 +1079,23 @@ function LopHoc() {
 
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
-                                <label htmlFor="">Số buổi học:</label>
+                                <label htmlFor="">Trạng thái:</label>
                             </div>
-
-                            <input
-                                type="number"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                //placeholder="Tên lớp học phần"
-                                value={soLuong}
-                                onChange={(e) => {
-                                    setSoLuong(e.target.value);
-                                }}
-                            />
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    value={trangThaiLich}
+                                    onChange={(e) => setTrangThaiLich(e.target.value)}
+                                >
+                                    <option value="Bình thường">Bình thường</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Lịch thi">Lịch thi</option>
+                                    <option value="Tạm ngưng">Tạm ngưng</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div className="w-full flex flex-row justify-between">
+                    <div className={`${loaiLich === 'LP001' ? `hidden` : `w-full flex flex-row justify-between`} `}>
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Nhóm TH:</label>
@@ -1053,23 +1126,7 @@ function LopHoc() {
                                 }}
                             />
                         </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Trạng thái:</label>
-                            </div>
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={trangThaiLich}
-                                    onChange={(e) => setTrangThaiLich(e.target.value)}
-                                >
-                                    <option value="Bình thường">Bình thường</option>
-                                    <option value="Online">Online</option>
-                                    <option value="Lịch thi">Lịch thi</option>
-                                    <option value="Tạm ngưng">Tạm ngưng</option>
-                                </select>
-                            </div>
-                        </div>
+                        <div className="flex justify-center flex-row items-center w-1/3"></div>
                     </div>
 
                     <div className="w-full flex flex-row justify-center p-3">
@@ -1088,7 +1145,7 @@ function LopHoc() {
                                 size="small"
                                 startIcon={<BsFillEraserFill />}
                                 color="success"
-                                //onClick={handleXoaRong}
+                                onClick={xoaRongModalThemLich}
                             >
                                 Xóa trắng
                             </Button>
@@ -1099,7 +1156,7 @@ function LopHoc() {
                                 size="small"
                                 color="error"
                                 startIcon={<TiCancel />}
-                                // onClick={handleClose}
+                                onClick={handleClickCloseModalLichHoc}
                             >
                                 Hủy bỏ
                             </Button>

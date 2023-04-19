@@ -69,14 +69,18 @@ function LopHoc() {
 
     // Tạo state để lưu trữ danh sách điểm của sinh viên
     const [diemSinhVienList, setDiemSinhVienList] = useState([]);
-
+    //console.log(listThongTinLHP);
     const handleLuuBangDiem = async () => {
         for (let i = 0; i < listThongTinLHP.length; i++) {
             var diemSV = listDiemLHP.filter(
-                (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+                (e) =>
+                    e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
+                    e.trangThai !== 'Học lại' &&
+                    e.trangThai !== 'Học cải thiện',
             );
-            //console.log(diemSV);
+            //console.log(listThongTinLHP[i]);
             let bangDiem = {
+                maBangDiem: diemSV[0]?.maBangDiem,
                 sinhVien: listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
                 hocPhan: listThongTinLHP[i].nhomThucHanh.lopHocPhan.hocPhan.maHocPhan,
                 thuongKy1: listThongTinLHP[i].thuongKy1 !== '' ? listThongTinLHP[i].thuongKy1 : diemSV[0]?.thuongKy1,
@@ -90,10 +94,9 @@ function LopHoc() {
                 giuaKy: listThongTinLHP[i].giuaKy !== '' ? listThongTinLHP[i].giuaKy : diemSV[0]?.giuaKy,
                 cuoiKy: listThongTinLHP[i].cuoiKy !== '' ? listThongTinLHP[i].cuoiKy : diemSV[0]?.cuoiKy,
             };
-
             if (!!bangDiem.cuoiKy && bangDiem.cuoiKy !== '') {
-                let soTCLT = diemSV[0]?.hocPhan.monHoc.soTCLT;
-                let soTCTH = diemSV[0]?.hocPhan.monHoc.soTCTH;
+                let soTCLT = listThongTinLHP[i].nhomThucHanh.lopHocPhan.hocPhan.monHoc.soTCLT;
+                let soTCTH = listThongTinLHP[i].nhomThucHanh.lopHocPhan.hocPhan.monHoc.soTCTH;
 
                 let diemTongKet = tinhDiemTongKet(
                     bangDiem.thuongKy1,
@@ -246,11 +249,14 @@ function LopHoc() {
 
     const renderThongTinSinhVien = () => {
         var listRow = [];
-
+        //console.log(listDiemLHP);
         if (!!listThongTinLHP && listThongTinLHP.length > 0) {
             for (let i = 0; i < listThongTinLHP?.length; i++) {
                 let diem = listDiemLHP?.find(
-                    (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+                    (e) =>
+                        e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
+                        e.trangThai !== 'Học lại' &&
+                        e.trangThai !== 'Học cải thiện',
                 );
                 diemRef.current = diem;
                 //console.log(diemRef);

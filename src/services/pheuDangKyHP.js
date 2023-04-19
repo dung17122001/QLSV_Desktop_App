@@ -34,3 +34,22 @@ export const getChiTietPhieuDKByTextSearch = async (valueSearch, accessToken, ax
         return null;
     }
 };
+
+export const xoaChiTietPDKTheoMaLHP = async (maLHP, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.delete('phieudkhp/chitietpdk/delete', {
+            params: {
+                maLHP: maLHP,
+            },
+
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

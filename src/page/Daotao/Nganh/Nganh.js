@@ -90,9 +90,9 @@ function Nganh() {
 
                 <div style={{}} className="h-3/4 mt-2 mr-11 ml-10">
                     <div>
-                        <Button type="primary" onClick={handleExportExcel}>
+                        {/* <Button type="primary" onClick={handleExportExcel}>
                             Export Excel
-                        </Button>
+                        </Button> */}
                         <div className="m-2">
                             <div className="overflow-y-auto max-h-[480px] ">
                                 <table className={cx('table-nganh')} id="data-nganh">
@@ -113,7 +113,7 @@ function Nganh() {
                                                 key={item?.maNganh}
                                                 onClick={() => handleSelectNganh(item)}
                                                 className={`${
-                                                    selectedNganh.maNganh === `${item.maNganh}` ? 'bg-orange-200' : ''
+                                                    selectedNganh.maNganh === `${item?.maNganh}` ? 'bg-orange-200' : ''
                                                 } hover:cursor-pointer`}
                                             >
                                                 <td>
@@ -121,17 +121,17 @@ function Nganh() {
                                                         type="radio"
                                                         className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
                                                         name="radio-group-mon"
-                                                        value={item.maNganh}
-                                                        checked={selectedNganh.maNganh === `${item.maNganh}`}
+                                                        value={item?.maNganh}
+                                                        checked={selectedNganh.maNganh === `${item?.maNganh}`}
                                                         onChange={() => handleSelectNganh(item)}
                                                     />
                                                 </td>
                                                 <td>{index + 1}</td>
-                                                <td>{item.maNganh}</td>
-                                                <td>{item.tenNganh}</td>
-                                                <td>{item.tongTinChi}</td>
+                                                <td>{item?.maNganh}</td>
+                                                <td>{item?.tenNganh}</td>
+                                                <td>{item?.tongTinChi}</td>
                                                 <td>{item?.khoa?.tenKhoa}</td>
-                                                <td>{item.trangThai}</td>
+                                                <td>{item?.trangThai}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -203,8 +203,8 @@ function Nganh() {
                                     >
                                         <option value="Khoa">Khoa</option>
                                         {danhSachKhoa?.map((item, index) => (
-                                            <option key={item.maKhoa} value={item.maKhoa}>
-                                                {item.tenKhoa}
+                                            <option key={item?.maKhoa} value={item?.maKhoa}>
+                                                {item?.tenKhoa}
                                             </option>
                                         ))}
                                     </select>
