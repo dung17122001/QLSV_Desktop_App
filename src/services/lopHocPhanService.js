@@ -181,3 +181,41 @@ export const getLopHocPhanByTextSearch = async (valueSearch, accessToken, axiosJ
         return null;
     }
 };
+
+export const xoaNhomTHTheoMaLHP = async (maLHP, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.delete('nhomTH/delete', {
+            params: {
+                maLHP: maLHP,
+            },
+
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const xoaLHPTheoMaLHP = async (maLHP, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.delete('lophocphan/delete', {
+            params: {
+                maLHP: maLHP,
+            },
+
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
