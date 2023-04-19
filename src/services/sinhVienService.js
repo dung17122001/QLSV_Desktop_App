@@ -72,3 +72,54 @@ export const timKiemSinhVien = async (text, accessToken, axiosJWT) => {
         return null;
     }
 };
+
+export const countSinhVienBySDT = async (soDT, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/sinhvien/countsvbysdt', {
+            params: {
+                soDT: soDT,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const countSinhVienByEmail = async (email, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/sinhvien/countsvbyemail', {
+            params: {
+                email: email,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const countSinhVienBySoCCCD = async (soCCCD, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/sinhvien/countsvbysocccd', {
+            params: {
+                soCCCD: soCCCD,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

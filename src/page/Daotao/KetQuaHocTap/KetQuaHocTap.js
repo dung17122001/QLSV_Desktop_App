@@ -376,7 +376,7 @@ function LopHoc() {
                         <td align="center">
                             <input
                                 type="text"
-                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-6 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                className="text-center block p-1 h-5 caret-sv-blue-4 text-sm w-8 rounded-md bg-transparent outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder={diem?.cuoiKy || '_'}
                                 value={listThongTinLHP[i].cuoiKy || ''}
                                 onChange={(e) => {
@@ -386,10 +386,22 @@ function LopHoc() {
                             />
                         </td>
 
-                        <td align="center">{diem?.diemTongKet || ''}</td>
-                        <td>{diem?.diemTongKet ? chuyenDoiDiemHe10SangHe4(diem?.diemTongKet) : ''}</td>
-                        <td>{diem?.diemTongKet ? chuyenDoiDiemHe10SangHe4Chu(diem?.diemTongKet) : ''}</td>
-                        <td>{diem?.diemTongKet ? xepLoaiBangDiem(diem?.diemTongKet) : ''}</td>
+                        <td align="center">
+                            {!!diem?.diemTongKet || diem?.diemTongKet === 0 ? diem?.diemTongKet : ''}
+                        </td>
+                        <td>
+                            {!!diem?.diemTongKet || diem?.diemTongKet === 0
+                                ? chuyenDoiDiemHe10SangHe4(diem.diemTongKet)
+                                : ''}
+                        </td>
+                        <td>
+                            {!!diem?.diemTongKet || diem?.diemTongKet === 0
+                                ? chuyenDoiDiemHe10SangHe4Chu(diem.diemTongKet)
+                                : ''}
+                        </td>
+                        <td>
+                            {!!diem?.diemTongKet || diem?.diemTongKet === 0 ? xepLoaiBangDiem(diem?.diemTongKet) : ''}
+                        </td>
                     </tr>
                 );
                 listRow.push(Comp);

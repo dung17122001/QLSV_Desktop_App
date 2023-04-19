@@ -22,16 +22,30 @@ import {
     themSinhVien,
     countSVByLopHoc,
     timKiemSinhVien,
+    countSinhVienBySDT,
+    countSinhVienByEmail,
+    countSinhVienBySoCCCD,
 } from '../../services/sinhVienService';
 import { getTatCaKhoa } from '../../services/khoaService';
 import { getNganhHocByKhoa } from '../../services/nganhService';
-import { getLopHocByNganhHoc, themLopHoc } from '../../services/lopHocService';
+import { getLopHocByNganhHoc, themLopHoc, countLopHocByTenLopHoc } from '../../services/lopHocService';
 import { getTatCaKhoaHoc } from '../../services/khoaHocService';
 import { register } from '../../services/authService';
+
 import moment from 'moment';
 
 import HeaderQl from '../../components/HeaderQL';
-import { checkValidTen, checkValidSDT, checkValidNgaySinh, checkValidKhoa } from '../../regex/regex';
+import {
+    checkValidTen,
+    checkValidSDT,
+    checkValidNgaySinh,
+    checkValidKhoa,
+    checkValidNganh,
+    checkValidEmail,
+    checkValidKhoaHoc,
+    checkValidCCCD,
+} from '../../regex/regex';
+import { uploadFile, deleteFile } from '~/services/fileService';
 
 //import TableSinhVien from '../../components/TableSinhVien/TableSinhVien';
 
@@ -39,7 +53,7 @@ const cx = classNames.bind(style);
 
 function SinhVien() {
     const options = ['Option 1', 'Option 2'];
-    const refLopHoc = useRef('');
+    const refLopHoc = useRef(null);
     const [open, setOpen] = useState(false);
     const [listChecked, setListChecked] = useState([]);
     const [khoaHoc, setKhoaHoc] = useState('null');
@@ -84,7 +98,19 @@ function SinhVien() {
     const [validKhoa, setValidKhoa] = useState('');
     const [validKhoaHoc, setValidKhoaHoc] = useState('');
     const [validLopHoc, setValidLopHoc] = useState('');
+    const [demSVLopHoc, setDemSVLopHoc] = useState('');
+    const [demSDT, setDemSDT] = useState(0);
+    const [demCCCD, setDemSoCCCD] = useState(0);
     let [countSV, setCountSV] = useState(0);
+    const [demEmail, setDemEmail] = useState(0);
+    const [valueAvatar, setValueAvatar] = useState(null);
+    function convertDateFormat(dateString) {
+        let date = new Date(dateString);
+        let day = date.getDate().toString().padStart(2, '0');
+        let month = (date.getMonth() + 1).toString().padStart(2, '0');
+        let year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
 
@@ -109,19 +135,19 @@ function SinhVien() {
         }
     };
 
-    const checkValidKhoaHoc = (event) => {
-        if (event && event.target && event.target.value !== null && event.target.value !== undefined) {
-            setKhoaHoc(event.target.value);
-            var valueKhoaHoc = event.target.value;
-            if (valueKhoaHoc === 'null') {
-                setValidKhoaHoc('');
-                return '';
-            } else {
-                setValidKhoaHoc('hidden');
-                return khoaHoc;
-            }
-        }
-    };
+    // const checkValidKhoaHoc = (event) => {
+    //     if (event && event.target && event.target.value !== null && event.target.value !== undefined) {
+    //         setKhoaHoc(event.target.value);
+    //         var valueKhoaHoc = event.target.value;
+    //         if (valueKhoaHoc === 'null') {
+    //             setValidKhoaHoc('');
+    //             return '';
+    //         } else {
+    //             setValidKhoaHoc('hidden');
+    //             return khoaHoc;
+    //         }
+    //     }
+    // };
 
     // console.log(lopHoc);
     const handleExportExcel = () => {
@@ -173,10 +199,10 @@ function SinhVien() {
         setGioiTinh('true');
         setNgaySinh('');
         setKhoa('');
-        setNganhHoc('null');
-        setLopHoc('null');
+        setNganhHoc('');
+        setLopHoc('');
         setEmail('');
-        setKhoaHoc('null');
+        setKhoaHoc('');
         setNgayVaoTruong(new Date().toISOString().substr(0, 10));
         setSoCCCD('');
         setNgayCapCCCD('');
@@ -212,36 +238,49 @@ function SinhVien() {
         };
         console.log(lop);
         if (lop.tenLop !== '' && nganhHoc != null) {
-            const addLop = await themLopHoc(lop, accessToken, axiosJWT);
-            if (addLop) {
-                alert('Thêm thành công');
+            const countLopHoc = await countLopHocByTenLopHoc(refLopHoc.current.value, accessToken, axiosJWT);
+            if (countLopHoc >= 1) {
+                alert('Tên lớp học này đã tồn tại!!!');
+            } else {
+                const addLop = await themLopHoc(lop, accessToken, axiosJWT);
+                if (addLop) {
+                    alert('Thêm thành công');
+                    setLopHoc(refLopHoc);
 
-                setListLH((prev) => [addLop, ...prev]);
+                    setListLH((prev) => [addLop, ...prev]);
+                }
             }
         } else {
             alert('Vui lòng nhập tên lớp');
         }
     };
+
     useEffect(() => {
-        if (khoa) {
+        if (!!khoa) {
             const getNganh = async () => {
                 const getNganhTheoKhoa = await getNganhHocByKhoa(khoa, accessToken, axiosJWT);
-
-                setListNganh(getNganhTheoKhoa);
+                if (!!getNganhTheoKhoa) {
+                    setListNganh(getNganhTheoKhoa);
+                }
             };
             getNganh();
+        } else {
+            setListNganh([]);
         }
     }, [khoa]);
     useEffect(() => {
-        if (nganhHoc) {
+        if (!!nganhHoc) {
             const getLopHoc = async () => {
                 const getLopHocTheoNganh = await getLopHocByNganhHoc(nganhHoc, accessToken, axiosJWT);
 
                 setListLH(getLopHocTheoNganh);
             };
             getLopHoc();
+        } else {
+            setListLH([]);
         }
     }, [nganhHoc]);
+
     let sinhVien = {
         maSinhVien,
         tenSinhVien,
@@ -265,7 +304,7 @@ function SinhVien() {
         ngayVaoDoan,
         trangThai,
     };
-    console.log(sinhVien);
+    //console.log(sinhVien);
     const handleClickOpenCapNhat = () => {
         if (!!selectedSinhVien) {
             setTenSinhVien(selectedSinhVien.tenSinhVien);
@@ -303,52 +342,131 @@ function SinhVien() {
         setListSV(getTatCaSV);
     };
 
+    // useEffect(() => {
+    //     var checkLopHoc = async () => {
+    //         if (!!lopHoc) {
+    //             const countSVByLH = await countSVByLopHoc(lopHoc?.maLop, accessToken, axiosJWT);
+    //             setCountSV(countSVByLH);
+
+    //             if (countSV >= 10) {
+    //                 alert('Lớp này đã đủ số lượng sinh viên.Vui lòng thêm lớp mới');
+    //                 setValidLopHoc(false);
+    //             } else {
+    //                 setValidLopHoc(true);
+    //             }
+    //         }
+    //         setValidLopHoc(false);
+    //     };
+
+    //     checkLopHoc();
+    // }, [lopHoc, refLopHoc]);
+    // console.log(validLopHoc);
+    // Hàm kiểm tra trùng số điện thoại
     useEffect(() => {
-        var checkLopHoc = async () => {
-            if (lopHoc !== '') {
-                const countSVByLH = await countSVByLopHoc(lopHoc?.maLop, accessToken, axiosJWT);
-                setCountSV(countSVByLH);
-                for (let i = 0; i < listLH.length; i++) {
-                    if (lopHoc === null && refLopHoc !== listLH[i].tenLop) {
-                        alert('Vui lòng thêm lớp học mới!!');
-                    }
-                }
-                if (countSV >= 3) {
-                    alert('Lớp này đã đủ số lượng sinh viên.Vui lòng thêm lớp mới');
-                }
-            }
+        const dem = async () => {
+            const countSVByLH = await countSVByLopHoc(lopHoc?.maLop, accessToken, axiosJWT);
+            setDemSVLopHoc(countSVByLH);
         };
-        checkLopHoc();
-    }, [lopHoc]);
+        dem();
+    }, [lopHoc, refLopHoc]);
+
+    const checkLopHoc = (lopHoc) => {
+        if (!!lopHoc && demSVLopHoc < 80) {
+            return true;
+        }
+        return false;
+    };
+
+    useEffect(() => {
+        const dem = async () => {
+            const checkEmail = await countSinhVienByEmail(email, accessToken, axiosJWT);
+            setDemEmail(checkEmail);
+        };
+        dem();
+    }, [email]);
+
+    const checkTrungEmail = (email) => {
+        if (checkValidEmail(email) && demEmail === 0) {
+            return true;
+        }
+        return false;
+    };
+
+    useEffect(() => {
+        const dem = async () => {
+            const checkSoCCCD = await countSinhVienBySoCCCD(soCCCD, accessToken, axiosJWT);
+            setDemSoCCCD(checkSoCCCD);
+        };
+        dem();
+    }, [soCCCD]);
+
+    const checkTrungSoCCCD = (soCCCD) => {
+        if (checkValidCCCD(soCCCD) && demCCCD === 0) {
+            return true;
+        }
+        return false;
+    };
+
+    useEffect(() => {
+        const dem = async () => {
+            const checkSDT = await countSinhVienBySDT(soDienThoai, accessToken, axiosJWT);
+            setDemSDT(checkSDT);
+        };
+        dem();
+    }, [soDienThoai]);
+
+    const checkTrungSoDienThoai = (sdt) => {
+        if (checkValidSDT(sdt) && demSDT === 0) {
+            return true;
+        }
+        return false;
+    };
 
     const luuSinhVien = async () => {
-        console.log(sinhVien);
-        if (!!selectedSinhVien) {
-            sinhVien.maSinhVien = selectedSinhVien.maSinhVien;
+        //console.log(sinhVien);
+        if (
+            checkValidTen(tenSinhVien) &&
+            checkValidNgaySinh(ngaySinh) &&
+            checkTrungSoDienThoai(soDienThoai) &&
+            checkValidKhoa(khoa) &&
+            checkValidNganh(nganhHoc) &&
+            validLopHoc
+        ) {
+            let formDataFile = new FormData();
+            formDataFile.append('file', valueAvatar);
+            let linkAvatar = (await uploadFile(formDataFile, accessToken, axiosJWT)) || '';
+            console.log(linkAvatar);
+            sinhVien = { ...sinhVien, linkAnh: linkAvatar };
+            if (!!selectedSinhVien) {
+                sinhVien.maSinhVien = selectedSinhVien.maSinhVien;
 
-            let suaSinhVien = await capNhatSinhVien(sinhVien, accessToken, axiosJWT);
+                let suaSinhVien = await capNhatSinhVien(sinhVien, accessToken, axiosJWT);
 
-            if (suaSinhVien) {
-                setOpen(false);
-                alert('Cập nhật thành công');
-                reload();
+                if (suaSinhVien) {
+                    setOpen(false);
+                    alert('Cập nhật thành công');
+
+                    reload();
+                }
+            } else {
+                let addSinhVien = await themSinhVien(sinhVien, accessToken, axiosJWT);
+
+                const sinhVienRegister = {
+                    username: addSinhVien.maSinhVien,
+                    password: '123456',
+                    role: 'ROLE_SINHVIEN',
+                };
+
+                //console.log(sinhVienRegister);
+                await register(sinhVienRegister);
+                if (addSinhVien && sinhVienRegister) {
+                    setOpen(false);
+                    alert('Thêm thành công');
+                    reload();
+                }
             }
         } else {
-            let addSinhVien = await themSinhVien(sinhVien, accessToken, axiosJWT);
-
-            const sinhVienRegister = {
-                username: addSinhVien.maSinhVien,
-                password: '123456',
-                role: 'ROLE_SINHVIEN',
-            };
-
-            console.log(sinhVienRegister);
-            await register(sinhVienRegister);
-            if (addSinhVien && sinhVienRegister) {
-                setOpen(false);
-                alert('Thêm thành công');
-                reload();
-            }
+            alert('Dữ liệu nhập vào chưa phù hơp!!');
         }
     };
 
@@ -406,9 +524,10 @@ function SinhVien() {
                                 type="file"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 placeholder="link hình ảnh"
-                                value={linkAnh}
+                                accept="image/*"
+                                //value={valueAvatar}
                                 onChange={(e) => {
-                                    setLinkAnh(e.target.value);
+                                    setValueAvatar(e.target.files[0]);
                                 }}
                                 onBlur={() => {
                                     const test = checkValidTenSV();
@@ -431,9 +550,10 @@ function SinhVien() {
                                     value={soDienThoai}
                                     onChange={(e) => setSoDienThoai(e.target.value)}
                                 />
-                                {!checkValidSDT(soDienThoai) && (
+
+                                {!checkTrungSoDienThoai(soDienThoai) && (
                                     <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
-                                        Số điện thoại 10 số bắt đầu bằng số 0
+                                        Số điện thoại không đúng hoặc đã tồn tại
                                     </span>
                                 )}
                             </div>
@@ -516,21 +636,18 @@ function SinhVien() {
                                     name="selectedFruit"
                                     className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                 >
-                                    <option value="null">Ngành</option>
-                                    {listNganh.map((option) => (
+                                    <option value="">Ngành</option>
+                                    {listNganh?.map((option) => (
                                         <option key={option?.maNganh} value={option?.maNganh}>
                                             {option?.tenNganh}
                                         </option>
                                     ))}
                                 </select>
-                                <span
-                                    className={cx(
-                                        'flex justify-start items-center text-red-500 text-xs mt-0',
-                                        validKhoa,
-                                    )}
-                                >
-                                    Bắt buộc
-                                </span>
+                                {!checkValidNganh(nganhHoc) && (
+                                    <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
+                                        Bắt buộc
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
@@ -571,14 +688,13 @@ function SinhVien() {
                                             <FaPlus size={20} color="green" onClick={handleClickAddLopHoc} />
                                         </div>
                                     </div>
-                                    <span
-                                        className={cx(
-                                            'flex justify-start items-center text-red-500 text-xs mt-0',
-                                            validLopHoc,
-                                        )}
-                                    >
-                                        Bắt buộc
-                                    </span>
+                                    {!checkLopHoc(lopHoc) && (
+                                        <span
+                                            className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}
+                                        >
+                                            Bắt buộc
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -589,34 +705,50 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Email:</label>
                             </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => {
-                                    setEmail(e.target.value);
-                                }}
-                            />
+                            <div className="h-16">
+                                <input
+                                    type="text"
+                                    className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                    }}
+                                />
+                                {!checkTrungEmail(email) && (
+                                    <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
+                                        Email không đúng hoặc đã tồn tại
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Khóa học:</label>
                             </div>
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+
+                            <div className="h-16">
                                 <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    name="selectedFruit"
+                                    className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                     value={khoaHoc}
-                                    onChange={checkValidKhoaHoc}
+                                    onChange={(e) => {
+                                        setKhoaHoc(e.target.value);
+                                    }}
                                 >
-                                    <option value="null">Khóa học</option>
+                                    <option value="">Khóa học</option>
                                     {listKhoaHoc?.map((option) => (
                                         <option key={option?.maKhoaHoc} value={option?.maKhoaHoc}>
                                             {option?.tenKhoaHoc}
                                         </option>
                                     ))}
                                 </select>
+                                {!checkValidKhoaHoc(khoaHoc) && (
+                                    <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
+                                        Bắt buộc
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <div className="flex justify-center flex-row items-center w-1/3">
@@ -640,15 +772,22 @@ function SinhVien() {
                             <div className="w-32 text-left">
                                 <label htmlFor="">Số CCCD:</label>
                             </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số căn cước công dân"
-                                value={soCCCD}
-                                onChange={(e) => {
-                                    setSoCCCD(e.target.value);
-                                }}
-                            />
+                            <div className="h-16">
+                                <input
+                                    type="text"
+                                    className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Số căn cước công dân"
+                                    value={soCCCD}
+                                    onChange={(e) => {
+                                        setSoCCCD(e.target.value);
+                                    }}
+                                />
+                                {!checkValidCCCD(soCCCD) && (
+                                    <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
+                                        Số CCCD không đúng hoặc bị trùng
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex justify-center flex-row items-center w-1/3">
@@ -871,7 +1010,7 @@ function SinhVien() {
                                                 <td>{item?.maSinhVien}</td>
                                                 <td align="left">{item.tenSinhVien}</td>
                                                 <td>{item.gioiTinh ? 'Nam' : 'Nữ'}</td>
-                                                <td></td>
+                                                <td>{convertDateFormat(item?.ngaySinh)}</td>
                                                 <td align="left">{item?.lopHoc?.tenLop}</td>
                                                 <td align="left">{item?.lopHoc?.nganhHoc?.khoa?.tenKhoa}</td>
                                                 <td align="left">{item?.khoaHoc?.tenKhoaHoc}</td>

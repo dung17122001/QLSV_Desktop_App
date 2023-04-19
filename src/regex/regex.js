@@ -18,6 +18,14 @@ export const checkValidSDT = (value) => {
     }
 };
 
+export const checkValidCCCD = (value) => {
+    if (!!value && value.match(/\d{12}$/)) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
 export const checkValidNgaySinh = (value) => {
     if (!!value) {
         return true;
@@ -26,6 +34,29 @@ export const checkValidNgaySinh = (value) => {
     }
 };
 export const checkValidKhoa = (value) => {
+    if (!!value) {
+        return true;
+    } else {
+        return false;
+    }
+};
+export const checkValidNganh = (value) => {
+    if (!!value) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+export const checkValidEmail = (value) => {
+    if (!!value && value.match(/^[a-zA-Z._0-9]+@[a-z]+\.[a-z]+$/)) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+export const checkValidKhoaHoc = (value) => {
     if (!!value) {
         return true;
     } else {
