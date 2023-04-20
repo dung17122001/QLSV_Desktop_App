@@ -63,3 +63,11 @@ export const checkValidKhoaHoc = (value) => {
         return false;
     }
 };
+
+export const checkValidChucVu = (value) => {
+    if (!!value) {
+        return true;
+    } else {
+        return false;
+    }
+};

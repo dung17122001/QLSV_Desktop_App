@@ -92,12 +92,7 @@ function SinhVien() {
     const [trangThai, setTrangThai] = useState('');
     const [selectedSinhVien, setSelectedSinhVien] = useState('');
     const [validTenSinhVien, setValidTenSinhVien] = useState('');
-    const [validSDT, setValidSDT] = useState('');
-    const [validGT, setValidGT] = useState('');
-    const [validNgaySinh, setValidNgaySinh] = useState('');
-    const [validKhoa, setValidKhoa] = useState('');
-    const [validKhoaHoc, setValidKhoaHoc] = useState('');
-    const [validLopHoc, setValidLopHoc] = useState('');
+
     const [demSVLopHoc, setDemSVLopHoc] = useState('');
     const [demSDT, setDemSDT] = useState(0);
     const [demCCCD, setDemSoCCCD] = useState(0);
@@ -118,38 +113,6 @@ function SinhVien() {
     var axiosJWT = getAxiosJWT(dispatch, userLoginData);
     const [listNganh, setListNganh] = useState([]);
 
-    const checkValidTenSV = () => {
-        var valueTenSV = tenSinhVien;
-        if (
-            valueTenSV === '' ||
-            !valueTenSV.match(
-                /^[a-zA-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$/,
-            )
-        ) {
-            setValidTenSinhVien('');
-            return false;
-        } else {
-            setValidTenSinhVien('hidden');
-
-            return true;
-        }
-    };
-
-    // const checkValidKhoaHoc = (event) => {
-    //     if (event && event.target && event.target.value !== null && event.target.value !== undefined) {
-    //         setKhoaHoc(event.target.value);
-    //         var valueKhoaHoc = event.target.value;
-    //         if (valueKhoaHoc === 'null') {
-    //             setValidKhoaHoc('');
-    //             return '';
-    //         } else {
-    //             setValidKhoaHoc('hidden');
-    //             return khoaHoc;
-    //         }
-    //     }
-    // };
-
-    // console.log(lopHoc);
     const handleExportExcel = () => {
         exportToExcel('data-sv', 'Danh sách sinh viên');
     };
@@ -236,7 +199,7 @@ function SinhVien() {
             tenLop: refLopHoc.current.value,
             nganhHoc: nganhHoc,
         };
-        console.log(lop);
+
         if (lop.tenLop !== '' && nganhHoc != null) {
             const countLopHoc = await countLopHocByTenLopHoc(refLopHoc.current.value, accessToken, axiosJWT);
             if (countLopHoc >= 1) {
@@ -304,6 +267,7 @@ function SinhVien() {
         ngayVaoDoan,
         trangThai,
     };
+
     //console.log(sinhVien);
     const handleClickOpenCapNhat = () => {
         if (!!selectedSinhVien) {
@@ -329,11 +293,8 @@ function SinhVien() {
             setTrangThai(selectedSinhVien.trangThai);
             setLinkAnh(selectedSinhVien.linkAnh);
             setOpen(true);
-            console.log(selectedSinhVien);
-            console.log(selectedSinhVien?.lopHoc.nganhHoc.khoa.tenKhoa);
-            console.log(selectedSinhVien?.lopHoc.nganhHoc.tenNganh);
         } else {
-            alert('Vui lòng chọn nhân viên');
+            alert('Vui lòng chọn sinh viên');
         }
     };
     const reload = async () => {
@@ -342,25 +303,6 @@ function SinhVien() {
         setListSV(getTatCaSV);
     };
 
-    // useEffect(() => {
-    //     var checkLopHoc = async () => {
-    //         if (!!lopHoc) {
-    //             const countSVByLH = await countSVByLopHoc(lopHoc?.maLop, accessToken, axiosJWT);
-    //             setCountSV(countSVByLH);
-
-    //             if (countSV >= 10) {
-    //                 alert('Lớp này đã đủ số lượng sinh viên.Vui lòng thêm lớp mới');
-    //                 setValidLopHoc(false);
-    //             } else {
-    //                 setValidLopHoc(true);
-    //             }
-    //         }
-    //         setValidLopHoc(false);
-    //     };
-
-    //     checkLopHoc();
-    // }, [lopHoc, refLopHoc]);
-    // console.log(validLopHoc);
     // Hàm kiểm tra trùng số điện thoại
     useEffect(() => {
         const dem = async () => {
@@ -384,13 +326,14 @@ function SinhVien() {
         };
         dem();
     }, [email]);
-
-    const checkTrungEmail = (email) => {
-        if (checkValidEmail(email) && demEmail === 0) {
+    function checkTrungEmail(email) {
+        if (email === selectedSinhVien?.email) {
+            return true;
+        } else if (checkValidEmail(email) && demEmail === 0) {
             return true;
         }
         return false;
-    };
+    }
 
     useEffect(() => {
         const dem = async () => {
@@ -401,7 +344,9 @@ function SinhVien() {
     }, [soCCCD]);
 
     const checkTrungSoCCCD = (soCCCD) => {
-        if (checkValidCCCD(soCCCD) && demCCCD === 0) {
+        if (soCCCD === selectedSinhVien?.soCCCD) {
+            return true;
+        } else if (checkValidCCCD(soCCCD) && demCCCD === 0) {
             return true;
         }
         return false;
@@ -416,7 +361,9 @@ function SinhVien() {
     }, [soDienThoai]);
 
     const checkTrungSoDienThoai = (sdt) => {
-        if (checkValidSDT(sdt) && demSDT === 0) {
+        if (sdt === selectedSinhVien?.soDienThoai) {
+            return true;
+        } else if (checkValidSDT(sdt) && demSDT === 0) {
             return true;
         }
         return false;
@@ -430,7 +377,9 @@ function SinhVien() {
             checkTrungSoDienThoai(soDienThoai) &&
             checkValidKhoa(khoa) &&
             checkValidNganh(nganhHoc) &&
-            validLopHoc
+            checkLopHoc(lopHoc) &&
+            checkTrungSoCCCD(soCCCD) &&
+            checkTrungEmail(email)
         ) {
             let formDataFile = new FormData();
             formDataFile.append('file', valueAvatar);
@@ -488,8 +437,9 @@ function SinhVien() {
                             <input
                                 type="text"
                                 className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Số điện thoại"
+                                placeholder="Mã tự động tạo"
                                 value={maSinhVien}
+                                disabled
                                 onChange={(e) => {
                                     setMaSinhVien(e.target.value);
                                 }}
@@ -528,10 +478,6 @@ function SinhVien() {
                                 //value={valueAvatar}
                                 onChange={(e) => {
                                     setValueAvatar(e.target.files[0]);
-                                }}
-                                onBlur={() => {
-                                    const test = checkValidTenSV();
-                                    console.log(test);
                                 }}
                             />
                         </div>
@@ -782,7 +728,7 @@ function SinhVien() {
                                         setSoCCCD(e.target.value);
                                     }}
                                 />
-                                {!checkValidCCCD(soCCCD) && (
+                                {!checkTrungSoCCCD(soCCCD) && (
                                     <span className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}>
                                         Số CCCD không đúng hoặc bị trùng
                                     </span>

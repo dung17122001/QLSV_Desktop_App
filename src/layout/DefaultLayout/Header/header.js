@@ -7,16 +7,36 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Fade from '@mui/material/Fade';
 import Menu1 from '../Menu/menu';
+import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { logout } from '../../../services/authService';
+import { logOutSuccess } from '../../../redux/Slice/authSlice';
+import { currentNhanVien } from '../../../redux/Slice/nhanVienSlice';
 const cx = classNames;
 
 function Header({ userLoginData }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+
+    const dispatch = useDispatch();
+
+    const curNhanVien = useSelector((state) => state.persistedReducer.nhanVienSlice.currentNhanVien);
+    //console.log(curNhanVien);
+    var accessToken = userLoginData?.accessToken;
+    var axiosJWT = getAxiosJWT(dispatch, curNhanVien);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleLogOut = async () => {
+        await logout(dispatch, accessToken, axiosJWT);
+        dispatch(logOutSuccess());
+        dispatch(currentNhanVien(null));
     };
     return (
         <div>
@@ -53,7 +73,7 @@ function Header({ userLoginData }) {
                                 >
                                     <MenuItem onClick={handleClose}>Thông tin tài khoản</MenuItem>
                                     <MenuItem onClick={handleClose}>My account</MenuItem>
-                                    <MenuItem onClick={handleClose}>Đăng xuất</MenuItem>
+                                    <MenuItem onClick={handleLogOut}>Đăng xuất</MenuItem>
                                 </Menu>
                             </div>
 

@@ -88,3 +88,54 @@ export const getNhanVienTheoKhoa = async (maKhoa, accessToken, axiosJWT) => {
         return null;
     }
 };
+
+export const countNhanVienBySDT = async (soDT, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/nhanvien/countnvbysdt', {
+            params: {
+                soDT: soDT,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const countNhanVienByEmail = async (email, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/nhanvien/countnvbyemail', {
+            params: {
+                email: email,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const countNhanVienBySoCCCD = async (soCCCD, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/nhanvien/countnvbysocccd', {
+            params: {
+                soCCCD: soCCCD,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

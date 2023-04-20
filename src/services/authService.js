@@ -8,7 +8,6 @@ const ROLE_NAME = {
     PHONG_DT: 'ROLE_PHONGDAOTAO',
     GIANG_VIEN: 'ROLE_GIANGVIEN',
     SINH_VIEN: 'ROLE_SINHVIEN',
-   
 };
 
 export const loginUser = async (user, dispatch, navigate) => {
@@ -49,7 +48,7 @@ export const getRefreshToken = async () => {
         return null;
     }
 };
-export const logout = async (dispatch, navigate, accessToken, axiosJWT) => {
+export const logout = async (dispatch, accessToken, axiosJWT) => {
     try {
         await axiosJWT.post(
             'auth/logout',
