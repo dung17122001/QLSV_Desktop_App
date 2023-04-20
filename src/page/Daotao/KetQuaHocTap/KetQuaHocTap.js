@@ -72,12 +72,24 @@ function LopHoc() {
     //console.log(listThongTinLHP);
     const handleLuuBangDiem = async () => {
         for (let i = 0; i < listThongTinLHP.length; i++) {
-            var diemSV = listDiemLHP.filter(
-                (e) =>
-                    e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
-                    e.trangThai !== 'Học lại' &&
-                    e.trangThai !== 'Học cải thiện',
-            );
+            let diemSV = [];
+            if (listThongTinLHP[i]?.loaiDangKyHP?.maLoaiDKHP === 'LDK002') {
+                diemSV = listDiemLHP?.filter(
+                    (e) =>
+                        e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
+                        e.trangThai !== 'Học lại',
+                );
+            } else if (listThongTinLHP[i]?.loaiDangKyHP?.maLoaiDKHP === 'LDK003') {
+                diemSV = listDiemLHP?.filter(
+                    (e) =>
+                        e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
+                        e.trangThai !== 'Học cải thiện',
+                );
+            } else {
+                diemSV = listDiemLHP?.filter(
+                    (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+                );
+            }
             //console.log(listThongTinLHP[i]);
             let bangDiem = {
                 maBangDiem: diemSV[0]?.maBangDiem,
@@ -115,7 +127,7 @@ function LopHoc() {
                 bangDiem = { ...bangDiem, diemTongKet: diemTongKet, trangThai: setTrangThaiHocPhan(diemTongKet) };
             }
 
-            //console.log(bangDiem);
+            console.log(bangDiem);
             if (
                 !diemSV[0]?.thuongKy1 &&
                 !diemSV[0]?.thuongKy2 &&
@@ -135,12 +147,7 @@ function LopHoc() {
                 // console.log('okkkk');
             }
         }
-        let resultBangDiem = await getThongTinSVByMaLHP(
-            selectedLHP,
-
-            accessToken,
-            axiosJWT,
-        );
+        let resultBangDiem = await getThongTinSVByMaLHP(selectedLHP, curNhanVien?.maNhanVien, accessToken, axiosJWT);
         //console.log(resultBangDiem);
         if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
         alert('Đã lưu');
@@ -150,11 +157,11 @@ function LopHoc() {
         if (ck < 3) return 0;
         let countTK = 0;
         let diemTongKet = 0;
-        if (tk1 !== null) countTK++;
-        if (tk2 !== null) countTK++;
-        if (tk3 !== null) countTK++;
-        if (tk4 !== null) countTK++;
-        if (tk5 !== null) countTK++;
+        if (tk1 !== null && tk1 !== '') countTK++;
+        if (tk2 !== null && tk2 !== '') countTK++;
+        if (tk3 !== null && tk3 !== '') countTK++;
+        if (tk4 !== null && tk4 !== '') countTK++;
+        if (tk5 !== null && tk5 !== '') countTK++;
         let tbTK =
             ((tk1 ? tk1 : 0) * 1 +
                 (tk2 ? tk2 : 0) * 1 +
@@ -163,9 +170,9 @@ function LopHoc() {
                 (tk5 ? tk5 : 0) * 1) /
             countTK;
         let countTH = 0;
-        if (th1 !== null) countTH++;
-        if (th2 !== null) countTH++;
-        if (th3 !== null) countTH++;
+        if (th1 !== null && th1 !== '') countTH++;
+        if (th2 !== null && th2 !== '') countTH++;
+        if (th3 !== null && th3 !== '') countTH++;
         let tbTH = ((th1 ? th1 : 0) * 1 + (th2 ? th2 : 0) * 1 + (th3 ? th3 : 0) * 1) / countTH;
         // console.log(tbTK + 'tbTK');
         // console.log(tbTH + 'th');
@@ -252,15 +259,24 @@ function LopHoc() {
         //console.log(listDiemLHP);
         if (!!listThongTinLHP && listThongTinLHP.length > 0) {
             for (let i = 0; i < listThongTinLHP?.length; i++) {
-                let diem = listDiemLHP?.find(
-                    (e) =>
-                        e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
-                        e.trangThai !== 'Học lại' &&
-                        e.trangThai !== 'Học cải thiện',
-                );
-                diemRef.current = diem;
-                //console.log(diemRef);
-                //this.setState({ diem });
+                let diem = {};
+                if (listThongTinLHP[i]?.loaiDangKyHP?.maLoaiDKHP === 'LDK002') {
+                    diem = listDiemLHP?.find(
+                        (e) =>
+                            e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
+                            e.trangThai !== 'Học lại',
+                    );
+                } else if (listThongTinLHP[i]?.loaiDangKyHP?.maLoaiDKHP === 'LDK003') {
+                    diem = listDiemLHP?.find(
+                        (e) =>
+                            e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
+                            e.trangThai !== 'Học cải thiện',
+                    );
+                } else {
+                    diem = listDiemLHP?.find(
+                        (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+                    );
+                }
                 var Comp = (
                     <tr>
                         <td>{i + 1}</td>
@@ -426,7 +442,8 @@ function LopHoc() {
             return 'Khá';
         } else if (diemHe10 >= 5) {
             return 'Trung bình';
-        } else {
+        } else if (diemHe10 >= 4) return 'TB yếu';
+        else {
             return 'Yếu';
         }
     }
@@ -506,11 +523,12 @@ function LopHoc() {
         const getBangDiem = async () => {
             let resultBangDiem = await getThongTinSVByMaLHP(
                 selectedLHP,
-
+                curNhanVien?.maNhanVien,
                 accessToken,
                 axiosJWT,
             );
-            //console.log(resultBangDiem);
+            //let diemSV = resultBangDiem.filter((e) => e.trangThai !== 'Học lại' && e.trangThai !== 'Học cải thiện');
+            //console.log(diemSV);
             if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
         };
         getBangDiem();
@@ -534,7 +552,7 @@ function LopHoc() {
             }
         };
         getTTLHP();
-    }, [selectedNhom]);
+    }, [selectedNhom, curNhanVien]);
 
     return (
         <div className="w-full h-full justify-center items-center ">

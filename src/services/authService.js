@@ -8,7 +8,6 @@ const ROLE_NAME = {
     PHONG_DT: 'ROLE_PHONGDAOTAO',
     GIANG_VIEN: 'ROLE_GIANGVIEN',
     SINH_VIEN: 'ROLE_SINHVIEN',
-   
 };
 
 export const loginUser = async (user, dispatch, navigate) => {
@@ -37,13 +36,14 @@ export const loginUser = async (user, dispatch, navigate) => {
 };
 export const getRefreshToken = async () => {
     try {
-        const res = await httpRequest.post(
+        const res = await httpRequest.get(
             'auth/refresh-token',
-            {},
+
             {
                 withCredentials: true,
             },
         );
+
         return res;
     } catch (error) {
         return null;

@@ -15,7 +15,7 @@ export const getAxiosJWT = (dispatch, currAccount) => {
             var decodeToken = jwtDecode(token);
             if (decodeToken.exp < currDate.getTime() / 1000) {
                 var newToken = await getRefreshToken();
-                //console.log(newToken);
+
                 var refreshUser = {
                     ...currAccount,
                     accessToken: newToken.accessToken,
