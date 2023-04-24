@@ -10,7 +10,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { TiCancel } from 'react-icons/ti';
-import { FaRegWindowClose } from 'react-icons/fa';
+import { FaRegWindowClose, FaFileExcel } from 'react-icons/fa';
 import { AiFillSave } from 'react-icons/ai';
 import { BsFillEraserFill } from 'react-icons/bs';
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
@@ -35,6 +35,8 @@ import {
     getLHPCuaGVTheoMaHK,
     getALLNhomTHTheoMaHP,
 } from '~/services/lopHocPhanService';
+import ExcelJS from 'exceljs';
+
 import { getNhanVienTheoKhoa } from '~/services/nhanVienService';
 import { getLichTheoLHP, themLich, updateLich } from '~/services/lichService';
 import classNames from 'classnames/bind';
@@ -231,15 +233,6 @@ function LopHoc() {
 
     const handelSelectNhomTH = async (e) => {
         setSelectNhom(e.target.value);
-
-        // let resultBangDiem = await getThongTinSVByMaLHP(
-        //     e.target.value,
-
-        //     accessToken,
-        //     axiosJWT,
-        // );
-        // //console.log(resultBangDiem);
-        // if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
     };
 
     const handleExportExcel = () => {
@@ -510,6 +503,457 @@ function LopHoc() {
         }
     };
 
+    const exportToExcel = async () => {
+        // Tạo workbook và worksheet mới
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('My Sheet');
+
+        let hk = listHocKy.find((e) => e.maHocKy === selectedOptionHK);
+        let tenHK = hk?.tenHocKy || '';
+        let hp = listHocPhan.find((e) => e.maHocPhan === selectedHocPhan);
+        let tenHP = hp?.tenHocPhan || '';
+        //console.log(listThongTinLHP);
+
+        worksheet.columns = [
+            { header: 'STT', key: 'stt', width: 5 },
+            { header: 'Mã số sinh viên', key: 'maSV', width: 20 },
+            { header: 'Họ tên sinh viên', key: 'hoTen', width: 25 },
+            { header: 'Giữa kỳ', key: 'giuaKy', width: 6 },
+            { header: 'Chuyên cần', key: 'chuyenCan', width: 12 },
+            { header: 'Thường kỳ 1', key: 'thuongKy1', width: 6 },
+            { header: 'Thường kỳ 2', key: 'thuongKy2', width: 6 },
+            { header: 'Thường kỳ 3', key: 'thuongKy3', width: 6 },
+            { header: 'Thường kỳ 4', key: 'thuongKy4', width: 6 },
+            { header: 'Thường kỳ 5', key: 'thuongKy5', width: 6 },
+            { header: 'Thực hành 1', key: 'thucHanh1', width: 6 },
+            { header: 'Thực hành 2', key: 'thucHanh2', width: 6 },
+            { header: 'Thực hành 3', key: 'thucHanh3', width: 6 },
+            { header: 'Cuối kỳ', key: 'cuoiKy', width: 6 },
+            { header: 'Tổng kết', key: 'diemTongKet', width: 6 },
+            { header: 'Ghi chú', key: 'trangThai', width: 6 },
+        ];
+
+        worksheet.mergeCells('A1:D3'); //merge ô từ A1 đến O1
+        const mergedCell = worksheet.getCell('A1');
+        mergedCell.value = 'BỘ CÔNG THƯƠNG\nTRƯỜNG ĐẠI HỌC CÔNG NGHIỆP TP.HCM';
+        mergedCell.font = { size: 11, bold: true };
+        mergedCell.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        worksheet.eachRow(function (row, rowNumber) {
+            row.eachCell(function (cell, colNumber) {
+                cell.border = null;
+            });
+        });
+
+        worksheet.mergeCells('E1:I3');
+        const E1 = worksheet.getCell('E1');
+        E1.value = '';
+        worksheet.mergeCells('J1:P3');
+        const J1 = worksheet.getCell('J1');
+        J1.value = 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\r\nĐộc lập - Tự do - Hạnh phúc';
+        J1.font = { size: 11, bold: true };
+        J1.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        worksheet.mergeCells('A4:P5');
+        const A4 = worksheet.getCell('A4');
+        A4.value = 'DANH SÁCH THÔNG TIN KẾT QUẢ HỌC TẬP';
+        A4.font = { size: 14, bold: true };
+        A4.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        worksheet.mergeCells('A6:P6');
+        const A6 = worksheet.getCell('A6');
+        A6.value = `               Lớp học:       ${listThongTinLHP[0]?.nhomThucHanh?.lopHocPhan?.tenLopHocPhan}                 Đợt: ${tenHK}`;
+        A6.font = { size: 11, bold: true };
+        A6.alignment = {
+            vertical: 'middle',
+            horizontal: 'left',
+            wrapText: true,
+        };
+
+        worksheet.mergeCells('A7:P7');
+        const A7 = worksheet.getCell('A7');
+        A7.value = `               Môn học/học phần:       ${tenHP}`;
+        A7.font = { size: 11, bold: true };
+        A7.alignment = {
+            vertical: 'middle',
+            horizontal: 'left',
+            wrapText: true,
+        };
+
+        worksheet.mergeCells('A8:A9');
+        const A8 = worksheet.getCell('A8');
+        A8.value = 'STT';
+        A8.font = { size: 11, bold: true };
+        A8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        A8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        worksheet.mergeCells('B8:B9');
+        const B8 = worksheet.getCell('B8');
+        B8.value = 'Mã số sinh viên';
+        B8.font = { size: 11, bold: true };
+        B8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        B8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        worksheet.mergeCells('C8:C9');
+        const C8 = worksheet.getCell('C8');
+        C8.value = 'Họ tên sinh viên';
+        C8.font = { size: 11, bold: true };
+        C8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        C8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        worksheet.mergeCells('D8:E8');
+        const D8 = worksheet.getCell('D8');
+        D8.value = 'Giữa kỳ';
+        D8.font = { size: 11, bold: true };
+        D8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        D8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        worksheet.mergeCells('F8:J8');
+        const F8 = worksheet.getCell('F8');
+        F8.value = 'Thường kỳ';
+        F8.font = { size: 11, bold: true };
+        F8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        F8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        worksheet.mergeCells('K8:M8');
+        const K8 = worksheet.getCell('K8');
+        K8.value = 'Thực hành';
+        K8.font = { size: 11, bold: true };
+        K8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        K8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        worksheet.mergeCells('N8:N9');
+        const N8 = worksheet.getCell('N8');
+        N8.value = 'Cuối kỳ';
+        N8.font = { size: 11, bold: true };
+        N8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        N8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        worksheet.mergeCells('O8:O9');
+        const O8 = worksheet.getCell('O8');
+        O8.value = 'Điểm tổng kết';
+        O8.font = { size: 11, bold: true };
+        O8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        O8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        worksheet.mergeCells('P8:P9');
+        const P8 = worksheet.getCell('P8');
+        P8.value = 'Ghi chú';
+        P8.font = { size: 11, bold: true };
+        P8.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        P8.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+
+        const D9 = worksheet.getCell('D9');
+        D9.value = 'GK';
+        D9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        D9.font = { size: 11, bold: true };
+        D9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        const E9 = worksheet.getCell('E9');
+        E9.value = 'Chuyên cần';
+        E9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        E9.font = { size: 11, bold: true };
+        E9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        const F9 = worksheet.getCell('F9');
+        F9.value = '1';
+        F9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        F9.font = { size: 11, bold: true };
+        F9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        const G9 = worksheet.getCell('G9');
+        G9.value = '2';
+        G9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        G9.font = { size: 11, bold: true };
+        G9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        const H9 = worksheet.getCell('H9');
+        H9.value = '3';
+        H9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        H9.font = { size: 11, bold: true };
+        H9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        const I9 = worksheet.getCell('I9');
+        I9.value = '4';
+        I9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        I9.font = { size: 11, bold: true };
+        I9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        const J9 = worksheet.getCell('J9');
+        J9.value = '5';
+        J9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        J9.font = { size: 11, bold: true };
+        J9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        const K9 = worksheet.getCell('K9');
+        K9.value = '1';
+        K9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        K9.font = { size: 11, bold: true };
+        K9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        const L9 = worksheet.getCell('L9');
+        L9.value = '2';
+        L9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        L9.font = { size: 11, bold: true };
+        L9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+        const M9 = worksheet.getCell('M9');
+        M9.value = '3';
+        M9.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+        };
+        M9.font = { size: 11, bold: true };
+        M9.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true,
+        };
+
+        for (let i = 0; i < listThongTinLHP?.length; i++) {
+            let diem = {};
+            if (listThongTinLHP[i]?.loaiDangKyHP?.maLoaiDKHP === 'LDK002') {
+                diem = listDiemLHP?.find(
+                    (e) =>
+                        e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
+                        e.trangThai !== 'Học lại',
+                );
+            } else if (listThongTinLHP[i]?.loaiDangKyHP?.maLoaiDKHP === 'LDK003') {
+                diem = listDiemLHP?.find(
+                    (e) =>
+                        e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien &&
+                        e.trangThai !== 'Học cải thiện',
+                );
+            } else {
+                diem = listDiemLHP?.find(
+                    (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
+                );
+            }
+            worksheet
+                .addRow({
+                    stt: i + 1 || '',
+                    maSV: diem?.sinhVien.maSinhVien || '',
+                    hoTen: diem?.sinhVien.tenSinhVien || '',
+                    giuaKy: diem?.giuaKy || '',
+                    chuyenCan: diem?.chuyenCan || '',
+                    thuongKy1: diem?.thuongKy1 || '',
+                    thuongKy2: diem?.thuongKy2 || '',
+                    thuongKy3: diem?.thuongKy3 || '',
+                    thuongKy4: diem?.thuongKy4 || '',
+                    thuongKy5: diem?.thuongKy5 || '',
+                    thucHanh1: diem?.thucHanh1 || '',
+                    thucHanh2: diem?.thucHanh2 || '',
+                    thucHanh3: diem?.thucHanh3 || '',
+                    cuoiKy: diem?.cuoiKy || '',
+                    diemTongKet: diem?.diemTongKet || '',
+                    trangThai: diem?.trangThai || '',
+                })
+                .eachCell((cell) => {
+                    cell.border = {
+                        top: { style: 'thin' },
+                        left: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        right: { style: 'thin' },
+                    };
+                });
+        }
+
+        // Tạo file Excel từ workbook
+        const buffer = await workbook.xlsx.writeBuffer();
+        workbook.xlsx
+            .writeBuffer({ base64: true, charset: 'utf8' })
+            .then((buffer) => {
+                // handle the buffer, e.g. send it to client
+            })
+            .catch((err) => {
+                // handle errors
+            });
+
+        // Tạo URL từ buffer
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+
+        // Tạo thẻ a để tải file Excel
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = `DS ${listThongTinLHP[0]?.nhomThucHanh?.lopHocPhan?.tenLopHocPhan}.xlsx`;
+        downloadLink.click();
+    };
+
     useEffect(() => {
         const getALLHocKy = async () => {
             const getTatCaHK = await getTatCaHocKy(accessToken, axiosJWT, dispatch);
@@ -636,7 +1080,7 @@ function LopHoc() {
                         ))}
                     </select>
                 </div>
-                <input
+                {/* <input
                     type="text"
                     className="block p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                     placeholder="Mã LHP"
@@ -649,7 +1093,7 @@ function LopHoc() {
                     <Button variant="contained" size="small" startIcon={<AiOutlineSearch />} onClick={handleTimKIem}>
                         Tìm kiếm
                     </Button>
-                </div>
+                </div> */}
                 <div className="flex flex-row items-center ">
                     <div className="ml-6">
                         <Button variant="contained" size="small" startIcon={<AiFillSave />} onClick={handleLuuBangDiem}>
@@ -663,6 +1107,11 @@ function LopHoc() {
             </div>
             <div className="w-full flex justify-start items-center mt-3 mr-11 ml-10">
                 <div className="text-lg font-bold ">Danh sách điểm số các sinh viên trong lớp học phần</div>
+            </div>
+            <div className="p-2 ml-10">
+                <Button variant="contained" size="small" startIcon={<FaFileExcel />} onClick={() => exportToExcel()}>
+                    Xuất excel
+                </Button>
             </div>
             <div style={{}} className=" mt-2 mr-11 ml-10">
                 <div>

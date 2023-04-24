@@ -117,9 +117,9 @@ function HocKy() {
 
                 <div className="h-3/4 mr-11 ml-10">
                     <div>
-                        <Button type="primary" onClick={handleClick}>
+                        {/* <Button type="primary" onClick={handleClick}>
                             Export Excel
-                        </Button>
+                        </Button> */}
                         <div className="m-2">
                             <div className="">
                                 <table className={cx('table-SV')} id="data-nv">

@@ -18,6 +18,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import { AiFillSave } from 'react-icons/ai';
+import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
+import { useDispatch } from 'react-redux';
+import { checkPassOld, updatePassword } from '~/services/authService';
+import { useSelector } from 'react-redux';
+import { loginSuccess, loginErorr } from '~/redux/Slice/authSlice';
 
 const cx = classNames;
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -57,9 +62,14 @@ BootstrapDialogTitle.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-const handleUpdatePassword = async () => {};
-
 function Header({ userLoginData }) {
+    const dispatch = useDispatch();
+    const userLogin = useSelector((state) => state.persistedReducer.auth.currentUser);
+    const curNhanVien = useSelector((state) => state.persistedReducer.nhanVienSlice.currentNhanVien);
+    //console.log(curNhanVien);
+    var accessToken = userLogin.accessToken;
+    var axiosJWT = getAxiosJWT(dispatch, userLogin);
+
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const [openModal, setOpenModal] = useState(false);
@@ -81,6 +91,22 @@ function Header({ userLoginData }) {
     };
     const handleDoiMatKhau = () => {
         handleClickOpenModal();
+    };
+    const handleUpdatePassword = async () => {
+        let checkOld = await checkPassOld(curNhanVien.maNhanVien, matKhauCu, accessToken, axiosJWT);
+        if (checkOld) {
+            if (matKhauMoi === xacNhanMK) {
+                await updatePassword(curNhanVien.maNhanVien, matKhauMoi, accessToken, axiosJWT);
+                alert('Cập nhật mật khẩu thành công');
+
+                handleCloseModal();
+            } else alert('Mật khẩu mới không trùng với mật khẩu mới');
+        } else alert('Mật khẩu cũ không chính xác');
+    };
+
+    const handleLogout = () => {
+        handleCloseModal();
+        dispatch(loginSuccess(null));
     };
     return (
         <div>
@@ -119,7 +145,9 @@ function Header({ userLoginData }) {
                                         TransitionComponent={Fade}
                                     >
                                         <MenuItem onClick={handleDoiMatKhau}>Đổi mật khẩu</MenuItem>
-                                        <MenuItem onClick={handleClose}>Đăng xuất</MenuItem>
+                                        <MenuItem onClick={handleLogout}>
+                                            <div className="text-red-500">Đăng xuất</div>
+                                        </MenuItem>
                                     </Menu>
                                 </div>
 

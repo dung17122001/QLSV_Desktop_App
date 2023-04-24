@@ -426,9 +426,9 @@ function ChuongTrinhKhung() {
 
                 <div style={{}} className=" mt-2 mr-11 ml-10">
                     <div>
-                        <Button type="primary" onClick={handleExportExcel}>
+                        {/* <Button type="primary" onClick={handleExportExcel}>
                             Export Excel
-                        </Button>
+                        </Button> */}
                         <div className="m-2">
                             <div className="overflow-y-auto max-h-[480px] ">
                                 <table className={cx('table-nganh')} id="data-nganh">

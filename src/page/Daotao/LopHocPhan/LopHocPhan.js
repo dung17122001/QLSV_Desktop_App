@@ -93,6 +93,8 @@ function LopHoc() {
             setListHocPhan(dsHP);
             //console.log(listHocPhan);
         }
+        setListLHP();
+        setListLichHoc();
         // console.log(selectedOptionHK);
     };
 
@@ -226,7 +228,7 @@ function LopHoc() {
         setPhonngHoc('');
         setTrangThaiLich('Bình thường');
         setGianngVien('');
-        setNhomTH(0);
+        //setNhomTH(0);
         setSoLuongSV(30);
         setSelectedLichHoc();
     };
@@ -244,6 +246,7 @@ function LopHoc() {
             ngayKetThuc: ngayKetThuc,
             trangThai: trangThai,
             hocPhan: selectedHP.maHocPhan,
+            hocKy: selectedOptionHK,
         };
         var kq;
         if (lhp.maLopHocPhan !== '' && !!lhp.maLopHocPhan) kq = await updateLopHocPhan(lhp, accessToken, axiosJWT);
@@ -330,29 +333,30 @@ function LopHoc() {
         if (!!selectedLHP || selectedLHP?.maLopHocPhan !== '') {
             if (!selectedLichHoc || selectedLichHoc === '') {
                 //let ngayHocDauTien = new Date(ngayHoc);
-                var nth = {
-                    tenNhom: loaiLich === 'LP001' ? 'Nhóm 0' : 'Nhóm ' + nhomTH,
-                    soLuongSV: loaiLich === 'LP001' ? selectedLHP.siSo : soLuongSV,
-                    lopHocPhan: selectedLHP?.maLopHocPhan,
-                    trangThai: 'Bình thường',
-                };
-                //console.log(nth.tenNhom);
-                var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
-                //console.log(dsNhomTHDaCo);
-                for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
-                    if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
-                        alert('Tên nhóm thực hành này đã tồn tại');
-                        return;
-                    }
-                }
-                var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
+
                 //console.log(soTietLT / 3);
                 if (loaiLich === 'LP001') {
+                    var nth = {
+                        tenNhom: 'Nhóm 0',
+                        soLuongSV: selectedLHP.siSo,
+                        lopHocPhan: selectedLHP?.maLopHocPhan,
+                        trangThai: 'Bình thường',
+                    };
+                    //console.log(nth.tenNhom);
+                    var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+                    //console.log(dsNhomTHDaCo);
+                    for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
+                        if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
+                            alert('Đã thêm lịch cho lớp lý thuyết trước đó');
+                            return;
+                        }
+                    }
+                    var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
                     let ngayHocDauTien = new Date(ngayHoc);
-                    for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCLT * 15) / 3; i++) {
+                    for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCLT * 15) / 3 + 2; i++) {
                         let lich = {
                             tenLich: '',
-                            loaiLich: loaiLich === 'LP001' ? 'Lý thuyết' : 'Thực hành',
+                            loaiLich: 'Lý thuyết',
                             ngayHoc: ngayHocDauTien,
                             trangThai: trangThaiLich,
                             phong: phongHoc,
@@ -368,10 +372,26 @@ function LopHoc() {
                     }
                 } else {
                     let ngayHocDauTien = new Date(ngayHoc);
+                    var nth = {
+                        tenNhom: 'Nhóm ' + nhomTH,
+                        soLuongSV: soLuongSV,
+                        lopHocPhan: selectedLHP?.maLopHocPhan,
+                        trangThai: 'Bình thường',
+                    };
+                    //console.log(nth.tenNhom);
+                    var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+                    //console.log(dsNhomTHDaCo);
+                    for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
+                        if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
+                            alert('Tên nhóm thực hành này đã tồn tại');
+                            return;
+                        }
+                    }
+                    var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
                     for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCTH * 30) / 3; i++) {
                         let lich = {
                             tenLich: '',
-                            loaiLich: loaiLich === 'LP001' ? 'Lý thuyết' : 'Thực hành',
+                            loaiLich: 'Thực hành',
                             ngayHoc: ngayHocDauTien,
                             trangThai: trangThaiLich,
                             phong: phongHoc,
@@ -416,7 +436,10 @@ function LopHoc() {
 
     const handleXoaLopHP = async () => {
         if (!!selectedLHP && selectedLHP?.maLopHocPhan !== '') {
+            let dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
             await xoaLichTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
+            // if (!!dsNhomTHDaCo && dsNhomTHDaCo.length > 0)
+            //     for (let i = 0; i < dsNhomTHDaCo.length; i++)
             await xoaChiTietPDKTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
             await xoaNhomTHTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
             await xoaLHPTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
@@ -439,7 +462,7 @@ function LopHoc() {
 
             setListCaHoc(getTatCaCH);
         };
-        console.log(listCaHoc);
+        //console.log(listCaHoc);
         const getALLDayNha = async () => {
             const getTatCaDN = await getTatCaDayNha(accessToken, axiosJWT, dispatch);
 
@@ -628,7 +651,7 @@ function LopHoc() {
                                 </thead>
                                 <tbody>
                                     {listLHP
-                                        ?.filter((e) => e.trangThai !== 'Đã khóa')
+                                        //?.filter((e) => e.trangThai !== 'Đã khóa')
                                         ?.map((item, index) => (
                                             <tr
                                                 key={item?.maLopHocPhan}
