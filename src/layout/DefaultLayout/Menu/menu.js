@@ -15,9 +15,14 @@ import { RiNumbersFill } from 'react-icons/ri';
 import { MdHomeWork } from 'react-icons/md';
 import { BsFillDoorOpenFill, BsFillBookFill, BsHouseDoorFill } from 'react-icons/bs';
 import MenuItem from '../../../components/ItemMenu';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { currentNhanVien } from '../../../redux/Slice/nhanVienSlice';
 
 const cx = classNames;
 function Header() {
+    const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
+    //console.log(userLoginData.role);
     const route = config.routeConfig;
     const [showMenu, setShowMenu] = useState(true);
     function Menu() {
@@ -29,7 +34,14 @@ function Header() {
             <FaAlignJustify size={25} onClick={Menu} />
             <div className={showMenu ? '' : 'hidden'}>
                 <div className="border rounded-lg border-gray-500 mt-2  bg-sv-blue-3 ">
-                    <div className={cx('menu flex items-center')}>
+                    <div className={userLoginData?.role === 'ROLE_GIANGVIEN' ? 'menu flex items-center' : ' hidden '}>
+                        <div className={cx('flex flex-row items-center ')}>
+                            <Button to={route.kqht} navLink={true} className={' flex items-center '}>
+                                <FaUserGraduate size={20} className={cx('')} /> <div className="ml-2">Điểm</div>
+                            </Button>
+                        </div>
+                    </div>
+                    <div className={userLoginData?.role === 'ROLE_GIANGVIEN' ? ' hidden ' : 'menu flex items-center'}>
                         <div className={cx('flex flex-row items-center ')}>
                             <Button to={route.sinhvien} navLink={true} className={' flex items-center '}>
                                 <FaUserGraduate size={20} className={cx('')} /> <div className="ml-2">Sinh Viên</div>
@@ -37,7 +49,13 @@ function Header() {
                         </div>
                     </div>
                     <div className={cx('menu flex items-center')}>
-                        <div className={cx('flex flex-row items-center ')}>
+                        <div
+                            className={
+                                userLoginData?.role === 'ROLE_GIANGVIEN' || userLoginData?.role === 'ROLE_GIANGVIEN'
+                                    ? ' hidden '
+                                    : 'menu flex items-center'
+                            }
+                        >
                             <Button to={route.giangvien} navLink={true} className={cx(' flex items-center ')}>
                                 <FaUserTie size={20} className={cx('')} />
                                 <div className="ml-2">Nhân viên</div>
@@ -45,14 +63,26 @@ function Header() {
                         </div>
                     </div>
                     <div className={cx('menu flex items-center')}>
-                        <div className={cx('flex flex-row items-center ')}>
+                        <div
+                            className={
+                                userLoginData?.role === 'ROLE_GIANGVIEN' || userLoginData?.role === 'ROLE_PHONGDAOTAO'
+                                    ? ' hidden '
+                                    : 'menu flex items-center'
+                            }
+                        >
                             <Button to={route.khoa} navLink={true} className={cx(' flex items-center ')}>
                                 <IoLibrary size={20} className={cx('')} />
                                 <div className="ml-2">Khoa</div>
                             </Button>
                         </div>
                     </div>
-                    <div className={cx('menu flex  items-center active:text-sv-yellow-2')}>
+                    <div
+                        className={
+                            userLoginData?.role === 'ROLE_GIANGVIEN' || userLoginData?.role === 'ROLE_PHONGDAOTAO'
+                                ? ' hidden '
+                                : 'menu flex  items-center active:text-sv-yellow-2'
+                        }
+                    >
                         <MenuItem
                             menuItems={[
                                 {
@@ -78,7 +108,13 @@ function Header() {
                             icon={<FaBook />}
                         ></MenuItem>
                     </div>
-                    <div className={cx('menu flex  items-center active:text-sv-yellow-2')}>
+                    <div
+                        className={
+                            userLoginData?.role === 'ROLE_GIANGVIEN' || userLoginData?.role === 'ROLE_PHONGDAOTAO'
+                                ? ' hidden '
+                                : 'menu flex  items-center active:text-sv-yellow-2'
+                        }
+                    >
                         <MenuItem
                             menuItems={[
                                 {

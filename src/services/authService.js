@@ -18,8 +18,7 @@ export const loginUser = async (user, dispatch, navigate) => {
             if (
                 dataUser.role !== ROLE_NAME.QUAN_LY &&
                 dataUser.role !== ROLE_NAME.PHONG_DT &&
-                dataUser.role !== ROLE_NAME.GIANG_VIEN &&
-                dataUser.role !== ROLE_NAME.SINH_VIEN
+                dataUser.role !== ROLE_NAME.GIANG_VIEN
             ) {
                 alert('Bạn không có quyền truy cập');
                 return false;
@@ -83,5 +82,37 @@ export const register = async (user, navigate, dispatch) => {
     }
 };
 
-export const updatePassword = async (addBody, dispatch, navigate) => {};
-export const checkOldPassword = async (addBody) => {};
+export const updatePassword = async (userName, pass, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/auth/updatepass', {
+            params: {
+                pass: pass,
+                userName: userName,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+export const checkPassOld = async (userName, pass, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/auth/passold', {
+            params: {
+                pass: pass,
+                userName: userName,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

@@ -98,7 +98,7 @@ function Login() {
                                 </div>
                                 <div className="flex justify-center p-7">
                                     <input
-                                        type="text"
+                                        type="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className={cx(
