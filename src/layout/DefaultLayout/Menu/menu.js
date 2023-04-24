@@ -11,6 +11,8 @@ import { FaHome, FaGraduationCap } from 'react-icons/fa';
 import { IoLibrary } from 'react-icons/io5';
 import { BiBuildings } from 'react-icons/bi';
 import { SlScreenDesktop } from 'react-icons/sl';
+import { RiNumbersFill } from 'react-icons/ri';
+import { MdHomeWork } from 'react-icons/md';
 import { BsFillDoorOpenFill, BsFillBookFill, BsHouseDoorFill } from 'react-icons/bs';
 import MenuItem from '../../../components/ItemMenu';
 
@@ -68,7 +70,7 @@ function Header() {
                                             to: 'dao-tao/chuongtrinhkhung',
                                             icon: <FaUniversity />,
                                         },
-                                        { name: 'Điểm', to: 'dao-tao/ket-qua-hoc-tap', icon: <FaUniversity /> },
+                                        { name: 'Điểm', to: 'dao-tao/ket-qua-hoc-tap', icon: <RiNumbersFill /> },
                                         { name: 'Học Kỳ', to: 'dao-tao/hoc-ky', icon: <FaUniversity /> },
                                     ],
                                 },
@@ -91,7 +93,7 @@ function Header() {
                                     ],
                                 },
                             ]}
-                            icon={<FaUniversity />}
+                            icon={<MdHomeWork />}
                         ></MenuItem>
                     </div>
                 </div>

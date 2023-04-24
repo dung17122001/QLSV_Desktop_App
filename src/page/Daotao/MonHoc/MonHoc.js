@@ -19,7 +19,13 @@ import { useSelector } from 'react-redux';
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 import { useDispatch } from 'react-redux';
 import classNames from 'classnames/bind';
-import { getTatCaMonHoc, addMonHoc, getTatCaLoaiMonHoc, capNhatMonHoc } from '~/services/monHocService';
+import {
+    getTatCaMonHoc,
+    addMonHoc,
+    getTatCaLoaiMonHoc,
+    capNhatMonHoc,
+    getMonHocByTextSearch,
+} from '~/services/monHocService';
 import { getTatCaKhoa } from '~/services/khoaService';
 import {
     DataGridPremium,
@@ -64,6 +70,7 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
     const [selectTrangThai, setSelectTrangThai] = useState('Bình thường');
     const [soTCLT, setSoTCLT] = useState();
     const [soTCTH, setSoTCTH] = useState();
+    const [valueSearchMH, setValueSearchMH] = useState('');
 
     const [reload, setReload] = useState(false);
 
@@ -258,22 +265,28 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
         return nodeDieuKien;
     };
 
+    const handleTimKiemMH = async (value) => {
+        const getTatCaMH = await getMonHocByTextSearch(value, accessToken, axiosJWT);
+        //getTatCaMH.isChecked = false;
+        setListMonHoc(getTatCaMH);
+    };
+
     return (
         <>
             <div className="w-full h-screen mt-3">
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý môn học</div>
                 <HeaderQL
-                    placeholder="Mã, tên giảng viên"
-                    onPressSearch={(value) => console.log(value)}
+                    placeholder="Mã, tên môn học"
+                    onPressSearch={(value) => handleTimKiemMH(value)}
                     onPressAdd={handleClickOpen}
                     onPressUpdate={handleClickOpenUpdate}
                 ></HeaderQL>
 
                 <div style={{}} className="h-3/4 mt-2 mr-11 ml-10">
                     <div>
-                        <Button type="primary" onClick={handleExportExcel}>
+                        {/* <Button type="primary" onClick={handleExportExcel}>
                             Export Excel
-                        </Button>
+                        </Button> */}
                         <div className="m-2">
                             <div className="overflow-y-auto max-h-[480px] ">
                                 <table className={cx('table-SV')} id="data-sv">

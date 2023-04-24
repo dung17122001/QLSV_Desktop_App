@@ -117,11 +117,12 @@ export const getALLNhomTHTheoMaHP = async (maLHP, accessToken, axiosJWT) => {
     }
 };
 
-export const getThongTinSVByMaLHP = async (maLHP, accessToken, axiosJWT) => {
+export const getThongTinSVByMaLHP = async (maLHP, maGV, accessToken, axiosJWT) => {
     try {
         const res = await axiosJWT.get('/lophocphan/bangdiem', {
             params: {
                 maLHP: maLHP,
+                maGV: maGV,
             },
 
             headers: { Authorization: `Bearer ${accessToken}` },

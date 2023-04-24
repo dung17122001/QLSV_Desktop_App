@@ -36,8 +36,8 @@ function DefaultLayout({ children }) {
             <div className={cx('w-full  flex flex-row')}>
                 <div className={cx('w-full h-full relative')}>
                     <Header userLoginData={curNhanVien} />
-                    <div className="w-full flex ">
-                        <div className="h-screen w-1/12 mr-10 mt-5">
+                    <div className="w-full flex">
+                        <div className="h-screen w-1/12 mr-10 mt-5 ">
                             <Menu />
                         </div>
                         <div className=" w-11/12"> {children}</div>

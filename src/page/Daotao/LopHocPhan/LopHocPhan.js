@@ -439,7 +439,7 @@ function LopHoc() {
 
             setListCaHoc(getTatCaCH);
         };
-        console.log(listCaHoc);
+
         const getALLDayNha = async () => {
             const getTatCaDN = await getTatCaDayNha(accessToken, axiosJWT, dispatch);
 
@@ -627,34 +627,36 @@ function LopHoc() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {listLHP?.map((item, index) => (
-                                        <tr
-                                            key={item?.maLopHocPhan}
-                                            onClick={() => handleSelectLHP(item)}
-                                            className={`${
-                                                selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`
-                                                    ? 'bg-orange-200'
-                                                    : ''
-                                            } hover:cursor-pointer`}
-                                        >
-                                            <td>
-                                                <input
-                                                    type="radio"
-                                                    className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                                                    name="radio-group-lhp"
-                                                    value={item?.maLopHocPhan}
-                                                    checked={selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`}
-                                                    onChange={() => handleSelectLHP(item)}
-                                                />
-                                            </td>
-                                            <td>{index + 1}</td>
-                                            <td>{item?.maLopHocPhan}</td>
-                                            <td>{item.tenLopHocPhan}</td>
-                                            <td>{item.siSo}</td>
-                                            <td>{item.siSoThuc}</td>
-                                            <td>{item.trangThai}</td>
-                                        </tr>
-                                    ))}
+                                    {listLHP
+                                        ?.filter((e) => e.trangThai !== 'Đã khóa')
+                                        ?.map((item, index) => (
+                                            <tr
+                                                key={item?.maLopHocPhan}
+                                                onClick={() => handleSelectLHP(item)}
+                                                className={`${
+                                                    selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`
+                                                        ? 'bg-orange-200'
+                                                        : ''
+                                                } hover:cursor-pointer`}
+                                            >
+                                                <td>
+                                                    <input
+                                                        type="radio"
+                                                        className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                                                        name="radio-group-lhp"
+                                                        value={item?.maLopHocPhan}
+                                                        checked={selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`}
+                                                        onChange={() => handleSelectLHP(item)}
+                                                    />
+                                                </td>
+                                                <td>{index + 1}</td>
+                                                <td>{item?.maLopHocPhan}</td>
+                                                <td>{item.tenLopHocPhan}</td>
+                                                <td>{item.siSo}</td>
+                                                <td>{item.siSoThuc}</td>
+                                                <td>{item.trangThai}</td>
+                                            </tr>
+                                        ))}
                                 </tbody>
                             </table>
                         </div>
