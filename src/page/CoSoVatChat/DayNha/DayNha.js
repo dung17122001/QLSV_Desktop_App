@@ -36,7 +36,6 @@ function DayNha() {
     const [soTang, setSoTang] = useState('');
     const [trangThai, setTrangThai] = useState('');
 
-    console.log(trangThai);
     let dayNha = {
         maDayNha,
         tenDayNha,

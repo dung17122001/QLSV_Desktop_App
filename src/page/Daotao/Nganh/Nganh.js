@@ -24,23 +24,23 @@ import {
 } from '@mui/x-data-grid-premium';
 import { exportToExcel } from '~/function/exportToExcel';
 import HeaderQL from '../../../components/HeaderQL';
-import { getTatCaNganh, addNganh, capNhatNganh } from '~/services/nganhService';
+import { getTatCaNganh, capNhatNganh, themNganh } from '~/services/nganhService';
 import { getTatCaKhoa } from '~/services/khoaService';
 
 const cx = classNames.bind(style);
 
 function Nganh() {
     const [open, setOpen] = useState(false);
-    const [danhSachNganh, setDanhSachNghanh] = useState();
+    const [danhSachNganh, setDanhSachNganh] = useState();
     const [danhSachKhoa, setDanhSachKhoa] = useState();
-    const [reload, setReload] = useState(false);
+
     const [selectedNganh, setSelectedNganh] = useState('');
     const [maNganh, setMaNganh] = useState();
     const [tenNganh, setTenNganh] = useState();
     const [tongTinChi, setTongTinChi] = useState();
     const [trangThai, setTrangThai] = useState();
     const [khoa, setKhoa] = useState('Khoa');
-
+    const [listNganh, setListNganh] = useState();
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
     var accessToken = userLoginData.accessToken;
@@ -49,7 +49,7 @@ function Nganh() {
     useEffect(() => {
         const getALLNganh = async () => {
             const dsNganh = await getTatCaNganh(accessToken, axiosJWT);
-            setDanhSachNghanh(dsNganh);
+            setDanhSachNganh(dsNganh);
         };
         const getALLKhoa = async () => {
             const dsKhoa = await getTatCaKhoa(accessToken, axiosJWT);
@@ -58,24 +58,79 @@ function Nganh() {
 
         getALLNganh();
         getALLKhoa();
-    }, [reload]);
+    }, []);
 
     const handleSelectNganh = (item) => {
         setSelectedNganh(item);
     };
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
     const handleClose = () => {
         setOpen(false);
+    };
+
+    const reload = async () => {
+        let getNganh = await getTatCaNganh(accessToken, axiosJWT);
+        setDanhSachNganh(getNganh);
     };
     const handleExportExcel = () => {
         exportToExcel('data-nganh', 'Danh sách ngành học');
     };
     const handleKhoa = (e) => {
         setKhoa(e.target.value);
+    };
+    const nganh = {
+        maNganh,
+        tenNganh,
+        khoa,
+        tongTinChi,
+        trangThai,
+    };
+    const xoaTrang = () => {
+        setTenNganh('');
+        setTongTinChi('');
+        setTrangThai('Bình thường');
+        setKhoa('Khoa');
+    };
+    const handleClickThem = () => {
+        setMaNganh('');
+        setSelectedNganh('');
+        setKhoa('Khoa');
+        xoaTrang();
+        setOpen(true);
+    };
+    const handleClickOpenCapNhat = () => {
+        if (!!selectedNganh) {
+            setMaNganh(selectedNganh.maNganh);
+            setTenNganh(selectedNganh.tenNganh);
+            setTongTinChi(selectedNganh.tongTinChi);
+            setKhoa(selectedNganh.khoa.maKhoa);
+            setTrangThai(selectedNganh.trangThai);
+            setOpen(true);
+        } else {
+            alert('Vui lòng chọn ngành');
+        }
+    };
+    const handleAddNganh = async () => {
+        if (!!selectedNganh) {
+            nganh.maNganh = selectedNganh.maNganh;
+            console.log(nganh);
+            let suaNganh = await capNhatNganh(nganh, accessToken, axiosJWT);
+            if (suaNganh) {
+                setOpen(false);
+                alert('Cập nhật thành công!!');
+                reload();
+            } else {
+                alert('Cập nhật không thành công');
+                setOpen(false);
+            }
+        } else {
+            let addNganh = await themNganh(nganh, accessToken, axiosJWT);
+            if (addNganh) {
+                setOpen(false);
+                alert('Thêm thành công');
+                reload();
+            }
+        }
     };
     return (
         <>
@@ -84,8 +139,8 @@ function Nganh() {
                 <HeaderQL
                     placeholder="Mã, tên giảng viên"
                     onPressSearch={(value) => console.log(value)}
-                    onPressAdd={handleClickOpen}
-                    onPressUpdate={handleClickOpen}
+                    onPressAdd={handleClickThem}
+                    onPressUpdate={handleClickOpenCapNhat}
                 ></HeaderQL>
 
                 <div style={{}} className="h-3/4 mt-2 mr-11 ml-10">
@@ -251,7 +306,9 @@ function Nganh() {
                                 size="small"
                                 startIcon={<AiFillSave />}
                                 color="success"
-                                //onClick={() => onPressSearch(valueSearch)}
+                                onClick={() => {
+                                    handleAddNganh();
+                                }}
                             >
                                 Lưu
                             </Button>

@@ -22,6 +22,8 @@ function HocKy() {
     const [maHocKy, setMaHocKy] = useState('');
     const [tenHocKy, setTenHocKy] = useState('');
     const [trangThai, setTrangThai] = useState('');
+    const [thoiGianBD, setThoiGianBD] = useState('');
+    const [thoiGianKT, setThoiGianKT] = useState('');
     const handleClickOpenAdd = () => {
         setMaHocKy('');
         setSelectedHocKy('');
@@ -33,6 +35,8 @@ function HocKy() {
             setMaHocKy(selectedHocKy.maHocKy);
             setTenHocKy(selectedHocKy.tenHocKy);
             setTrangThai(selectedHocKy.trangThai);
+            setThoiGianBD(selectedHocKy.thoiGianBD);
+            setThoiGianKT(selectedHocKy.thoiGianKT);
             setOpen(true);
         } else {
             alert('Vui lòng chọn 1 học kỳ');
@@ -51,6 +55,8 @@ function HocKy() {
     let hocKy = {
         maHocKy,
         tenHocKy,
+        thoiGianBD,
+        thoiGianKT,
         trangThai,
     };
     const handleClick = () => {
@@ -214,16 +220,54 @@ function HocKy() {
                                     }}
                                 />
                             </div>
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={trangThai}
-                                    onChange={handleSelectTrangThai}
-                                >
-                                    <option value="Bình thường">Bình thường</option>
-                                    <option value="Tạm ngưng">Tạm ngưng</option>
-                                </select>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Trạng thái:</label>
+                                </div>
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={trangThai}
+                                        onChange={(e) => setTrangThai(e.target.value)}
+                                    >
+                                        <option value="Bình thường">Bình thường</option>
+                                        <option value="Tạm ngưng">Tạm ngưng</option>
+                                    </select>
+                                </div>
                             </div>
+                        </div>
+
+                        <div className="w-full flex flex-row justify-between">
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Thời gian bắt đầu:</label>
+                                </div>
+                                <input
+                                    type="date"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder=""
+                                    value={thoiGianBD}
+                                    onChange={(e) => {
+                                        setThoiGianBD(e.target.value);
+                                    }}
+                                />
+                            </div>
+
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Thời gian kết thúc:</label>
+                                </div>
+                                <input
+                                    type="date"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Thời gian kết thúc"
+                                    value={thoiGianKT}
+                                    onChange={(e) => {
+                                        setThoiGianKT(e.target.value);
+                                    }}
+                                />
+                            </div>
+                            <div className="w-1/3"></div>
                         </div>
 
                         <div className="w-full flex flex-row justify-center p-3">

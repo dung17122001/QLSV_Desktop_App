@@ -159,11 +159,11 @@ function LopHoc() {
         if (ck < 3) return 0;
         let countTK = 0;
         let diemTongKet = 0;
-        if (tk1 !== null && tk1 !== '') countTK++;
-        if (tk2 !== null && tk2 !== '') countTK++;
-        if (tk3 !== null && tk3 !== '') countTK++;
-        if (tk4 !== null && tk4 !== '') countTK++;
-        if (tk5 !== null && tk5 !== '') countTK++;
+        if (!!tk1) countTK++;
+        if (!!tk2) countTK++;
+        if (!!tk3) countTK++;
+        if (!!tk4) countTK++;
+        if (!!tk5) countTK++;
         let tbTK =
             ((tk1 ? tk1 : 0) * 1 +
                 (tk2 ? tk2 : 0) * 1 +
@@ -172,9 +172,9 @@ function LopHoc() {
                 (tk5 ? tk5 : 0) * 1) /
             countTK;
         let countTH = 0;
-        if (th1 !== null && th1 !== '') countTH++;
-        if (th2 !== null && th2 !== '') countTH++;
-        if (th3 !== null && th3 !== '') countTH++;
+        if (!!th1) countTH++;
+        if (!!th2) countTH++;
+        if (!!th3) countTH++;
         let tbTH = ((th1 ? th1 : 0) * 1 + (th2 ? th2 : 0) * 1 + (th3 ? th3 : 0) * 1) / countTH;
         // console.log(tbTK + 'tbTK');
         // console.log(tbTH + 'th');

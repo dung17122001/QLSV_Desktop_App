@@ -45,6 +45,7 @@ import {
     checkValidKhoaHoc,
     checkValidCCCD,
 } from '../../regex/regex';
+import { checkPassOld, updatePassword } from '~/services/authService';
 function GiangVien() {
     function convertDateFormat(dateString) {
         let date = new Date(dateString);
@@ -318,7 +319,8 @@ function GiangVien() {
     const handleClickReSet = async () => {
         if (!!selectedNhanVien) {
             if (window.confirm('Bạn chắc chắn muốn reset lại mật khẩu?')) {
-                //    const reset
+                await updatePassword(selectedNhanVien.maNhanVien, '123456', accessToken, axiosJWT);
+                alert('Cập nhật mật khẩu thành công');
             }
         } else {
             alert('Vui lòng chọn nhân viên');
@@ -330,7 +332,7 @@ function GiangVien() {
             <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý giảng viên</div>
             <div className=" flex justify-center flex-row items-center m-2">
                 <HeaderQL
-                    placeholder="Mã, tên giảng viên"
+                    placeholder="Mã, tên nhân viên"
                     onPressSearch={handleClickSearch}
                     onPressAdd={handleClickOpenThem}
                     onPressUpdate={handleClickOpenCapNhat}

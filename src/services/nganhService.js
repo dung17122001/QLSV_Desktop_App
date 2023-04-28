@@ -52,3 +52,14 @@ export const capNhatNganh = async (nganh, accessToken, axiosJWT) => {
         console.log(error);
     }
 };
+export const themNganh = async (nganh, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.post(`/nganh`, nganh, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};

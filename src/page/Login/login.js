@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 
-import mot from '../../images/1.jpg';
-import hai from '../../images/2.jpg';
+import mot from '../../images/iuh.jpg';
+import hai from '../../images/mat_tien_nha_E_2021.jpg';
 
 import Button from '../../components/Button';
 

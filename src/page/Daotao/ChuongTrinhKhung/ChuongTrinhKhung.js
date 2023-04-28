@@ -64,6 +64,7 @@ function ChuongTrinhKhung() {
     const [listHocKy, setListHocKy] = useState();
     const [listChecked, setListChecked] = useState([]);
     const [display, setDisplay] = useState('');
+
     const [listHPTheoKy, setListHPTheoKy] = useState();
     const [listHocPhanTheoKhoaHoc, setListHocPhanKhoaHoc] = useState();
     const [typeHocPhan, setTypeHocPhan] = useState('');

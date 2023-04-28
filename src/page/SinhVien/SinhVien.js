@@ -16,6 +16,7 @@ import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 import { useDispatch } from 'react-redux';
 import classNames from 'classnames/bind';
 import style from './SinhVien.module.scss';
+import { TfiReload } from 'react-icons/tfi';
 import {
     getTatCaSinhVien,
     capNhatSinhVien,
@@ -33,7 +34,7 @@ import { getTatCaKhoaHoc } from '../../services/khoaHocService';
 import { register } from '../../services/authService';
 
 import moment from 'moment';
-
+import { checkPassOld, updatePassword } from '~/services/authService';
 import HeaderQl from '../../components/HeaderQL';
 import {
     checkValidTen,
@@ -155,6 +156,16 @@ function SinhVien() {
     function handleSelectKhoa(event) {
         setKhoa(event.target.value);
     }
+    const handleClickReSet = async () => {
+        if (!!selectedSinhVien) {
+            if (window.confirm('Bạn chắc chắn muốn reset lại mật khẩu?')) {
+                await updatePassword(selectedSinhVien.maSinhVien, '123456', accessToken, axiosJWT);
+                alert('Cập nhật mật khẩu thành công');
+            }
+        } else {
+            alert('Vui lòng chọn sinh viên');
+        }
+    };
     const xoaTrang = () => {
         setTenSinhVien('');
         setLinkAnh('');
@@ -897,14 +908,27 @@ function SinhVien() {
             </Dialog>
             <div className="w-full h-full mt-5 mr-5">
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý sinh viên</div>
-                <HeaderQl
-                    placeholder="Mã, tên giảng viên"
-                    onPressSearch={handleClickSearch}
-                    onPressAdd={handleClickOpenThem}
-                    onPressUpdate={handleClickOpenCapNhat}
-                    onChangeSearch={handleClickSearch}
-                />
-
+                <div className=" flex justify-center flex-row items-center m-2">
+                    <HeaderQl
+                        placeholder="Mã, tên sinh viên"
+                        onPressSearch={handleClickSearch}
+                        onPressAdd={handleClickOpenThem}
+                        onPressUpdate={handleClickOpenCapNhat}
+                        onChangeSearch={handleClickSearch}
+                    />
+                    <div className="ml-6 ">
+                        <Button
+                            className="text-sm"
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            startIcon={<TfiReload />}
+                            onClick={() => handleClickReSet()}
+                        >
+                            Reset mật khẩu
+                        </Button>
+                    </div>
+                </div>
                 <div style={{}} className="h-3/4 mr-5 ml-10">
                     <div>
                         {/* <Button type="primary" onClick={handleExportExcel}>
