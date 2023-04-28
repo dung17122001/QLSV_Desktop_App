@@ -51,7 +51,7 @@ function Header() {
                     <div className={cx('menu flex items-center')}>
                         <div
                             className={
-                                userLoginData?.role === 'ROLE_GIANGVIEN' || userLoginData?.role === 'ROLE_GIANGVIEN'
+                                userLoginData?.role === 'ROLE_GIANGVIEN' || userLoginData?.role === 'ROLE_PHONGDAOTAO'
                                     ? ' hidden '
                                     : 'menu flex items-center'
                             }
@@ -78,7 +78,7 @@ function Header() {
                     </div>
                     <div
                         className={
-                            userLoginData?.role === 'ROLE_GIANGVIEN' || userLoginData?.role === 'ROLE_PHONGDAOTAO'
+                            userLoginData?.role === 'ROLE_GIANGVIEN'
                                 ? ' hidden '
                                 : 'menu flex  items-center active:text-sv-yellow-2'
                         }

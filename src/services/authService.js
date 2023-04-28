@@ -42,7 +42,7 @@ export const getRefreshToken = async () => {
                 withCredentials: true,
             },
         );
-
+        //console.log(res);
         return res;
     } catch (error) {
         return null;

@@ -84,8 +84,14 @@ function PhongHoc() {
             dayNha: dayNha,
             trangThai: trangThai,
         };
+
         //console.log(phong);
         if (!selectedPhong && selectedPhong.maPhong !== '') {
+            let checkTenPhong = listPhong.find((e) => e.tenPhong === phong.tenPhong);
+            if (!!checkTenPhong) {
+                alert('Tên phòng bị trùng');
+                return;
+            }
             let result = await addPhongHoc(phong, accessToken, axiosJWT);
             setReload(!reload);
             handleClose();

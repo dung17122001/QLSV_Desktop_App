@@ -36,7 +36,7 @@ function DayNha() {
     const [soTang, setSoTang] = useState('');
     const [trangThai, setTrangThai] = useState('');
 
-    console.log(trangThai);
+    //console.log(trangThai);
     let dayNha = {
         maDayNha,
         tenDayNha,
@@ -114,6 +114,11 @@ function DayNha() {
                 alert('Cập nhật không thành công');
             }
         } else {
+            let checkTenDayNha = listDN.find((e) => e.tenDayNha === dayNha.tenDayNha);
+            if (!!checkTenDayNha) {
+                alert('Tên dãy nhà bị trùng');
+                return;
+            }
             let addDayNha = await themDayNha(dayNha, accessToken, axiosJWT);
             if (addDayNha) {
                 setOpen(false);

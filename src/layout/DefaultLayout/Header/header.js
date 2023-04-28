@@ -107,7 +107,7 @@ function Header({ userLoginData }) {
                 alert('Cập nhật mật khẩu thành công');
 
                 handleCloseModal();
-            } else alert('Mật khẩu mới không trùng với mật khẩu mới');
+            } else alert('Mật khẩu mới và ô xác nhận mật khẩu mới không giống nhau');
         } else alert('Mật khẩu cũ không chính xác');
     };
 
@@ -123,44 +123,42 @@ function Header({ userLoginData }) {
                         <img src={logo} alt="logo" className={cx('')} />
                     </div>
                     <div className={cx('w-full bg-white flex p-3 justify-end items-center pr-4 ')}>
-                        <div className="flex flex-row items-center cursor-pointer">
+                        <div
+                            className="flex flex-row items-center cursor-pointer"
+                            id="fade-button"
+                            aria-controls={open ? 'fade-menu' : undefined}
+                            aria-haspopup="true"
+                            aria-expanded={open ? 'true' : undefined}
+                            onClick={handleClick}
+                        >
                             <div className="border rounded-full border-blue-500">
                                 <Avatar src={userLoginData?.linkAnh}></Avatar>
                             </div>
 
                             <div className="flex flex-col items-start ml-4">
                                 <div>
-                                    <div
-                                        className="text-sv-blue-4 font-bold"
-                                        id="fade-button"
-                                        aria-controls={open ? 'fade-menu' : undefined}
-                                        aria-haspopup="true"
-                                        aria-expanded={open ? 'true' : undefined}
-                                        onClick={handleClick}
-                                    >
-                                        {userLoginData?.tenNhanVien}
-                                    </div>
-                                    <Menu
-                                        className="mt-4"
-                                        id="fade-menu"
-                                        MenuListProps={{
-                                            'aria-labelledby': 'fade-button',
-                                        }}
-                                        anchorEl={anchorEl}
-                                        open={open}
-                                        onClose={handleClose}
-                                        TransitionComponent={Fade}
-                                    >
-                                        <MenuItem onClick={handleDoiMatKhau}>Đổi mật khẩu</MenuItem>
-                                        <MenuItem onClick={handleLogout}>
-                                            <div className="text-red-500">Đăng xuất</div>
-                                        </MenuItem>
-                                    </Menu>
+                                    <div className="text-sv-blue-4 font-bold">{userLoginData?.tenNhanVien}</div>
                                 </div>
 
                                 <div className={cx('text-sm text-red-500')}>{userLoginData?.chucVu.tenChucVu}</div>
                             </div>
                         </div>
+                        <Menu
+                            className="mt-4"
+                            id="fade-menu"
+                            MenuListProps={{
+                                'aria-labelledby': 'fade-button',
+                            }}
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                            TransitionComponent={Fade}
+                        >
+                            <MenuItem onClick={handleDoiMatKhau}>Đổi mật khẩu</MenuItem>
+                            <MenuItem onClick={handleLogout}>
+                                <div className="text-red-500">Đăng xuất</div>
+                            </MenuItem>
+                        </Menu>
                     </div>
                 </div>
                 <div className=" w-full flex items-center justify-end">

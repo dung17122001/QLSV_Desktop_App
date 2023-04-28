@@ -176,6 +176,10 @@ function LopHoc() {
         setOpenModalLHP(true);
     };
     const handleClickOpenModalUpdateLHP = () => {
+        if (!selectedLHP) {
+            alert('Vui lòng chọn lớp học phần cần sửa');
+            return;
+        }
         if (!!selectedLHP) {
             setMaLopHocPhan(selectedLHP.maLopHocPhan);
             setTenLopHocPhan(selectedLHP.tenLopHocPhan);
@@ -203,6 +207,10 @@ function LopHoc() {
         xoaRongModalThemLich();
     };
     const handleClickOpenModalUpdateLichHoc = () => {
+        if (!selectedLichHoc) {
+            alert('Vui lòng chọn lịch cần sửa');
+            return;
+        }
         setReloadPhong(!reloadPhong);
         //setSelectedLichHoc('');
         if (!!selectedLichHoc) {
@@ -248,9 +256,17 @@ function LopHoc() {
             hocPhan: selectedHP.maHocPhan,
             hocKy: selectedOptionHK,
         };
+        let tenLHP = listLHP.find((e) => e.tenLopHocPhan === lhp.tenLopHocPhan);
+
         var kq;
         if (lhp.maLopHocPhan !== '' && !!lhp.maLopHocPhan) kq = await updateLopHocPhan(lhp, accessToken, axiosJWT);
-        else kq = await addLopHocPhan(lhp, accessToken, axiosJWT);
+        else {
+            if (!!tenLHP) {
+                alert('Tên lớp học phần bị trùng');
+                return;
+            }
+            kq = await addLopHocPhan(lhp, accessToken, axiosJWT);
+        }
 
         if (!!kq) {
             alert('Lưu lớp học phần thành công');
@@ -329,13 +345,22 @@ function LopHoc() {
         return dayOfWeek;
     }
 
+    const checkData = () => {
+        if (!!giangVien && !!caHoc && !!phongHoc) {
+            return true;
+        }
+        return false;
+    };
+
     const handleThemLich = async () => {
+        if (checkData() === false) {
+            alert('Dữ liệu không hợp lệ');
+            return;
+        }
         if (!!selectedLHP || selectedLHP?.maLopHocPhan !== '') {
             if (!selectedLichHoc || selectedLichHoc === '') {
-                //let ngayHocDauTien = new Date(ngayHoc);
-
-                //console.log(soTietLT / 3);
                 if (loaiLich === 'LP001') {
+                    let resultNTH;
                     var nth = {
                         tenNhom: 'Nhóm 0',
                         soLuongSV: selectedLHP.siSo,
@@ -344,16 +369,11 @@ function LopHoc() {
                     };
                     //console.log(nth.tenNhom);
                     var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
-                    //console.log(dsNhomTHDaCo);
-                    for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
-                        if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
-                            alert('Đã thêm lịch cho lớp lý thuyết trước đó');
-                            return;
-                        }
-                    }
-                    var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
-                    let ngayHocDauTien = new Date(ngayHoc);
-                    for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCLT * 15) / 3 + 2; i++) {
+                    let nhom = dsNhomTHDaCo.find((e) => e.tenNhom === 'Nhóm 0');
+                    if (!!nhom) {
+                        resultNTH = nhom;
+                        let ngayHocDauTien = new Date(ngayHoc);
+
                         let lich = {
                             tenLich: '',
                             loaiLich: 'Lý thuyết',
@@ -368,27 +388,46 @@ function LopHoc() {
                         };
                         //console.log(lich);
                         await themLich(lich, accessToken, axiosJWT);
-                        ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                        //ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                    } else {
+                        resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
+                        //console.log(resultNTH);
+                        let ngayHocDauTien = new Date(ngayHoc);
+                        for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCLT * 15) / 3; i++) {
+                            let lich = {
+                                tenLich: '',
+                                loaiLich: 'Lý thuyết',
+                                ngayHoc: ngayHocDauTien,
+                                trangThai: trangThaiLich,
+                                phong: phongHoc,
+                                nhanVien: giangVien,
+                                lopHocPhan: selectedLHP?.maLopHocPhan,
+                                caHoc: caHoc,
+                                nhomThucHanh: resultNTH.maNhom,
+                                //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
+                            };
+                            //console.log(lich);
+                            await themLich(lich, accessToken, axiosJWT);
+                            ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                        }
                     }
+                    //lich thuc hanh
                 } else {
-                    let ngayHocDauTien = new Date(ngayHoc);
+                    let resultNTH;
+
                     var nth = {
                         tenNhom: 'Nhóm ' + nhomTH,
                         soLuongSV: soLuongSV,
                         lopHocPhan: selectedLHP?.maLopHocPhan,
                         trangThai: 'Bình thường',
                     };
-                    //console.log(nth.tenNhom);
                     var dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
-                    //console.log(dsNhomTHDaCo);
-                    for (let i = 0; i < dsNhomTHDaCo?.length; i++) {
-                        if (dsNhomTHDaCo[i].tenNhom === nth.tenNhom) {
-                            alert('Tên nhóm thực hành này đã tồn tại');
-                            return;
-                        }
-                    }
-                    var resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
-                    for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCTH * 30) / 3; i++) {
+                    let nhom = dsNhomTHDaCo.find((e) => e.tenNhom === 'Nhóm ' + nhomTH);
+                    if (!!nhom) {
+                        resultNTH = nhom;
+                        let ngayHocDauTien = new Date(ngayHoc);
+                        //resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
+                        //for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCTH * 30) / 3; i++) {
                         let lich = {
                             tenLich: '',
                             loaiLich: 'Thực hành',
@@ -403,7 +442,28 @@ function LopHoc() {
                         };
                         //console.log(lich);
                         await themLich(lich, accessToken, axiosJWT);
-                        ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                        //ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                        //}
+                    } else {
+                        let ngayHocDauTien = new Date(ngayHoc);
+                        resultNTH = await addNhomTH(nth, accessToken, axiosJWT);
+                        for (let i = 0; i < (selectedLHP.hocPhan.monHoc.soTCTH * 30) / 3; i++) {
+                            let lich = {
+                                tenLich: '',
+                                loaiLich: 'Thực hành',
+                                ngayHoc: ngayHocDauTien,
+                                trangThai: trangThaiLich,
+                                phong: phongHoc,
+                                nhanVien: giangVien,
+                                lopHocPhan: selectedLHP?.maLopHocPhan,
+                                caHoc: caHoc,
+                                nhomThucHanh: resultNTH.maNhom,
+                                //nhomTH: loaiLich === 'LP001' ? 0 : nhomTH,
+                            };
+                            //console.log(lich);
+                            await themLich(lich, accessToken, axiosJWT);
+                            ngayHocDauTien.setDate(ngayHocDauTien.getDate() + 7);
+                        }
                     }
                 }
             }
@@ -539,6 +599,7 @@ function LopHoc() {
                             value={selectedOptionHK}
                             onChange={(e) => handleSelectHK(e)}
                         >
+                            <option value="">Học kỳ</option>
                             {listHocKy?.map((item) => (
                                 <option key={item.maHocKy} value={item.maHocKy}>
                                     {item.tenHocKy}
@@ -879,6 +940,7 @@ function LopHoc() {
                                 >
                                     <option value="Đang lên kế hoạch">Đang lên kế hoạch</option>
                                     <option value="Chờ sinh viên đăng ký">Chờ sinh viên đăng ký</option>
+                                    <option value="Chấp nhận mở lớp">Chấp nhận mở lớp</option>
                                     <option value="Đã khóa">Đã khóa</option>
                                     <option value="Chờ hủy lớp">Chờ hủy lớp</option>
                                 </select>
