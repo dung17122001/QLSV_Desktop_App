@@ -129,7 +129,7 @@ function LopHoc() {
                 bangDiem = { ...bangDiem, diemTongKet: diemTongKet, trangThai: setTrangThaiHocPhan(diemTongKet) };
             }
 
-            console.log(bangDiem);
+            //console.log(bangDiem);
             if (
                 !diemSV[0]?.thuongKy1 &&
                 !diemSV[0]?.thuongKy2 &&
@@ -152,7 +152,7 @@ function LopHoc() {
         let resultBangDiem = await getThongTinSVByMaLHP(selectedLHP, curNhanVien?.maNhanVien, accessToken, axiosJWT);
         //console.log(resultBangDiem);
         if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
-        alert('Đã lưu');
+        alert('Đã lưu bảng điểm thành công');
     };
 
     const tinhDiemTongKet = (tk1, tk2, tk3, tk4, tk5, gk, ck, th1, th2, th3, soTCLT, soTCTH) => {
@@ -175,10 +175,10 @@ function LopHoc() {
         if (!!th1) countTH++;
         if (!!th2) countTH++;
         if (!!th3) countTH++;
-        let tbTH = ((th1 ? th1 : 0) * 1 + (th2 ? th2 : 0) * 1 + (th3 ? th3 : 0) * 1) / countTH;
         // console.log(tbTK + 'tbTK');
         // console.log(tbTH + 'th');
         if (soTCTH > 0) {
+            let tbTH = ((th1 ? th1 : 0) * 1 + (th2 ? th2 : 0) * 1 + (th3 ? th3 : 0) * 1) / countTH;
             if (soTCLT > 0)
                 diemTongKet = ((tbTK * 0.2 + gk * 0.3 + ck * 0.5) * soTCLT + tbTH * soTCTH) / (soTCLT + soTCTH);
             else diemTongKet = tbTH / countTH;
@@ -972,7 +972,7 @@ function LopHoc() {
                 axiosJWT,
             );
             //let diemSV = resultBangDiem.filter((e) => e.trangThai !== 'Học lại' && e.trangThai !== 'Học cải thiện');
-            //console.log(diemSV);
+            //console.log(resultBangDiem);
             if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
         };
         getBangDiem();
@@ -1014,6 +1014,7 @@ function LopHoc() {
                             value={selectedOptionHK}
                             onChange={(e) => handleSelectHK(e)}
                         >
+                            <option value="">Học kỳ</option>
                             {listHocKy?.map((item) => (
                                 <option key={item.maHocKy} value={item.maHocKy}>
                                     {item.tenHocKy}
@@ -1094,13 +1095,13 @@ function LopHoc() {
                         Tìm kiếm
                     </Button>
                 </div> */}
-                <div className="flex flex-row items-center ">
+                {/* <div className="flex flex-row items-center ">
                     <div className="ml-6">
                         <Button variant="contained" size="small" startIcon={<AiFillSave />} onClick={handleLuuBangDiem}>
                             Lưu
                         </Button>
                     </div>
-                </div>
+                </div> */}
             </div>
             <div className="w-full flex justify-center items-center">
                 <div className="border border-gray-300 w-[96%]"></div>
@@ -1108,11 +1109,17 @@ function LopHoc() {
             <div className="w-full flex justify-start items-center mt-3 mr-11 ml-10">
                 <div className="text-lg font-bold ">Danh sách điểm số các sinh viên trong lớp học phần</div>
             </div>
-            <div className="p-2 ml-10">
+            <div className="p-2 ml-10 flex flex-row">
                 <Button variant="contained" size="small" startIcon={<FaFileExcel />} onClick={() => exportToExcel()}>
                     Xuất excel
                 </Button>
+                <div className="ml-4">
+                    <Button variant="contained" size="small" startIcon={<AiFillSave />} onClick={handleLuuBangDiem}>
+                        Lưu
+                    </Button>
+                </div>
             </div>
+
             <div style={{}} className=" mt-2 mr-11 ml-10">
                 <div>
                     {/* <Button type="primary" onClick={handleExportExcel}>
@@ -1135,7 +1142,9 @@ function LopHoc() {
                                         <th rowSpan={3}>Xếp loại</th>
                                     </tr>
                                     <tr className={cx(' bg-blue-100')}>
-                                        <th colSpan={7}>LHP: {selectedLHP}</th>
+                                        <th colSpan={7}>
+                                            LHP: {listLHP?.find((e) => e.maLopHocPhan === selectedLHP)?.tenLopHocPhan}
+                                        </th>
                                         <th colSpan={5}>LT hệ số 1</th>
                                         <th></th>
                                         <th></th>

@@ -64,6 +64,22 @@ function Nganh() {
         setSelectedNganh(item);
     };
 
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+    const handleClickOpenUpdate = () => {
+        if (!selectedNganh) {
+            alert('Vui lòng chọn ngành cần sửa');
+            return;
+        } else {
+            setTenNganh(selectedNganh.tenNganh);
+            setKhoa(selectedNganh.khoa.maKhoa);
+            setTongTinChi(selectedNganh.tongTinChi);
+            setTrangThai(selectedNganh.setTrangThai);
+            setOpen(true);
+        }
+    };
+
     const handleClose = () => {
         setOpen(false);
     };
@@ -139,8 +155,8 @@ function Nganh() {
                 <HeaderQL
                     placeholder="Mã, tên giảng viên"
                     onPressSearch={(value) => console.log(value)}
-                    onPressAdd={handleClickThem}
-                    onPressUpdate={handleClickOpenCapNhat}
+                    onPressAdd={handleClickOpen}
+                    onPressUpdate={handleClickOpenUpdate}
                 ></HeaderQL>
 
                 <div style={{}} className="h-3/4 mt-2 mr-11 ml-10">

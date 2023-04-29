@@ -143,6 +143,10 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
 
     const handleClickOpenUpdate = () => {
         //console.log(selectedMon);
+        if (!selectedMon) {
+            alert('Chọn môn học cần sửa');
+            return;
+        }
         if (!!selectedMon) {
             setMaMonHoc(selectedMon.maMonHoc);
             setTenMonHoc(selectedMon.tenMonHoc);

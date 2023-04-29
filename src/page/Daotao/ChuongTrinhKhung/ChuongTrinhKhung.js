@@ -419,7 +419,7 @@ function ChuongTrinhKhung() {
             <div className="w-full mt-3 ">
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý chương trình khung</div>
                 <HeaderQL
-                    placeholder="Mã CTK, mã, tên ngành học"
+                    placeholder="Mã CTK, tên ngành học"
                     onPressSearch={(value) => hanldeSearchCTK(value)}
                     onPressAdd={handleClickOpen}
                     onPressUpdate={handleClickOpenUpdate}
@@ -487,7 +487,7 @@ function ChuongTrinhKhung() {
                     <div className="flex justify-start text-lg font-bold text-sv-blue-4 ml-11">
                         Chi tiết chương trình khung
                     </div>
-                    <div style={{}} className=" mt-2 mr-11 ml-10">
+                    <div style={{}} className={!!selectedCTK ? ' mt-2 mr-11 ml-10' : 'hidden'}>
                         <div className="m-2">
                             <div className="">
                                 <table className={cx('table-nganh')}>
@@ -607,7 +607,7 @@ function ChuongTrinhKhung() {
                                             )}
                                         </tbody>
                                     ))}
-                                    <tr className="bg-blue-100">
+                                    {/* <tr className="bg-blue-100">
                                         <td className="font-bold text-sv-blue-5 " colSpan={4}>
                                             Tổng số TC yêu cầu
                                         </td>
@@ -627,7 +627,7 @@ function ChuongTrinhKhung() {
                                         </td>
                                         <td className="font-bold text-red-500 ">{tongSoTCTC}</td>
                                         <td colSpan={5}></td>
-                                    </tr>
+                                    </tr> */}
                                 </table>
                             </div>
                         </div>
