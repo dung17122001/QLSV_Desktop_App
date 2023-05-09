@@ -22,6 +22,8 @@ import style from './DayNha.module.scss';
 import { useSelector } from 'react-redux';
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 import { useDispatch } from 'react-redux';
+import { getDayNhaTheoTen } from '../../../services/dayNhaService';
+import { checkRong } from '../../../regex/regex';
 function DayNha() {
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch();
@@ -29,6 +31,7 @@ function DayNha() {
 
     var accessToken = userLoginData.accessToken;
     var axiosJWT = getAxiosJWT(dispatch, userLoginData);
+    const [listDayNhaTheoTen, setListDayNhaTheoTen] = useState();
     const [listDN, setListDN] = useState();
     const [selectedDayNha, setSelectedDayNha] = useState('');
     const [maDayNha, setMaDayNha] = useState('');
@@ -102,29 +105,49 @@ function DayNha() {
         const timDayNha = await timKiemDayNha(value, accessToken, axiosJWT);
         setListDN(timDayNha);
     };
+
+    useEffect(() => {
+        const getDayNha = async () => {
+            const getDayNhaByTen = await getDayNhaTheoTen(tenDayNha, accessToken, axiosJWT);
+            setListDayNhaTheoTen(getDayNhaByTen);
+        };
+        getDayNha();
+    }, [tenDayNha]);
+    function checkTrungTen(tendaynha) {
+        if (tenDayNha === selectedDayNha?.tenDayNha) {
+            return true;
+        } else if (checkRong(tenDayNha) && listDayNhaTheoTen?.length === 0) {
+            return true;
+        }
+        return false;
+    }
     const luuDayNha = async () => {
-        if (!!selectedDayNha) {
-            dayNha.maDayNha = selectedDayNha.maDayNha;
-            let suaDayNha = await capNhatDayNha(dayNha, accessToken, axiosJWT);
-            if (suaDayNha) {
-                setOpen(false);
-                alert('Cập nhật thành công!!');
-                reload();
+        if (checkTrungTen(tenDayNha)) {
+            if (!!selectedDayNha) {
+                dayNha.maDayNha = selectedDayNha.maDayNha;
+                let suaDayNha = await capNhatDayNha(dayNha, accessToken, axiosJWT);
+                if (suaDayNha) {
+                    setOpen(false);
+                    alert('Cập nhật thành công!!');
+                    reload();
+                } else {
+                    alert('Cập nhật không thành công');
+                }
             } else {
-                alert('Cập nhật không thành công');
+                let checkTenDayNha = listDN.find((e) => e.tenDayNha === dayNha.tenDayNha);
+                if (!!checkTenDayNha) {
+                    alert('Tên dãy nhà bị trùng');
+                    return;
+                }
+                let addDayNha = await themDayNha(dayNha, accessToken, axiosJWT);
+                if (addDayNha) {
+                    setOpen(false);
+                    alert('Thêm thành công');
+                    reload();
+                }
             }
         } else {
-            let checkTenDayNha = listDN.find((e) => e.tenDayNha === dayNha.tenDayNha);
-            if (!!checkTenDayNha) {
-                alert('Tên dãy nhà bị trùng');
-                return;
-            }
-            let addDayNha = await themDayNha(dayNha, accessToken, axiosJWT);
-            if (addDayNha) {
-                setOpen(false);
-                alert('Thêm thành công');
-                reload();
-            }
+            alert('Dữ liệu không hợp lệ !!');
         }
     };
     return (
@@ -241,15 +264,24 @@ function DayNha() {
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Tên dãy nhà:</label>
                                 </div>
-                                <input
-                                    type="text"
-                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Tên dãy nhà"
-                                    value={tenDayNha}
-                                    onChange={(e) => {
-                                        setTenDayNha(e.target.value);
-                                    }}
-                                />
+                                <div className="h-16">
+                                    <input
+                                        type="text"
+                                        className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                        placeholder="Tên dãy nhà"
+                                        value={tenDayNha}
+                                        onChange={(e) => {
+                                            setTenDayNha(e.target.value);
+                                        }}
+                                    />
+                                    {!checkTrungTen(tenDayNha) && (
+                                        <span
+                                            className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}
+                                        >
+                                            Tên dãy nhà rỗng hoặc đã tồn tại
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32  text-left">

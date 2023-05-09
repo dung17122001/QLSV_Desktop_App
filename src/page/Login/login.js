@@ -59,6 +59,11 @@ function Login() {
         } else navigate(route.home);
         //navigate(config.routeConfig.home);
     };
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            handleLogin();
+        }
+    }
     return (
         <>
             <div className="h-full flex w-full">
@@ -91,9 +96,10 @@ function Login() {
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         className={cx(
-                                            'block p-2 pl-4 caret-sv-blue-4 text-sm w-full rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic ',
+                                            'block p-2 pl-4 caret-sv-blue-4 text-sm w-full rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic ',
                                         )}
                                         placeholder="Nhập mã nhân viên"
+                                        onKeyPress={handleKeyPress}
                                     />
                                 </div>
                                 <div className="flex justify-center p-7">
@@ -102,9 +108,10 @@ function Login() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className={cx(
-                                            'block p-2 pl-4 caret-sv-blue-4 text-sm w-full rounded-sv-login-input bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic ',
+                                            'block p-2 pl-4 caret-sv-blue-4 text-sm w-full rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic ',
                                         )}
                                         placeholder="Nhập mật khẩu"
+                                        onKeyPress={handleKeyPress}
                                     />
                                 </div>
                                 <div className=" w-full h-24 p-7">
@@ -112,7 +119,7 @@ function Login() {
                                         className={cx(
                                             'w-full h-full  ',
                                             'border border-opacity-100 border-sv-blue-4 outline-none text-sv-blue-4',
-                                            'bg-sv-blue-3 justify-center ',
+                                            'bg-sv-blue-3 justify-center rounded-md',
                                         )}
                                         onClick={handleLogin}
                                     >

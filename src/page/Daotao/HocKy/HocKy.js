@@ -16,7 +16,10 @@ import { FaRegWindowClose } from 'react-icons/fa';
 import { AiFillSave } from 'react-icons/ai';
 import { BsFillEraserFill } from 'react-icons/bs';
 import Box from '@mui/material/Box';
+import { getHocKyTheoTen } from '../../../services/hocKyService';
+import { checkRong } from '../../../regex/regex';
 function HocKy() {
+    const [listHocKyByTen, setListHocKyByTen] = useState('');
     const [listHK, setListHK] = useState();
     const [selectedHocKy, setSelectedHocKy] = useState('');
     const [maHocKy, setMaHocKy] = useState('');
@@ -89,25 +92,63 @@ function HocKy() {
         getALLHocKy();
     }, []);
 
+    useEffect(() => {
+        const getHocKy = async () => {
+            var getHocKyByTen = await getHocKyTheoTen(tenHocKy, accessToken, axiosJWT);
+            setListHocKyByTen(getHocKyByTen);
+        };
+
+        getHocKy();
+    }, [tenHocKy]);
+
+    function checkTrungTen(tenHocKy) {
+        if (tenHocKy === selectedHocKy?.tenHocKy) {
+            return true;
+        } else if (checkRong(tenHocKy) && listHocKyByTen?.length === 0) {
+            return true;
+        }
+        return false;
+    }
+    function checkNgayBatDau(thoiGianBD) {
+        if (thoiGianBD === selectedHocKy?.thoiGianBD) {
+            return true;
+        } else if (checkRong(thoiGianBD)) {
+            return true;
+        }
+        return false;
+    }
+    function checkNgayKetThuc(thoiGianKT) {
+        if (thoiGianKT === selectedHocKy?.thoiGianKT) {
+            return true;
+        } else if (checkRong(thoiGianKT) && thoiGianKT > thoiGianBD) {
+            return true;
+        }
+        return false;
+    }
+
     const luuHocKy = async () => {
-        if (!!selectedHocKy) {
-            hocKy.maHocKy = selectedHocKy.maHocKy;
+        if (checkTrungTen(tenHocKy)) {
+            if (!!selectedHocKy) {
+                hocKy.maHocKy = selectedHocKy.maHocKy;
 
-            let suaHocKy = await capNhatHocKy(hocKy, accessToken, axiosJWT);
+                let suaHocKy = await capNhatHocKy(hocKy, accessToken, axiosJWT);
 
-            if (suaHocKy) {
-                setOpen(false);
-                alert('Cập nhật thành công');
-                reload();
+                if (suaHocKy) {
+                    setOpen(false);
+                    alert('Cập nhật thành công');
+                    reload();
+                }
+            } else {
+                let addHocKy = await themHocKy(hocKy, accessToken, axiosJWT);
+
+                if (addHocKy) {
+                    setOpen(false);
+                    alert('Thêm thành công');
+                    reload();
+                }
             }
         } else {
-            let addHocKy = await themHocKy(hocKy, accessToken, axiosJWT);
-
-            if (addHocKy) {
-                setOpen(false);
-                alert('Thêm thành công');
-                reload();
-            }
+            alert('Dữ liệu không phù hợp !!');
         }
     };
     return (
@@ -133,8 +174,8 @@ function HocKy() {
                                         <tr className={cx(' bg-blue-100')}>
                                             <th></th>
                                             <th className={cx('')}>STT</th>
-                                            <th className={cx('')}>Mã số nhân viên</th>
-                                            <th className={cx('')}>Họ tên</th>
+                                            <th className={cx('')}>Mã số học kỳ</th>
+                                            <th className={cx('')}>Tên học kỳ</th>
 
                                             <th className={cx('')}>Trạng thái</th>
                                         </tr>
@@ -210,15 +251,24 @@ function HocKy() {
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Tên học kỳ:</label>
                                 </div>
-                                <input
-                                    type="text"
-                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Tên học kỳ"
-                                    value={tenHocKy}
-                                    onChange={(e) => {
-                                        setTenHocKy(e.target.value);
-                                    }}
-                                />
+                                <div className="h-16">
+                                    <input
+                                        type="text"
+                                        className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                        placeholder="Tên học kỳ"
+                                        value={tenHocKy}
+                                        onChange={(e) => {
+                                            setTenHocKy(e.target.value);
+                                        }}
+                                    />
+                                    {!checkTrungTen(tenHocKy) && (
+                                        <span
+                                            className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}
+                                        >
+                                            Tên học kỳ rỗng hoặc đã tồn tại
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
@@ -242,30 +292,48 @@ function HocKy() {
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Thời gian bắt đầu:</label>
                                 </div>
-                                <input
-                                    type="date"
-                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder=""
-                                    value={thoiGianBD}
-                                    onChange={(e) => {
-                                        setThoiGianBD(e.target.value);
-                                    }}
-                                />
+                                <div className="h-16">
+                                    <input
+                                        type="date"
+                                        className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                        placeholder=""
+                                        value={thoiGianBD}
+                                        onChange={(e) => {
+                                            setThoiGianBD(e.target.value);
+                                        }}
+                                    />
+                                    {!checkNgayBatDau(thoiGianBD) && (
+                                        <span
+                                            className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}
+                                        >
+                                            Bắt buộc
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Thời gian kết thúc:</label>
                                 </div>
-                                <input
-                                    type="date"
-                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Thời gian kết thúc"
-                                    value={thoiGianKT}
-                                    onChange={(e) => {
-                                        setThoiGianKT(e.target.value);
-                                    }}
-                                />
+                                <div className="h-16">
+                                    <input
+                                        type="date"
+                                        className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                        placeholder="Thời gian kết thúc"
+                                        value={thoiGianKT}
+                                        onChange={(e) => {
+                                            setThoiGianKT(e.target.value);
+                                        }}
+                                    />
+                                    {!checkNgayKetThuc(thoiGianKT) && (
+                                        <span
+                                            className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}
+                                        >
+                                            Bắt buộc & Sau ngày bắt đầu
+                                        </span>
+                                    )}
+                                </div>  
                             </div>
                             <div className="w-1/3"></div>
                         </div>

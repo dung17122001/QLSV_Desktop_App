@@ -71,3 +71,10 @@ export const checkValidChucVu = (value) => {
         return false;
     }
 };
+export const checkRong = (value) => {
+    if (!!value) {
+        return true;
+    } else {
+        return false;
+    }
+};

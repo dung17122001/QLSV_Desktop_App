@@ -54,3 +54,20 @@ export const timKiemDayNha = async (text, accessToken, axiosJWT) => {
         return null;
     }
 };
+
+export const getDayNhaTheoTen = async (tenDayNha, accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('daynha/tendaynha', {
+            params: {
+                tenDayNha: tenDayNha,
+            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

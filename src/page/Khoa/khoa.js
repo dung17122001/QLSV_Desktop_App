@@ -5,6 +5,7 @@ import { capNhatKhoa, getTatCaKhoa, themKhoa, timKiemKhoa } from '../../services
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
+import { Alert, AlertTitle } from '@mui/material';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -23,6 +24,9 @@ import { TiCancel } from 'react-icons/ti';
 import classNames from 'classnames/bind';
 import style from './Khoa.module.scss';
 import { exportToExcel } from './exportToExcel';
+import { getKhoaTheoTen } from '../../services/khoaService';
+import { checkRong } from '../../regex/regex';
+
 function Khoa() {
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
@@ -36,7 +40,8 @@ function Khoa() {
     const [maKhoa, setMaKhoa] = useState('');
     const [tenKhoa, setTenKhoa] = useState('');
     const [trangThai, setTrangThai] = useState('');
-    console.log(trangThai);
+    const [listKhoaByTen, setListKhoaByTen] = useState();
+
     let khoa = {
         maKhoa,
         tenKhoa,
@@ -105,27 +110,47 @@ function Khoa() {
         const timKhoa = await timKiemKhoa(value, accessToken, axiosJWT);
         setListKhoa(timKhoa);
     };
+    useEffect(() => {
+        const getKhoa = async () => {
+            var getKhoaByTen = await getKhoaTheoTen(tenKhoa, accessToken, axiosJWT);
+            setListKhoaByTen(getKhoaByTen);
+        };
+
+        getKhoa();
+    }, [tenKhoa]);
+    console.log(listKhoaByTen);
+    function checkTrungTen(tenKhoa) {
+        if (tenKhoa === selectedKhoa?.tenKhoa) {
+            return true;
+        } else if (checkRong(tenKhoa) && listKhoaByTen?.length === 0) {
+            return true;
+        }
+        return false;
+    }
 
     const luuKhoa = async () => {
-        console.log(khoa);
-        if (!!selectedKhoa) {
-            khoa.maKhoa = selectedKhoa.maKhoa;
+        if (checkTrungTen(tenKhoa)) {
+            if (!!selectedKhoa) {
+                khoa.maKhoa = selectedKhoa.maKhoa;
 
-            let suaKhoa = await capNhatKhoa(khoa, accessToken, axiosJWT);
+                let suaKhoa = await capNhatKhoa(khoa, accessToken, axiosJWT);
 
-            if (suaKhoa) {
-                setOpen(false);
-                alert('Cập nhật thành công');
-                reload();
+                if (suaKhoa) {
+                    setOpen(false);
+                    alert('Cập nhật thành công');
+                    reload();
+                }
+            } else {
+                let addKhoa = await themKhoa(khoa, accessToken, axiosJWT);
+
+                if (addKhoa) {
+                    setOpen(false);
+                    alert('Thêm thành công');
+                    reload();
+                }
             }
         } else {
-            let addKhoa = await themKhoa(khoa, accessToken, axiosJWT);
-
-            if (addKhoa) {
-                setOpen(false);
-                alert('Thêm thành công');
-                reload();
-            }
+            alert('Dữ liệu nhập vào chưa phù hơp!!');
         }
     };
     return (
@@ -227,15 +252,24 @@ function Khoa() {
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Tên khoa:</label>
                                 </div>
-                                <input
-                                    type="text"
-                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Tên khoa"
-                                    value={tenKhoa}
-                                    onChange={(e) => {
-                                        setTenKhoa(e.target.value);
-                                    }}
-                                />
+                                <div className="h-16">
+                                    <input
+                                        type="text"
+                                        className="block m-4 mb-0 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                        placeholder="Tên khoa"
+                                        value={tenKhoa}
+                                        onChange={(e) => {
+                                            setTenKhoa(e.target.value);
+                                        }}
+                                    />
+                                    {!checkTrungTen(tenKhoa) && (
+                                        <span
+                                            className={cx('flex justify-start items-center text-red-500 text-xs mt-0')}
+                                        >
+                                            Tên khoa rỗng hoặc đã tồn tại
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
                                 <select
