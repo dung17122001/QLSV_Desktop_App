@@ -215,7 +215,7 @@ function LopHoc() {
         //setSelectedLichHoc('');
         if (!!selectedLichHoc) {
             setMaLich(selectedLichHoc.maLich);
-            setLoaiLich(selectedLichHoc.loaiLich);
+            setLoaiLich(selectedLichHoc.phong.loaiPhong.maLoaiPhong);
             setNgayHoc(selectedLichHoc.ngayHoc);
             setCaHoc(selectedLichHoc.caHoc?.maCaHoc);
             setDayNha(selectedLichHoc.phong.dayNha.tenDayNha);

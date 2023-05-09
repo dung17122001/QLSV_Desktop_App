@@ -89,7 +89,7 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
         //console.log(item);
         if (item.isCheckedHocTruoc) setListCheckedHocTruoc((prev) => [...prev, item.maMonHoc]);
         else {
-            var arrRemove = listCheckedHocTruoc.filter((e) => e !== item.maMonHoc);
+            var arrRemove = listCheckedHocTruoc?.filter((e) => e !== item.maMonHoc);
             setListCheckedHocTruoc(arrRemove);
         }
         setListMonHocTruoc(temp);
@@ -121,7 +121,7 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
         //console.log(item);
         if (item.isCheckedHocSongHanh) setListCheckedSongSong((prev) => [...prev, item.maMonHoc]);
         else {
-            var arrRemove = listCheckedSongSong.filter((e) => e !== item.maMonHoc);
+            var arrRemove = listCheckedSongSong?.filter((e) => e !== item.maMonHoc);
             setListCheckedSongSong(arrRemove);
         }
         setListMonHocSongHanh(temp);

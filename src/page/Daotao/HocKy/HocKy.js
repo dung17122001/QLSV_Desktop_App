@@ -173,7 +173,7 @@ function HocKy() {
                 </div>
                 <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
                     <div className="w-full flex justify-between mt-5 border-b-2">
-                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin khoa</div>
+                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin học kỳ</div>
                         <div>
                             <FaRegWindowClose className="mr-5" size={30} color="#47A9FF" onClick={handleClose} />
                         </div>

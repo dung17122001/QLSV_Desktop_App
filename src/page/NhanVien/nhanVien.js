@@ -165,7 +165,7 @@ function GiangVien() {
             setNgayVaoDoan(selectedNhanVien.ngayVaoDoan);
             setNgayVaoDang(selectedNhanVien.ngayVaoDang);
             setTrangThai(selectedNhanVien.trangThai);
-            setLinkAnh(selectedNhanVien.linkAnh);
+            //setLinkAnh(selectedNhanVien.linkAnh);
             setOpen(true);
         } else {
             alert('Vui lòng chọn nhân viên');
@@ -196,7 +196,7 @@ function GiangVien() {
         setSelectedNhanVien('');
         xoaTrang();
         setOpen(true);
-        console.log(selectedNhanVien);
+        //console.log(selectedNhanVien);
     };
 
     const handleClose = () => {
@@ -260,8 +260,8 @@ function GiangVien() {
         let formDataFile = new FormData();
         formDataFile.append('file', valueAvatar);
         let linkAvatar = (await uploadFile(formDataFile, accessToken, axiosJWT)) || '';
-        console.log(linkAvatar);
-        nhanVien = { ...nhanVien, linkAnh: linkAvatar };
+        //console.log(linkAvatar);
+        nhanVien = { ...nhanVien, linkAnh: linkAvatar !== '' ? linkAvatar : selectedNhanVien.linkAnh };
         if (!!selectedNhanVien) {
             nhanVien.maNhanVien = selectedNhanVien.maNhanVien;
 
