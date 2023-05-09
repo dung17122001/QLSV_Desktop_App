@@ -64,7 +64,7 @@ function ChuongTrinhKhung() {
     const [listHocKy, setListHocKy] = useState();
     const [listChecked, setListChecked] = useState([]);
     const [display, setDisplay] = useState('');
-
+    const [tongTinChi, setTongTinChi] = useState(146);
     const [listHPTheoKy, setListHPTheoKy] = useState();
     const [listHocPhanTheoKhoaHoc, setListHocPhanKhoaHoc] = useState();
     const [typeHocPhan, setTypeHocPhan] = useState('');
@@ -182,6 +182,7 @@ function ChuongTrinhKhung() {
             setTenCTK(selectedCTK.tenChuongTrinhKhung);
             setKhoaHoc(selectedCTK.khoaHoc?.maKhoaHoc);
             setNganhHoc(selectedCTK.nganhHoc?.maNganh);
+            setTongTinChi(selectedCTK?.tongSoTinChi);
             setTrangThai(selectedCTK.trangThai);
         }
         setOpen(true);
@@ -191,6 +192,7 @@ function ChuongTrinhKhung() {
         setTenCTK('');
         setKhoaHoc('');
         setNganhHoc('');
+        setTongTinChi(146);
         setTrangThai('Bình thường');
     };
 
@@ -209,6 +211,7 @@ function ChuongTrinhKhung() {
             tenChuongTrinhKhung: tenCTK,
             nganhHoc: nganhHoc,
             khoaHoc: khoaHoc,
+            tongSoTinChi: tongTinChi,
             trangThai: trangThai,
         };
         if (!selectedCTK.maChuongTrinhKhung && selectedCTK.maChuongTrinhKhung !== '') {
@@ -441,6 +444,7 @@ function ChuongTrinhKhung() {
                                             <th>Tên chương trình khung</th>
                                             <th>Ngành</th>
                                             <th>Khóa học</th>
+                                            <th>Tổng số TC</th>
                                             <th>Trạng thái</th>
                                         </tr>
                                     </thead>
@@ -473,6 +477,7 @@ function ChuongTrinhKhung() {
                                                 <td>{item.tenChuongTrinhKhung}</td>
                                                 <td>{item.nganhHoc?.tenNganh}</td>
                                                 <td>{item.khoaHoc?.tenKhoaHoc}</td>
+                                                <td>{item.tongSoTinChi}</td>
                                                 <td>{item.trangThai}</td>
                                             </tr>
                                         ))}
@@ -607,11 +612,11 @@ function ChuongTrinhKhung() {
                                             )}
                                         </tbody>
                                     ))}
-                                    {/* <tr className="bg-blue-100">
+                                    <tr className="bg-blue-100">
                                         <td className="font-bold text-sv-blue-5 " colSpan={4}>
                                             Tổng số TC yêu cầu
                                         </td>
-                                        <td className="font-bold text-red-500 ">{tongSoTCBB + tongSoTCTC}</td>
+                                        <td className="font-bold text-red-500 ">{selectedCTK.tongSoTinChi}</td>
                                         <td colSpan={5}></td>
                                     </tr>
                                     <tr className="bg-blue-100">
@@ -625,9 +630,11 @@ function ChuongTrinhKhung() {
                                         <td className="font-bold text-sv-blue-5 " colSpan={4}>
                                             Tổng số TC tự chọn
                                         </td>
-                                        <td className="font-bold text-red-500 ">{tongSoTCTC}</td>
+                                        <td className="font-bold text-red-500 ">
+                                            {selectedCTK.tongSoTinChi * 1 - tongSoTCBB * 1}
+                                        </td>
                                         <td colSpan={5}></td>
-                                    </tr> */}
+                                    </tr>
                                 </table>
                             </div>
                         </div>
@@ -636,7 +643,7 @@ function ChuongTrinhKhung() {
 
                 <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
                     <div className="w-full flex justify-between mt-5 border-b-2">
-                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin môn học</div>
+                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin chương trình kung</div>
                         <div>
                             <FaRegWindowClose className="mr-5" size={30} color="#47A9FF" onClick={handleClose} />
                         </div>
@@ -729,6 +736,20 @@ function ChuongTrinhKhung() {
                             </div>
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
+                                    <label htmlFor="">Tổng tín chỉ:</label>
+                                </div>
+                                <input
+                                    type="number"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Tổng tín chỉ   "
+                                    value={tongTinChi}
+                                    onChange={(e) => {
+                                        setTongTinChi(e.target.value);
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
                                     <label htmlFor="">Trạng thái:</label>
                                 </div>
                                 <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
@@ -742,7 +763,6 @@ function ChuongTrinhKhung() {
                                     </select>
                                 </div>
                             </div>
-                            <div className="w-1/3"></div>
                         </div>
 
                         <div className="w-full flex flex-row justify-center p-3">

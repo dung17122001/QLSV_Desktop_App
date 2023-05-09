@@ -395,8 +395,8 @@ function SinhVien() {
             let formDataFile = new FormData();
             formDataFile.append('file', valueAvatar);
             let linkAvatar = (await uploadFile(formDataFile, accessToken, axiosJWT)) || '';
-            console.log(linkAvatar);
-            sinhVien = { ...sinhVien, linkAnh: linkAvatar };
+            //console.log(linkAvatar);
+            sinhVien = { ...sinhVien, linkAnh: linkAvatar !== '' ? linkAvatar : selectedSinhVien.linkAnh };
             if (!!selectedSinhVien) {
                 sinhVien.maSinhVien = selectedSinhVien.maSinhVien;
 

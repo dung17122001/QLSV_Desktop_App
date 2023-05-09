@@ -37,7 +37,7 @@ function Nganh() {
     const [selectedNganh, setSelectedNganh] = useState('');
     const [maNganh, setMaNganh] = useState();
     const [tenNganh, setTenNganh] = useState();
-    const [tongTinChi, setTongTinChi] = useState();
+    //const [tongTinChi, setTongTinChi] = useState();
     const [trangThai, setTrangThai] = useState();
     const [khoa, setKhoa] = useState('Khoa');
     const [listNganh, setListNganh] = useState();
@@ -65,6 +65,9 @@ function Nganh() {
     };
 
     const handleClickOpen = () => {
+        xoaTrang();
+        setSelectedNganh();
+        setMaNganh('');
         setOpen(true);
     };
     const handleClickOpenUpdate = () => {
@@ -74,7 +77,7 @@ function Nganh() {
         } else {
             setTenNganh(selectedNganh.tenNganh);
             setKhoa(selectedNganh.khoa.maKhoa);
-            setTongTinChi(selectedNganh.tongTinChi);
+            //setTongTinChi(selectedNganh.tongTinChi);
             setTrangThai(selectedNganh.setTrangThai);
             setOpen(true);
         }
@@ -98,12 +101,12 @@ function Nganh() {
         maNganh,
         tenNganh,
         khoa,
-        tongTinChi,
+        //tongTinChi,
         trangThai,
     };
     const xoaTrang = () => {
         setTenNganh('');
-        setTongTinChi('');
+        //setTongTinChi('');
         setTrangThai('Bình thường');
         setKhoa('Khoa');
     };
@@ -118,7 +121,7 @@ function Nganh() {
         if (!!selectedNganh) {
             setMaNganh(selectedNganh.maNganh);
             setTenNganh(selectedNganh.tenNganh);
-            setTongTinChi(selectedNganh.tongTinChi);
+            //setTongTinChi(selectedNganh.tongTinChi);
             setKhoa(selectedNganh.khoa.maKhoa);
             setTrangThai(selectedNganh.trangThai);
             setOpen(true);
@@ -129,7 +132,7 @@ function Nganh() {
     const handleAddNganh = async () => {
         if (!!selectedNganh) {
             nganh.maNganh = selectedNganh.maNganh;
-            console.log(nganh);
+            //console.log(nganh);
             let suaNganh = await capNhatNganh(nganh, accessToken, axiosJWT);
             if (suaNganh) {
                 setOpen(false);
@@ -153,10 +156,10 @@ function Nganh() {
             <div className="w-full h-screen mt-3">
                 <div className="flex justify-center text-lg font-bold text-sv-blue-4">Quản lý ngành học</div>
                 <HeaderQL
-                    placeholder="Mã, tên giảng viên"
+                    placeholder="Mã, tên ngành"
                     onPressSearch={(value) => console.log(value)}
-                    onPressAdd={handleClickOpen}
-                    onPressUpdate={handleClickOpenUpdate}
+                    onPressAdd={handleClickThem}
+                    onPressUpdate={handleClickOpenCapNhat}
                 ></HeaderQL>
 
                 <div style={{}} className="h-3/4 mt-2 mr-11 ml-10">
@@ -173,7 +176,7 @@ function Nganh() {
                                             <th>STT</th>
                                             <th>Mã ngành</th>
                                             <th>Tên ngành</th>
-                                            <th>Tổng tín chỉ</th>
+                                            {/* <th>Tổng tín chỉ</th> */}
                                             <th>Khoa</th>
                                             <th>Trạng thái</th>
                                         </tr>
@@ -200,7 +203,7 @@ function Nganh() {
                                                 <td>{index + 1}</td>
                                                 <td>{item?.maNganh}</td>
                                                 <td>{item?.tenNganh}</td>
-                                                <td>{item?.tongTinChi}</td>
+                                                {/* <td>{item?.tongTinChi}</td> */}
                                                 <td>{item?.khoa?.tenKhoa}</td>
                                                 <td>{item?.trangThai}</td>
                                             </tr>
@@ -214,7 +217,7 @@ function Nganh() {
 
                 <Dialog fullWidth={'100%'} maxWidth={'100%'} open={open} onClose={handleClose}>
                     <div className="w-full flex justify-between mt-5 border-b-2">
-                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin môn học</div>
+                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin ngành học</div>
                         <div>
                             <FaRegWindowClose className="mr-5" size={30} color="#47A9FF" onClick={handleClose} />
                         </div>
@@ -285,7 +288,7 @@ function Nganh() {
 
                         <div className="w-full flex flex-row justify-between">
                             <div className="flex justify-center flex-row items-center w-1/3">
-                                <div className="w-32 text-left">
+                                {/* <div className="w-32 text-left">
                                     <label htmlFor="">Tổng tín chỉ:</label>
                                 </div>
                                 <input
@@ -296,7 +299,7 @@ function Nganh() {
                                     onChange={(e) => {
                                         setTongTinChi(e.target.value);
                                     }}
-                                />
+                                /> */}
                             </div>
                             <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
