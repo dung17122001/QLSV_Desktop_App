@@ -1,7 +1,7 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { getRefreshToken } from '~/services/authService';
-
+import { useNavigate } from 'react-router-dom';
 import { loginSuccess } from '~/redux/Slice/authSlice';
 
 export const getAxiosJWT = (dispatch, currAccount) => {
@@ -23,6 +23,7 @@ export const getAxiosJWT = (dispatch, currAccount) => {
                 dispatch(loginSuccess(refreshUser));
                 config.headers['token'] = 'baerer ' + newToken.accessToken;
             }
+
             return config;
         },
         (err) => {

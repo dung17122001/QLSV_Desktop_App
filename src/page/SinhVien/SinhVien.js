@@ -421,6 +421,7 @@ function SinhVien() {
                 await register(sinhVienRegister);
                 if (addSinhVien && sinhVienRegister) {
                     setOpen(false);
+                    //await new Promise((resolve) => setTimeout(resolve, 0));
                     alert('Thêm thành công');
                     reload();
                 }

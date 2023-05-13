@@ -12,6 +12,7 @@ function createWindow() {
     win = new BrowserWindow({
         width: 800,
         height: 600,
+        //icon: __dirname + '../src/images/logo-app.png',
     });
 
     //win.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);

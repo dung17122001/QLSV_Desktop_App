@@ -61,6 +61,7 @@ function LopHoc() {
     const [listDiemLHP, setListDiemLHP] = useState();
     const diemRef = useRef(null); // Khởi tạo ref
     const [resultSearchLHP, setResultSearch] = useState();
+    const [reload, setReload] = useState(true);
 
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
@@ -92,7 +93,7 @@ function LopHoc() {
                     (e) => e.sinhVien.maSinhVien === listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
                 );
             }
-            //console.log(listThongTinLHP[i]);
+            // console.log(listThongTinLHP[i]);
             let bangDiem = {
                 maBangDiem: diemSV[0]?.maBangDiem,
                 sinhVien: listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.maSinhVien,
@@ -108,6 +109,40 @@ function LopHoc() {
                 giuaKy: listThongTinLHP[i].giuaKy !== '' ? listThongTinLHP[i].giuaKy : diemSV[0]?.giuaKy,
                 cuoiKy: listThongTinLHP[i].cuoiKy !== '' ? listThongTinLHP[i].cuoiKy : diemSV[0]?.cuoiKy,
             };
+            if (
+                10 < bangDiem.thucHanh1 ||
+                bangDiem.thucHanh1 < 0 ||
+                10 < bangDiem.thucHanh2 ||
+                bangDiem.thucHanh2 < 0 ||
+                10 < bangDiem.thucHanh3 ||
+                bangDiem.thucHanh3 < 0 ||
+                10 < bangDiem.thuongKy1 ||
+                bangDiem.thuongKy1 < 0 ||
+                10 < bangDiem.thuongKy2 ||
+                bangDiem.thuongKy2 < 0 ||
+                10 < bangDiem.thuongKy3 ||
+                bangDiem.thuongKy3 < 0 ||
+                10 < bangDiem.thuongKy4 ||
+                bangDiem.thuongKy4 < 0 ||
+                10 < bangDiem.thuongKy5 ||
+                bangDiem.thuongKy5 < 0 ||
+                10 < bangDiem.giuaKy ||
+                bangDiem.giuaKy < 0 ||
+                10 < bangDiem.cuoiKy ||
+                bangDiem.cuoiKy < 0
+            ) {
+                alert(
+                    'Dữ liệu của sinh viên ' +
+                        listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.tenSinhVien +
+                        ' (' +
+                        ' dòng ' +
+                        (i * 1 + 1) +
+                        ')' +
+                        ' không hợp lệ',
+                );
+                setReload(!reload);
+                return;
+            }
             if (!!bangDiem.cuoiKy && bangDiem.cuoiKy !== '') {
                 let soTCLT = listThongTinLHP[i].nhomThucHanh.lopHocPhan.hocPhan.monHoc.soTCLT;
                 let soTCTH = listThongTinLHP[i].nhomThucHanh.lopHocPhan.hocPhan.monHoc.soTCTH;
@@ -153,6 +188,7 @@ function LopHoc() {
         //console.log(resultBangDiem);
         if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
         alert('Đã lưu bảng điểm thành công');
+        return;
     };
 
     const tinhDiemTongKet = (tk1, tk2, tk3, tk4, tk5, gk, ck, th1, th2, th3, soTCLT, soTCTH) => {
@@ -996,7 +1032,7 @@ function LopHoc() {
             }
         };
         getTTLHP();
-    }, [selectedNhom, curNhanVien]);
+    }, [selectedNhom, curNhanVien, reload]);
 
     return (
         <div className="w-full h-full justify-center items-center ">

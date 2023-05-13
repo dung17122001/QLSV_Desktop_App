@@ -85,6 +85,7 @@ function GiangVien() {
     const [trangThai, setTrangThai] = useState('');
     const [valueAvatar, setValueAvatar] = useState(null);
     const [linkAnh, setLinkAnh] = useState('');
+    const [hocVi, setHocVi] = useState('');
 
     let nhanVien = {
         maNhanVien,
@@ -104,6 +105,7 @@ function GiangVien() {
         chucVu,
         soCCCD,
         khoa,
+        hocVi,
     };
 
     const [listNV, setListNV] = useState();
@@ -167,6 +169,7 @@ function GiangVien() {
             setTrangThai(selectedNhanVien.trangThai);
             //setLinkAnh(selectedNhanVien.linkAnh);
             setOpen(true);
+            setHocVi(selectedNhanVien.hocVi);
         } else {
             alert('Vui lòng chọn nhân viên');
         }
@@ -190,6 +193,7 @@ function GiangVien() {
         setNgayVaoDang('');
         setTrangThai('Bình thường');
         setLinkAnh('');
+        setHocVi('');
     };
     const handleClickOpenThem = () => {
         setMaNhanVien('');
@@ -746,6 +750,27 @@ function GiangVien() {
                                 }}
                             />
                         </div>
+                        <div className="flex justify-center flex-row items-center w-1/3">
+                            <div className="w-32 text-left">
+                                <label htmlFor="">Học vị:</label>
+                            </div>
+                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                <select
+                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                    value={hocVi}
+                                    onChange={(e) => setHocVi(e.target.value)}
+                                >
+                                    <option value="">Học vị</option>
+                                    <option value="Thạc sĩ">Thạc sĩ</option>
+                                    <option value="Tiến sĩ">Tiến sĩ</option>
+                                    <option value="Phó giáo sư">Phó giáo sư</option>
+                                    <option value="Giáo sư">Giáo sư</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="w-full flex flex-row justify-between">
                         <div className="flex justify-center flex-row items-center w-1/3">
                             <div className="w-32 text-left">
                                 <label htmlFor="">Trạng thái:</label>
