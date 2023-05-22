@@ -37,6 +37,10 @@ import { getLichTheoLHP, themLich, updateLich, getLichTheoMa, xoaLichTheoMaLHP }
 import { xoaChiTietPDKTheoMaLHP } from '~/services/pheuDangKyHP';
 import classNames from 'classnames/bind';
 import HeaderQL from '../../../components/HeaderQL';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
+import Modal from 'react-modal';
 const cx = classNames.bind(style);
 
 function LopHoc() {
@@ -80,6 +84,22 @@ function LopHoc() {
     const [soBuoiHoc, setSoBuoiHoc] = useState(0);
     const [nhomTH, setNhomTH] = useState(1);
     const [soLuongSV, setSoLuongSV] = useState(30);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+
+    const handleConfirmation = () => {
+        setShowConfirmation(true);
+    };
+
+    const handleConfirm = async () => {
+        // Xử lý logic khi người dùng đồng ý
+        await handleXoaLopHP();
+        setShowConfirmation(false);
+    };
+
+    const handleCancel = () => {
+        // Xử lý logic khi người dùng từ chối
+        setShowConfirmation(false);
+    };
 
     const dispatch = useDispatch();
     const userLoginData = useSelector((state) => state.persistedReducer.auth.currentUser);
@@ -177,7 +197,16 @@ function LopHoc() {
     };
     const handleClickOpenModalUpdateLHP = () => {
         if (!selectedLHP) {
-            alert('Vui lòng chọn lớp học phần cần sửa');
+            // alert('Vui lòng chọn lớp học phần cần sửa');
+            // return;
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Chọn lớp phần cần sửa!', 'Thông báo');
             return;
         }
         if (!!selectedLHP) {
@@ -208,7 +237,16 @@ function LopHoc() {
     };
     const handleClickOpenModalUpdateLichHoc = () => {
         if (!selectedLichHoc) {
-            alert('Vui lòng chọn lịch cần sửa');
+            // alert('Vui lòng chọn lịch cần sửa');
+            // return;
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Chọn lịch cần sửa!', 'Thông báo');
             return;
         }
         setReloadPhong(!reloadPhong);
@@ -256,24 +294,32 @@ function LopHoc() {
             hocPhan: selectedHP.maHocPhan,
             hocKy: selectedOptionHK,
         };
-        let tenLHP = listLHP.find((e) => e.tenLopHocPhan === lhp.tenLopHocPhan);
+        //let tenLHP = listLHP.find((e) => e.tenLopHocPhan === lhp.tenLopHocPhan);
 
         var kq;
         if (lhp.maLopHocPhan !== '' && !!lhp.maLopHocPhan) kq = await updateLopHocPhan(lhp, accessToken, axiosJWT);
         else {
-            if (!!tenLHP) {
-                alert('Tên lớp học phần bị trùng');
-                return;
-            }
+            // if (!!tenLHP) {
+            //     alert('Tên lớp học phần bị trùng');
+            //     return;
+            // }
             kq = await addLopHocPhan(lhp, accessToken, axiosJWT);
         }
 
         if (!!kq) {
-            alert('Lưu lớp học phần thành công');
+            //alert('Lưu lớp học phần thành công');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.success('Lưu lớp học phần thành công!', 'Thông báo');
             handleClickCloseModalLHP();
             let result = await getLopHocPhanTheoMaHP(selectedHP.maHocPhan, selectedOptionHK, accessToken, axiosJWT);
             setListLHP(result);
-        } else alert('Có lỗi xảy ra');
+        } //else alert('Có lỗi xảy ra');
         //console.log(lhp);
     };
     function getNextDayOfWeek(date, dayOfWeek) {
@@ -354,7 +400,16 @@ function LopHoc() {
 
     const handleThemLich = async () => {
         if (checkData() === false) {
-            alert('Dữ liệu không hợp lệ');
+            // alert('Dữ liệu không hợp lệ');
+            // return;
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Dữ liệu không hợp lệ!', 'Thông báo');
             return;
         }
         if (!!selectedLHP || selectedLHP?.maLopHocPhan !== '') {
@@ -485,13 +540,33 @@ function LopHoc() {
                 };
                 await updateLich(lich, accessToken, axiosJWT);
             }
-            alert('Đã lưu lịch học');
+            //alert('Đã lưu lịch học');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.success('Đã lưu lịch học!', 'Thông báo');
+
             handleClickCloseModalLichHoc();
             let result = await getLichTheoLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
             if (!!result) setListLichHoc(result);
             setReloadPhong(!reloadPhong);
             setReloadCaHoc(!reloadCaHoc);
-        } else alert('Vui lòng chọn lớp học phần');
+        } else {
+            //alert('Vui lòng chọn lớp học phần')
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn lớp học phần!', 'Thông báo');
+            return;
+        }
     };
 
     const handleXoaLopHP = async () => {
@@ -508,7 +583,17 @@ function LopHoc() {
             setListLHP(result);
             setSelectedLHP();
             setListLichHoc();
-        } else alert('Vui lòng chọn lớp học phần cần xóa');
+        } else {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn lớp học phần cần xóa!', 'Thông báo');
+            return;
+        } //alert('Vui lòng chọn lớp học phần cần xóa');
     };
 
     useEffect(() => {
@@ -584,673 +669,706 @@ function LopHoc() {
     }, [reloadCaHoc, ngayHoc]);
 
     return (
-        <div className="w-full h-full justify-center items-center ">
-            <div className="w-full flex justify-center items-center mt-3">
-                <div className="text-lg font-bold text-sv-blue-4">Quản lý lớp học phần</div>
-            </div>
-            <div className="w-full flex flex-row justify-center items-center">
-                <div className="flex flex-row items-center ">
-                    <div className="w-24 text-left">
-                        <label htmlFor="">Học kỳ:</label>
-                    </div>
-                    <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                        <select
-                            className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                            value={selectedOptionHK}
-                            onChange={(e) => handleSelectHK(e)}
-                        >
-                            <option value="">Học kỳ</option>
-                            {listHocKy?.map((item) => (
-                                <option key={item.maHocKy} value={item.maHocKy}>
-                                    {item.tenHocKy}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+        <div>
+            <div className="w-full h-full justify-center items-center ">
+                <div className="w-full flex justify-center items-center mt-3">
+                    <div className="text-lg font-bold text-sv-blue-4">Quản lý lớp học phần</div>
                 </div>
-            </div>
-            <div className="w-full flex justify-center items-center">
-                <div className="border border-gray-300 w-[96%]"></div>
-            </div>
-            <div className="w-full flex justify-start items-center mt-3 mr-11 ml-10">
-                <div className="text-lg font-bold ">Danh sách học phần cần quản lý trong học kỳ</div>
-            </div>
-            <div style={{}} className=" mt-2 mr-11 ml-10">
-                <div>
-                    {/* <Button type="primary" onClick={handleExportExcel}>
-                        Export Excel
-                    </Button> */}
-                    <div className="m-2">
-                        <div className="overflow-y-auto max-h-[480px] ">
-                            <table className={cx('table')} id="data">
-                                <thead className="text-sv-blue-5">
-                                    <tr className={cx(' bg-blue-100')}>
-                                        <th></th>
-                                        <th>STT</th>
-                                        <th>Mã học phần</th>
-                                        <th>Tên học phần</th>
-                                        <th>Điều kiện</th>
-                                        <th>Số TCLT</th>
-                                        <th>Số TCTH</th>
-                                        <th>Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {listHocPhan?.map((item, index) => (
-                                        <tr
-                                            key={item?.maHocPhan}
-                                            onClick={() => handleSelectHocPhan(item)}
-                                            className={`${
-                                                selectedHP.maHocPhan === `${item.maHocPhan}` ? 'bg-orange-200' : ''
-                                            } hover:cursor-pointer`}
-                                        >
-                                            <td>
-                                                <input
-                                                    type="radio"
-                                                    className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                                                    name="radio-group-mon"
-                                                    value={item.maHocPhan}
-                                                    checked={selectedHP.maHocPhan === `${item.maHocPhan}`}
-                                                    onChange={() => handleSelectHocPhan(item)}
-                                                />
-                                            </td>
-                                            <td>{index + 1}</td>
-                                            <td>{item.maHocPhan}</td>
-                                            <td>{item.tenHocPhan}</td>
-                                            <td>{renderDanhSachDieuKien(item.monHoc)}</td>
-                                            <td>{item.monHoc?.soTCLT}</td>
-                                            <td>{item.monHoc?.soTCTH}</td>
-                                            <td>{item.trangThai}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                <div className="w-full flex flex-row justify-center items-center">
+                    <div className="flex flex-row items-center ">
+                        <div className="w-24 text-left">
+                            <label htmlFor="">Học kỳ:</label>
+                        </div>
+                        <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                            <select
+                                className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                value={selectedOptionHK}
+                                onChange={(e) => handleSelectHK(e)}
+                            >
+                                <option value="">Học kỳ</option>
+                                {listHocKy?.map((item) => (
+                                    <option key={item.maHocKy} value={item.maHocKy}>
+                                        {item.tenHocKy}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="w-full flex justify-start items-center mt-5 mr-11 ml-10">
-                <div className="text-lg font-bold ">Danh sách các lớp học phần</div>
-            </div>
-            <div className="flex flex-row justify-center items-center">
-                <HeaderQL
-                    placeholder={'Nhập tên, mã LHP'}
-                    onPressAdd={handleClickOpenModalLHP}
-                    onPressUpdate={handleClickOpenModalUpdateLHP}
-                    onPressSearch={(value) => handleSearchLHP(value)}
-                />
-                <div className="ml-6">
-                    <Button
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        startIcon={<AiFillDelete />}
-                        onClick={handleXoaLopHP}
-                    >
-                        Xóa
-                    </Button>
+                <div className="w-full flex justify-center items-center">
+                    <div className="border border-gray-300 w-[96%]"></div>
                 </div>
-            </div>
-            <div style={{}} className=" mt-2 mr-11 ml-10">
-                <div>
-                    {/* <Button type="primary" onClick={handleExportExcel}>
-                        Export Excel
-                    </Button> */}
-                    <div className="m-2">
-                        <div className="overflow-y-auto max-h-[480px] ">
-                            <table className={cx('table')} id="data">
-                                <thead className="text-sv-blue-5">
-                                    <tr className={cx(' bg-blue-100')}>
-                                        <th></th>
-                                        <th>STT</th>
-                                        <th>Mã lớp học phần</th>
-                                        <th>Tên lớp học phần</th>
-                                        {/* <th>Điều kiện</th> */}
-                                        <th>Sỉ số tối đa</th>
-                                        <th>Đã đăng ký</th>
-                                        <th>Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {listLHP
-                                        //?.filter((e) => e.trangThai !== 'Đã khóa')
-                                        ?.map((item, index) => (
+                <div className="w-full flex justify-start items-center mt-3 mr-11 ml-10">
+                    <div className="text-lg font-bold ">Danh sách học phần cần quản lý trong học kỳ</div>
+                </div>
+                <div style={{}} className=" mt-2 mr-11 ml-10">
+                    <div>
+                        {/* <Button type="primary" onClick={handleExportExcel}>
+                            Export Excel
+                        </Button> */}
+                        <div className="m-2">
+                            <div className="overflow-y-auto max-h-[480px] ">
+                                <table className={cx('table')} id="data">
+                                    <thead className="text-sv-blue-5">
+                                        <tr className={cx(' bg-blue-100')}>
+                                            <th></th>
+                                            <th>STT</th>
+                                            <th>Mã học phần</th>
+                                            <th>Tên học phần</th>
+                                            <th>Điều kiện</th>
+                                            <th>Số TCLT</th>
+                                            <th>Số TCTH</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {listHocPhan?.map((item, index) => (
                                             <tr
-                                                key={item?.maLopHocPhan}
-                                                onClick={() => handleSelectLHP(item)}
+                                                key={item?.maHocPhan}
+                                                onClick={() => handleSelectHocPhan(item)}
                                                 className={`${
-                                                    selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`
-                                                        ? 'bg-orange-200'
-                                                        : ''
+                                                    selectedHP.maHocPhan === `${item.maHocPhan}` ? 'bg-orange-200' : ''
                                                 } hover:cursor-pointer`}
                                             >
                                                 <td>
                                                     <input
                                                         type="radio"
                                                         className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                                                        name="radio-group-lhp"
-                                                        value={item?.maLopHocPhan}
-                                                        checked={selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`}
-                                                        onChange={() => handleSelectLHP(item)}
+                                                        name="radio-group-mon"
+                                                        value={item.maHocPhan}
+                                                        checked={selectedHP.maHocPhan === `${item.maHocPhan}`}
+                                                        onChange={() => handleSelectHocPhan(item)}
                                                     />
                                                 </td>
                                                 <td>{index + 1}</td>
-                                                <td>{item?.maLopHocPhan}</td>
-                                                <td>{item.tenLopHocPhan}</td>
-                                                <td>{item.siSo}</td>
-                                                <td>{item.siSoThuc}</td>
+                                                <td>{item.maHocPhan}</td>
+                                                <td>{item.tenHocPhan}</td>
+                                                <td>{renderDanhSachDieuKien(item.monHoc)}</td>
+                                                <td>{item.monHoc?.soTCLT}</td>
+                                                <td>{item.monHoc?.soTCTH}</td>
                                                 <td>{item.trangThai}</td>
                                             </tr>
                                         ))}
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="w-full flex justify-start items-center mt-5 mr-11 ml-10">
-                <div className="text-lg font-bold ">Lịch học của lớp học phần</div>
-            </div>
-            <HeaderQL
-                placeholder={'Nhập mã lịch'}
-                onPressAdd={handleClickOpenModalLichHoc}
-                onPressUpdate={handleClickOpenModalUpdateLichHoc}
-                onPressSearch={(value) => handleSearchLich(value)}
-            />
-            <div style={{}} className=" mt-2 mr-11 ml-10">
-                <div>
-                    {/* <Button type="primary" onClick={handleExportExcel}>
-                        Export Excel
-                    </Button> */}
-                    <div className="m-2">
-                        <div className="overflow-y-auto max-h-[480px] ">
-                            <table className={cx('table')} id="data">
-                                <thead className="text-sv-blue-5">
-                                    <tr className={cx(' bg-blue-100')}>
-                                        <th></th>
-                                        <th>STT</th>
-                                        <th>Mã lịch</th>
-                                        <th>Lịch học</th>
-                                        <th>Nhóm TH</th>
-                                        {/* <th>Điều kiện</th> */}
-                                        <th>Dãy nhà</th>
-                                        <th>Phòng</th>
-                                        <th>Giảng viên</th>
-                                        <th>Ngày</th>
-                                        <th>Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {listLichHoc?.map((item, index) => (
-                                        <tr
-                                            key={item?.maLich}
-                                            onClick={() => setSelectedLichHoc(item)}
-                                            className={`${
-                                                selectedLichHoc?.maLich === `${item?.maLich}` ? 'bg-orange-200' : ''
-                                            } hover:cursor-pointer`}
-                                        >
-                                            <td>
-                                                <input
-                                                    type="radio"
-                                                    className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                                                    name="radio-group-lich"
-                                                    value={item.maLich}
-                                                    checked={selectedLichHoc?.maLich === `${item?.maLich}`}
-                                                    onChange={() => setSelectedLichHoc(item)}
-                                                />
-                                            </td>
-                                            <td>{index + 1}</td>
-                                            <td>{item.maLich}</td>
-                                            <td align="center">
-                                                {item?.loaiLich === 'Lý thuyết' ? 'LT' : 'TH'} -{' '}
-                                                {getDayOfWeek(item?.ngayHoc)} ({item?.caHoc?.tenCaHoc})
-                                            </td>
-                                            <td>
-                                                {item?.nhomThucHanh?.tenNhom === 'Nhóm 0'
-                                                    ? ''
-                                                    : item?.nhomThucHanh?.tenNhom}
-                                            </td>
-                                            <td>{item?.phong?.dayNha?.tenDayNha}</td>
-                                            <td>{item?.phong?.tenPhong}</td>
-                                            <td>{item?.nhanVien?.tenNhanVien}</td>
-                                            <td>
-                                                {/* {convertDateFormat(item.lopHocPhan?.ngayBatDau)} -{' '}
-                                                {convertDateFormat(item.lopHocPhan?.ngayKetThuc)} */}
-                                                {convertDateFormat(item?.ngayHoc)}
-                                            </td>
-                                            <td>{item?.trangThai}</td>
+                <div className="w-full flex justify-start items-center mt-5 mr-11 ml-10">
+                    <div className="text-lg font-bold ">Danh sách các lớp học phần</div>
+                </div>
+                <div className="flex flex-row justify-center items-center">
+                    <HeaderQL
+                        placeholder={'Nhập tên, mã LHP'}
+                        onPressAdd={handleClickOpenModalLHP}
+                        onPressUpdate={handleClickOpenModalUpdateLHP}
+                        onPressSearch={(value) => handleSearchLHP(value)}
+                    />
+                    <div className="ml-6">
+                        <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            startIcon={<AiFillDelete />}
+                            // onClick={handleXoaLopHP}
+                            onClick={handleConfirmation}
+                        >
+                            Xóa
+                        </Button>
+                    </div>
+                </div>
+                <div style={{}} className=" mt-2 mr-11 ml-10">
+                    <div>
+                        {/* <Button type="primary" onClick={handleExportExcel}>
+                            Export Excel
+                        </Button> */}
+                        <div className="m-2">
+                            <div className="overflow-y-auto max-h-[480px] ">
+                                <table className={cx('table')} id="data">
+                                    <thead className="text-sv-blue-5">
+                                        <tr className={cx(' bg-blue-100')}>
+                                            <th></th>
+                                            <th>STT</th>
+                                            <th>Mã lớp học phần</th>
+                                            <th>Tên lớp học phần</th>
+                                            {/* <th>Điều kiện</th> */}
+                                            <th>Sỉ số tối đa</th>
+                                            <th>Đã đăng ký</th>
+                                            <th>Trạng thái</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {listLHP
+                                            //?.filter((e) => e.trangThai !== 'Đã khóa')
+                                            ?.map((item, index) => (
+                                                <tr
+                                                    key={item?.maLopHocPhan}
+                                                    onClick={() => handleSelectLHP(item)}
+                                                    className={`${
+                                                        selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`
+                                                            ? 'bg-orange-200'
+                                                            : ''
+                                                    } hover:cursor-pointer`}
+                                                >
+                                                    <td>
+                                                        <input
+                                                            type="radio"
+                                                            className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                                                            name="radio-group-lhp"
+                                                            value={item?.maLopHocPhan}
+                                                            checked={
+                                                                selectedLHP?.maLopHocPhan === `${item?.maLopHocPhan}`
+                                                            }
+                                                            onChange={() => handleSelectLHP(item)}
+                                                        />
+                                                    </td>
+                                                    <td>{index + 1}</td>
+                                                    <td>{item?.maLopHocPhan}</td>
+                                                    <td>{item.tenLopHocPhan}</td>
+                                                    <td>{item.siSo}</td>
+                                                    <td>{item.siSoThuc}</td>
+                                                    <td>{item.trangThai}</td>
+                                                </tr>
+                                            ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <Dialog fullWidth={'100%'} maxWidth={'100%'} open={openModalLHP} onClose={handleClickCloseModalLHP}>
-                <div className="w-full flex justify-between mt-5 border-b-2">
-                    <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin lớp học phần</div>
+                <div className="w-full flex justify-start items-center mt-5 mr-11 ml-10">
+                    <div className="text-lg font-bold ">Lịch học của lớp học phần</div>
+                </div>
+                <HeaderQL
+                    placeholder={'Nhập mã lịch'}
+                    onPressAdd={handleClickOpenModalLichHoc}
+                    onPressUpdate={handleClickOpenModalUpdateLichHoc}
+                    onPressSearch={(value) => handleSearchLich(value)}
+                />
+                <div style={{}} className=" mt-2 mr-11 ml-10">
                     <div>
-                        <FaRegWindowClose
-                            className="mr-5"
-                            size={30}
-                            color="#47A9FF"
-                            onClick={handleClickCloseModalLHP}
-                        />
+                        {/* <Button type="primary" onClick={handleExportExcel}>
+                            Export Excel
+                        </Button> */}
+                        <div className="m-2">
+                            <div className="overflow-y-auto max-h-[480px] ">
+                                <table className={cx('table')} id="data">
+                                    <thead className="text-sv-blue-5">
+                                        <tr className={cx(' bg-blue-100')}>
+                                            <th></th>
+                                            <th>STT</th>
+                                            <th>Mã lịch</th>
+                                            <th>Lịch học</th>
+                                            <th>Nhóm TH</th>
+                                            {/* <th>Điều kiện</th> */}
+                                            <th>Dãy nhà</th>
+                                            <th>Phòng</th>
+                                            <th>Giảng viên</th>
+                                            <th>Ngày</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {listLichHoc?.map((item, index) => (
+                                            <tr
+                                                key={item?.maLich}
+                                                onClick={() => setSelectedLichHoc(item)}
+                                                className={`${
+                                                    selectedLichHoc?.maLich === `${item?.maLich}` ? 'bg-orange-200' : ''
+                                                } hover:cursor-pointer`}
+                                            >
+                                                <td>
+                                                    <input
+                                                        type="radio"
+                                                        className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                                                        name="radio-group-lich"
+                                                        value={item.maLich}
+                                                        checked={selectedLichHoc?.maLich === `${item?.maLich}`}
+                                                        onChange={() => setSelectedLichHoc(item)}
+                                                    />
+                                                </td>
+                                                <td>{index + 1}</td>
+                                                <td>{item.maLich}</td>
+                                                <td align="center">
+                                                    {item?.loaiLich === 'Lý thuyết' ? 'LT' : 'TH'} -{' '}
+                                                    {getDayOfWeek(item?.ngayHoc)} ({item?.caHoc?.tenCaHoc})
+                                                </td>
+                                                <td>
+                                                    {item?.nhomThucHanh?.tenNhom === 'Nhóm 0'
+                                                        ? ''
+                                                        : item?.nhomThucHanh?.tenNhom}
+                                                </td>
+                                                <td>{item?.phong?.dayNha?.tenDayNha}</td>
+                                                <td>{item?.phong?.tenPhong}</td>
+                                                <td>{item?.nhanVien?.tenNhanVien}</td>
+                                                <td>
+                                                    {/* {convertDateFormat(item.lopHocPhan?.ngayBatDau)} -{' '}
+                                                    {convertDateFormat(item.lopHocPhan?.ngayKetThuc)} */}
+                                                    {convertDateFormat(item?.ngayHoc)}
+                                                </td>
+                                                <td>{item?.trangThai}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <DialogContent>
-                    <Box
-                        noValidate
-                        component="form"
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            m: 'auto',
-                            width: 'fit-content',
-                        }}
-                    ></Box>
-                    <div className="w-full flex flex-row justify-between">
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Mã lớp học phần:</label>
-                            </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Mã lớp học phần"
-                                disabled="true"
-                                value={maLopHocHocPhan}
-                                // onChange={(e) => {
-                                //     setMaLopHocPhan(e.target.value);
-                                // }}
-                            />
-                        </div>
-
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Tên lớp học phần:</label>
-                            </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Tên lớp học phần"
-                                value={tenLopHocHocPhan}
-                                onChange={(e) => {
-                                    setTenLopHocPhan(e.target.value);
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Sỉ số:</label>
-                            </div>
-                            <input
-                                type="number"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                //placeholder="Sỉ số"
-                                value={siSo}
-                                onChange={(e) => {
-                                    setSiSo(e.target.value);
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="w-full flex flex-row justify-between">
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Ngày bắt đầu:</label>
-                            </div>
-
-                            <input
-                                type="date"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                //placeholder="Tên lớp học phần"
-                                value={ngayBatDau}
-                                onChange={(e) => {
-                                    setNgayBatDau(e.target.value);
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Ngày kết thúc:</label>
-                            </div>
-
-                            <input
-                                type="date"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                //placeholder="Tên lớp học phần"
-                                value={ngayKetThuc}
-                                onChange={(e) => {
-                                    setNgayKetThuc(e.target.value);
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Trạng thái:</label>
-                            </div>
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={trangThai}
-                                    onChange={(e) => setTrangThai(e.target.value)}
-                                >
-                                    <option value="Đang lên kế hoạch">Đang lên kế hoạch</option>
-                                    <option value="Chờ sinh viên đăng ký">Chờ sinh viên đăng ký</option>
-                                    <option value="Chấp nhận mở lớp">Chấp nhận mở lớp</option>
-                                    <option value="Đã khóa">Đã khóa</option>
-                                    <option value="Chờ hủy lớp">Chờ hủy lớp</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="w-full flex flex-row justify-center p-3">
-                        <Button
-                            variant="contained"
-                            size="small"
-                            startIcon={<AiFillSave />}
-                            color="success"
-                            onClick={handleAddLopHocPhan}
-                        >
-                            Lưu
-                        </Button>
-                        <div className="ml-6">
-                            <Button
-                                variant="contained"
-                                size="small"
-                                startIcon={<BsFillEraserFill />}
-                                color="success"
-                                onClick={handleXoaTrangModalLHP}
-                            >
-                                Xóa trắng
-                            </Button>
-                        </div>
-                        <div className="ml-6">
-                            <Button
-                                variant="contained"
-                                size="small"
-                                color="error"
-                                startIcon={<TiCancel />}
+                <Dialog fullWidth={'100%'} maxWidth={'100%'} open={openModalLHP} onClose={handleClickCloseModalLHP}>
+                    <div className="w-full flex justify-between mt-5 border-b-2">
+                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin lớp học phần</div>
+                        <div>
+                            <FaRegWindowClose
+                                className="mr-5"
+                                size={30}
+                                color="#47A9FF"
                                 onClick={handleClickCloseModalLHP}
-                            >
-                                Hủy bỏ
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
-            {/* Phần modal lịch học */}
-            <Dialog fullWidth={'100%'} maxWidth={'100%'} open={openModalLichHoc} onClose={handleClickCloseModalLichHoc}>
-                <div className="w-full flex justify-between mt-5 border-b-2">
-                    <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin lớp học phần</div>
-                    <div>
-                        <FaRegWindowClose
-                            className="mr-5"
-                            size={30}
-                            color="#47A9FF"
-                            onClick={handleClickCloseModalLichHoc}
-                        />
-                    </div>
-                </div>
-                <DialogContent>
-                    <Box
-                        noValidate
-                        component="form"
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            m: 'auto',
-                            width: 'fit-content',
-                        }}
-                    ></Box>
-                    <div className="w-full flex flex-row justify-between">
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Mã lịch:</label>
-                            </div>
-                            <input
-                                type="text"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Mã lịch"
-                                disabled="true"
-                                value={maLich}
-                                // onChange={(e) => {
-                                //     setMaLopHocPhan(e.target.value);
-                                // }}
                             />
                         </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Khoa:</label>
-                            </div>
-
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={khoaGV}
-                                    onChange={(e) => handleSelectKhoaGV(e)}
-                                    // id="valueKhoaHoc"
-                                >
-                                    <option value="">Khoa</option>
-                                    {listKhoa?.map((item) => (
-                                        <option key={item.maKhoa} value={item.maKhoa}>
-                                            {item.tenKhoa}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Giảng viên:</label>
-                            </div>
-
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={giangVien}
-                                    onChange={(e) => handleSelectGiangVien(e)}
-                                    // id="valueKhoaHoc"
-                                >
-                                    <option value="">Giảng viên</option>
-                                    {listGV?.map((item) => (
-                                        <option key={item.maNhanVien} value={item.maNhanVien}>
-                                            {item.tenNhanVien}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
                     </div>
-
-                    <div className="w-full flex flex-row justify-between">
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Loại lịch:</label>
-                            </div>
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={loaiLich}
-                                    onChange={(e) => handleSelectLoaiLich(e)}
-                                    ///id="valueKhoaHoc"
-                                >
-                                    <option value="LP001">Lý thuyết</option>
-                                    <option value="LP002">Thực hành</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Ngày trong tuần:</label>
-                            </div>
-                            <input
-                                type="date"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                //placeholder="Tên lớp học phần"
-                                value={ngayHoc}
-                                onChange={(e) => {
-                                    setNgayHoc(e.target.value);
-                                }}
-                            />
-                            {/* </div> */}
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Chọn ca học:</label>
-                            </div>
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={caHoc}
-                                    onChange={(e) => handleSelectCaHoc(e)}
-                                    //id="a"
-                                >
-                                    <option value="">Ca học</option>
-                                    {listCaHoc?.map((item) => (
-                                        <option key={item.maCaHoc} value={item.maCaHoc}>
-                                            {item.tenCaHoc}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="w-full flex flex-row justify-between">
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Dãy nhà:</label>
+                    <DialogContent>
+                        <Box
+                            noValidate
+                            component="form"
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                m: 'auto',
+                                width: 'fit-content',
+                            }}
+                        ></Box>
+                        <div className="w-full flex flex-row justify-between">
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Mã lớp học phần:</label>
+                                </div>
+                                <input
+                                    type="text"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Mã lớp học phần"
+                                    disabled="true"
+                                    value={maLopHocHocPhan}
+                                    // onChange={(e) => {
+                                    //     setMaLopHocPhan(e.target.value);
+                                    // }}
+                                />
                             </div>
 
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={dayNha}
-                                    onChange={(e) => handleSelectDayNha(e)}
-                                    //id="valueKhoaHoc"
-                                >
-                                    <option value="">Dãy nhà</option>
-                                    {listDayNha?.map((item) => (
-                                        <option key={item.maDayNha} value={item.maDayNha}>
-                                            {item.tenDayNha}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Tên lớp học phần:</label>
+                                </div>
+                                <input
+                                    type="text"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Tên lớp học phần"
+                                    value={tenLopHocHocPhan}
+                                    onChange={(e) => {
+                                        setTenLopHocPhan(e.target.value);
+                                    }}
+                                />
                             </div>
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Phòng học:</label>
-                            </div>
-
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={phongHoc}
-                                    onChange={(e) => handleSelectPhongHoc(e)}
-                                    // id="valueKhoaHoc"
-                                >
-                                    <option value="">Phòng học</option>
-                                    {listPhongHoc?.map((item) => (
-                                        <option key={item.maPhong} value={item.maPhong}>
-                                            {item.tenPhong}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Sỉ số:</label>
+                                </div>
+                                <input
+                                    type="number"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    //placeholder="Sỉ số"
+                                    value={siSo}
+                                    onChange={(e) => {
+                                        setSiSo(e.target.value);
+                                    }}
+                                />
                             </div>
                         </div>
 
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Trạng thái:</label>
+                        <div className="w-full flex flex-row justify-between">
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Ngày bắt đầu:</label>
+                                </div>
+
+                                <input
+                                    type="date"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    //placeholder="Tên lớp học phần"
+                                    value={ngayBatDau}
+                                    onChange={(e) => {
+                                        setNgayBatDau(e.target.value);
+                                    }}
+                                />
                             </div>
-                            <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
-                                <select
-                                    className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
-                                    value={trangThaiLich}
-                                    onChange={(e) => setTrangThaiLich(e.target.value)}
-                                >
-                                    <option value="Bình thường">Bình thường</option>
-                                    <option value="Online">Online</option>
-                                    <option value="Lịch thi">Lịch thi</option>
-                                    <option value="Tạm ngưng">Tạm ngưng</option>
-                                </select>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Ngày kết thúc:</label>
+                                </div>
+
+                                <input
+                                    type="date"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    //placeholder="Tên lớp học phần"
+                                    value={ngayKetThuc}
+                                    onChange={(e) => {
+                                        setNgayKetThuc(e.target.value);
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Trạng thái:</label>
+                                </div>
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={trangThai}
+                                        onChange={(e) => setTrangThai(e.target.value)}
+                                    >
+                                        <option value="Đang lên kế hoạch">Đang lên kế hoạch</option>
+                                        <option value="Chờ sinh viên đăng ký">Chờ sinh viên đăng ký</option>
+                                        <option value="Chấp nhận mở lớp">Chấp nhận mở lớp</option>
+                                        <option value="Đã khóa">Đã khóa</option>
+                                        <option value="Chờ hủy lớp">Chờ hủy lớp</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className={`${loaiLich === 'LP001' ? `hidden` : `w-full flex flex-row justify-between`} `}>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Nhóm TH:</label>
-                            </div>
 
-                            <input
-                                type="number"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                placeholder="Nhóm TH"
-                                value={nhomTH}
-                                onChange={(e) => {
-                                    setNhomTH(e.target.value);
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3">
-                            <div className="w-32 text-left">
-                                <label htmlFor="">Số lượng SV nhóm TH:</label>
-                            </div>
-
-                            <input
-                                type="number"
-                                className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                //placeholder="Nhóm TH"
-                                value={soLuongSV}
-                                onChange={(e) => {
-                                    setSoLuongSV(e.target.value);
-                                }}
-                            />
-                        </div>
-                        <div className="flex justify-center flex-row items-center w-1/3"></div>
-                    </div>
-
-                    <div className="w-full flex flex-row justify-center p-3">
-                        <Button
-                            variant="contained"
-                            size="small"
-                            startIcon={<AiFillSave />}
-                            color="success"
-                            onClick={handleThemLich}
-                        >
-                            Lưu
-                        </Button>
-                        <div className="ml-6">
+                        <div className="w-full flex flex-row justify-center p-3">
                             <Button
                                 variant="contained"
                                 size="small"
-                                startIcon={<BsFillEraserFill />}
+                                startIcon={<AiFillSave />}
                                 color="success"
-                                onClick={xoaRongModalThemLich}
+                                onClick={handleAddLopHocPhan}
                             >
-                                Xóa trắng
+                                Lưu
                             </Button>
+                            <div className="ml-6">
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    startIcon={<BsFillEraserFill />}
+                                    color="success"
+                                    onClick={handleXoaTrangModalLHP}
+                                >
+                                    Xóa trắng
+                                </Button>
+                            </div>
+                            <div className="ml-6">
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    color="error"
+                                    startIcon={<TiCancel />}
+                                    onClick={handleClickCloseModalLHP}
+                                >
+                                    Hủy bỏ
+                                </Button>
+                            </div>
                         </div>
-                        <div className="ml-6">
+                    </DialogContent>
+                </Dialog>
+                {/* Phần modal lịch học */}
+                <Dialog
+                    fullWidth={'100%'}
+                    maxWidth={'100%'}
+                    open={openModalLichHoc}
+                    onClose={handleClickCloseModalLichHoc}
+                >
+                    <div className="w-full flex justify-between mt-5 border-b-2">
+                        <div className="text-xl font-bold text-sv-blue-5 pl-2">Thông tin lớp học phần</div>
+                        <div>
+                            <FaRegWindowClose
+                                className="mr-5"
+                                size={30}
+                                color="#47A9FF"
+                                onClick={handleClickCloseModalLichHoc}
+                            />
+                        </div>
+                    </div>
+                    <DialogContent>
+                        <Box
+                            noValidate
+                            component="form"
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                m: 'auto',
+                                width: 'fit-content',
+                            }}
+                        ></Box>
+                        <div className="w-full flex flex-row justify-between">
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Mã lịch:</label>
+                                </div>
+                                <input
+                                    type="text"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Mã lịch"
+                                    disabled="true"
+                                    value={maLich}
+                                    // onChange={(e) => {
+                                    //     setMaLopHocPhan(e.target.value);
+                                    // }}
+                                />
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Khoa:</label>
+                                </div>
+
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={khoaGV}
+                                        onChange={(e) => handleSelectKhoaGV(e)}
+                                        // id="valueKhoaHoc"
+                                    >
+                                        <option value="">Khoa</option>
+                                        {listKhoa?.map((item) => (
+                                            <option key={item.maKhoa} value={item.maKhoa}>
+                                                {item.tenKhoa}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Giảng viên:</label>
+                                </div>
+
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={giangVien}
+                                        onChange={(e) => handleSelectGiangVien(e)}
+                                        // id="valueKhoaHoc"
+                                    >
+                                        <option value="">Giảng viên</option>
+                                        {listGV?.map((item) => (
+                                            <option key={item.maNhanVien} value={item.maNhanVien}>
+                                                {item.tenNhanVien}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="w-full flex flex-row justify-between">
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Loại lịch:</label>
+                                </div>
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={loaiLich}
+                                        onChange={(e) => handleSelectLoaiLich(e)}
+                                        ///id="valueKhoaHoc"
+                                    >
+                                        <option value="LP001">Lý thuyết</option>
+                                        <option value="LP002">Thực hành</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Ngày trong tuần:</label>
+                                </div>
+                                <input
+                                    type="date"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    //placeholder="Tên lớp học phần"
+                                    value={ngayHoc}
+                                    onChange={(e) => {
+                                        setNgayHoc(e.target.value);
+                                    }}
+                                />
+                                {/* </div> */}
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Chọn ca học:</label>
+                                </div>
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={caHoc}
+                                        onChange={(e) => handleSelectCaHoc(e)}
+                                        //id="a"
+                                    >
+                                        <option value="">Ca học</option>
+                                        {listCaHoc?.map((item) => (
+                                            <option key={item.maCaHoc} value={item.maCaHoc}>
+                                                {item.tenCaHoc}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="w-full flex flex-row justify-between">
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Dãy nhà:</label>
+                                </div>
+
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={dayNha}
+                                        onChange={(e) => handleSelectDayNha(e)}
+                                        //id="valueKhoaHoc"
+                                    >
+                                        <option value="">Dãy nhà</option>
+                                        {listDayNha?.map((item) => (
+                                            <option key={item.maDayNha} value={item.maDayNha}>
+                                                {item.tenDayNha}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Phòng học:</label>
+                                </div>
+
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={phongHoc}
+                                        onChange={(e) => handleSelectPhongHoc(e)}
+                                        // id="valueKhoaHoc"
+                                    >
+                                        <option value="">Phòng học</option>
+                                        {listPhongHoc?.map((item) => (
+                                            <option key={item.maPhong} value={item.maPhong}>
+                                                {item.tenPhong}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Trạng thái:</label>
+                                </div>
+                                <div className="flex w-60 border h-9 border-sv-blue-4 rounded-md p-1 m-4">
+                                    <select
+                                        className=" w-full bg-white leading-tight focus:outline-none focus:shadow-outline"
+                                        value={trangThaiLich}
+                                        onChange={(e) => setTrangThaiLich(e.target.value)}
+                                    >
+                                        <option value="Bình thường">Bình thường</option>
+                                        <option value="Online">Online</option>
+                                        <option value="Lịch thi">Lịch thi</option>
+                                        <option value="Tạm ngưng">Tạm ngưng</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div className={`${loaiLich === 'LP001' ? `hidden` : `w-full flex flex-row justify-between`} `}>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Nhóm TH:</label>
+                                </div>
+
+                                <input
+                                    type="number"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    placeholder="Nhóm TH"
+                                    value={nhomTH}
+                                    onChange={(e) => {
+                                        setNhomTH(e.target.value);
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3">
+                                <div className="w-32 text-left">
+                                    <label htmlFor="">Số lượng SV nhóm TH:</label>
+                                </div>
+
+                                <input
+                                    type="number"
+                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
+                                    //placeholder="Nhóm TH"
+                                    value={soLuongSV}
+                                    onChange={(e) => {
+                                        setSoLuongSV(e.target.value);
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-center flex-row items-center w-1/3"></div>
+                        </div>
+
+                        <div className="w-full flex flex-row justify-center p-3">
                             <Button
                                 variant="contained"
                                 size="small"
-                                color="error"
-                                startIcon={<TiCancel />}
-                                onClick={handleClickCloseModalLichHoc}
+                                startIcon={<AiFillSave />}
+                                color="success"
+                                onClick={handleThemLich}
                             >
-                                Hủy bỏ
+                                Lưu
                             </Button>
+                            <div className="ml-6">
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    startIcon={<BsFillEraserFill />}
+                                    color="success"
+                                    onClick={xoaRongModalThemLich}
+                                >
+                                    Xóa trắng
+                                </Button>
+                            </div>
+                            <div className="ml-6">
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    color="error"
+                                    startIcon={<TiCancel />}
+                                    onClick={handleClickCloseModalLichHoc}
+                                >
+                                    Hủy bỏ
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    </DialogContent>
+                </Dialog>
+            </div>
+            {/* <Modal isOpen={showConfirmation} onRequestClose={() => setShowConfirmation(false)}>
+                <h2>Xác nhận</h2>
+                <p>Bạn có chắc chắn muốn làm điều này?</p>
+                <button onClick={handleConfirm}>Đồng ý</button>
+                <button onClick={handleCancel}>Từ chối</button>
+            </Modal> */}
+            <Dialog
+                open={showConfirmation}
+                onClose={handleCancel}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{'Bạn có chắc muốn xóa lớp học phần này?'}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description"></DialogContentText>
                 </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancel}>Hủy bỏ</Button>
+                    <Button onClick={handleConfirm} autoFocus>
+                        Đồng ý
+                    </Button>
+                </DialogActions>
             </Dialog>
         </div>
     );

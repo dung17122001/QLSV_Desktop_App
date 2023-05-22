@@ -43,6 +43,9 @@ import classNames from 'classnames/bind';
 import HeaderQL from '../../../components/HeaderQL';
 import nhanVienSlice from '../../../redux/Slice/nhanVienSlice';
 import { tr } from 'date-fns/locale';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 const cx = classNames.bind(style);
 
 function LopHoc() {
@@ -131,7 +134,23 @@ function LopHoc() {
                 10 < bangDiem.cuoiKy ||
                 bangDiem.cuoiKy < 0
             ) {
-                alert(
+                // alert(
+                //     'Dữ liệu của sinh viên ' +
+                //         listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.tenSinhVien +
+                //         ' (' +
+                //         ' dòng ' +
+                //         (i * 1 + 1) +
+                //         ')' +
+                //         ' không hợp lệ',
+                // );
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.warning(
                     'Dữ liệu của sinh viên ' +
                         listThongTinLHP[i].phieuDangKyHocPhan.sinhVien.tenSinhVien +
                         ' (' +
@@ -139,6 +158,7 @@ function LopHoc() {
                         (i * 1 + 1) +
                         ')' +
                         ' không hợp lệ',
+                    'Thông báo',
                 );
                 setReload(!reload);
                 return;
@@ -187,7 +207,15 @@ function LopHoc() {
         let resultBangDiem = await getThongTinSVByMaLHP(selectedLHP, curNhanVien?.maNhanVien, accessToken, axiosJWT);
         //console.log(resultBangDiem);
         if (!!resultBangDiem) setListDiemLHP(resultBangDiem);
-        alert('Đã lưu bảng điểm thành công');
+        //alert('Đã lưu bảng điểm thành công');
+        toastr.options = {
+            positionClass: 'toast-top-center',
+            closeButton: true,
+            timeOut: 5000,
+            extendedTimeOut: 0,
+            tapToDismiss: false,
+        };
+        toastr.success('Đã lưu bảng điểm thành công!', 'Thông báo');
         return;
     };
 

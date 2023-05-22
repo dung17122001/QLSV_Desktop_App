@@ -3,6 +3,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'toastr';
 
 :root {
     --2t-yellow-1: #fdae03;

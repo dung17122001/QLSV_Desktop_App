@@ -39,6 +39,9 @@ import HeaderQL from '../../../components/HeaderQL';
 import style from './MonHoc.module.scss';
 import { Scrollbar } from 'react-scrollbars-custom';
 import { FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Select } from '@mui/material';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 const cx = classNames.bind(style);
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -144,7 +147,16 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
     const handleClickOpenUpdate = () => {
         //console.log(selectedMon);
         if (!selectedMon) {
-            alert('Chọn môn học cần sửa');
+            // alert('Chọn môn học cần sửa');
+            // return;
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Chọn môn học cần sửa!', 'Thông báo');
             return;
         }
         if (!!selectedMon) {
@@ -223,14 +235,32 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
 
         if (!!selectedMon.maMonHoc) {
             const result = await capNhatMonHoc(monHoc, accessToken, axiosJWT);
-            alert('Cập nhật môn học thành công');
+            //alert('Cập nhật môn học thành công');
             handleClose();
             setReload(!reload);
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.success('Cập nhật môn học thành công!', 'Thông báo');
+            return;
         } else {
             const result = await addMonHoc(monHoc, accessToken, axiosJWT);
-            alert('Lưu môn học thành công');
+            //alert('Lưu môn học thành công');
             handleClose();
             setReload(!reload);
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.success('Lưu môn học thành công!', 'Thông báo');
+            return;
         }
     };
 

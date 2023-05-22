@@ -13,6 +13,9 @@ import styles from '../Login/login.css';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loginUser } from '../../services/authService';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 
 const cx = classNames.bind(styles);
 function Login() {
@@ -53,8 +56,15 @@ function Login() {
         var login = await loginUser(user, dispatch, navigate);
 
         if (login === false) {
-            alert('Mã nhân viên hoặc mật khẩu sai');
-
+            //alert('Mã nhân viên hoặc mật khẩu sai');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                // extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Tài khoản hoặc mật khẩu không chính xác!', 'Thông báo');
             return;
         } else navigate(route.home);
         //navigate(config.routeConfig.home);

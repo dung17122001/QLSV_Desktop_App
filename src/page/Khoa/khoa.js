@@ -26,6 +26,9 @@ import style from './Khoa.module.scss';
 import { exportToExcel } from './exportToExcel';
 import { getKhoaTheoTen } from '../../services/khoaService';
 import { checkRong } from '../../regex/regex';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 
 function Khoa() {
     const dispatch = useDispatch();
@@ -83,7 +86,16 @@ function Khoa() {
             setTrangThai(selectedKhoa.trangThai);
             setOpen(true);
         } else {
-            alert('Vui lòng chọn khoa');
+            //alert('Vui lòng chọn khoa');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Vui lòng chọn khoa!', 'Thông báo');
+            return;
         }
     };
     const xoaTrang = () => {
@@ -137,20 +149,47 @@ function Khoa() {
 
                 if (suaKhoa) {
                     setOpen(false);
-                    alert('Cập nhật thành công');
+                    //alert('Cập nhật thành công');
                     reload();
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Cập nhật thành công!', 'Thông báo');
+                    return;
                 }
             } else {
                 let addKhoa = await themKhoa(khoa, accessToken, axiosJWT);
 
                 if (addKhoa) {
                     setOpen(false);
-                    alert('Thêm thành công');
+                    //alert('Thêm thành công');
                     reload();
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Thêm thành công!', 'Thông báo');
+                    return;
                 }
             }
         } else {
-            alert('Dữ liệu nhập vào chưa phù hơp!!');
+            //alert('Dữ liệu nhập vào chưa phù hơp!!');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Dữ liệu nhập vào chưa phù hợp!', 'Thông báo');
+            return;
         }
     };
     return (

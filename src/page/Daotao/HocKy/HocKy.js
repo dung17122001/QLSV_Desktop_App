@@ -18,6 +18,9 @@ import { BsFillEraserFill } from 'react-icons/bs';
 import Box from '@mui/material/Box';
 import { getHocKyTheoTen } from '../../../services/hocKyService';
 import { checkRong } from '../../../regex/regex';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 function HocKy() {
     const [listHocKyByTen, setListHocKyByTen] = useState('');
     const [listHK, setListHK] = useState();
@@ -42,7 +45,15 @@ function HocKy() {
             setThoiGianKT(selectedHocKy.thoiGianKT);
             setOpen(true);
         } else {
-            alert('Vui lòng chọn 1 học kỳ');
+            // alert('Vui lòng chọn 1 học kỳ');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Chọn học kỳ cần sửa!', 'Thông báo');
         }
     };
     const xoaTrang = () => {
@@ -135,7 +146,15 @@ function HocKy() {
 
                 if (suaHocKy) {
                     setOpen(false);
-                    alert('Cập nhật thành công');
+                    //alert('Cập nhật thành công');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Cập nhật thành công!', 'Thông báo');
                     reload();
                 }
             } else {
@@ -143,12 +162,28 @@ function HocKy() {
 
                 if (addHocKy) {
                     setOpen(false);
-                    alert('Thêm thành công');
+                    //alert('Thêm thành công');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Thêm thành công!', 'Thông báo');
                     reload();
                 }
             }
         } else {
-            alert('Dữ liệu không phù hợp !!');
+            //alert('Dữ liệu không phù hợp !!');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Dữ liệu không hợp lệ!', 'Thông báo');
         }
     };
     return (
@@ -333,7 +368,7 @@ function HocKy() {
                                             Bắt buộc & Sau ngày bắt đầu
                                         </span>
                                     )}
-                                </div>  
+                                </div>
                             </div>
                             <div className="w-1/3"></div>
                         </div>

@@ -46,6 +46,10 @@ import {
     checkValidCCCD,
 } from '../../regex/regex';
 import { checkPassOld, updatePassword } from '~/services/authService';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
+
 function GiangVien() {
     function convertDateFormat(dateString) {
         let date = new Date(dateString);
@@ -171,7 +175,16 @@ function GiangVien() {
             setOpen(true);
             setHocVi(selectedNhanVien.hocVi);
         } else {
-            alert('Vui lòng chọn nhân viên');
+            //alert('Vui lòng chọn nhân viên');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Vui lòng chọn nhân viên!', 'Thông báo');
+            return;
         }
     };
     const xoaTrang = () => {
@@ -273,8 +286,17 @@ function GiangVien() {
 
             if (suaNhanVien) {
                 setOpen(false);
-                alert('Cập nhật thành công');
+                //alert('Cập nhật thành công');
                 reload();
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Cập nhật thành công!', 'Thông báo');
+                return;
             }
         } else {
             let role = '';
@@ -293,8 +315,17 @@ function GiangVien() {
             await register(nhanVienRegister);
             if (addNhanVien && nhanVienRegister) {
                 setOpen(false);
-                alert('Thêm thành công');
+                //alert('Thêm thành công');
                 reload();
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Thêm thành công!', 'Thông báo');
+                return;
             }
         }
     };
@@ -324,10 +355,28 @@ function GiangVien() {
         if (!!selectedNhanVien) {
             if (window.confirm('Bạn chắc chắn muốn reset lại mật khẩu?')) {
                 await updatePassword(selectedNhanVien.maNhanVien, '123456', accessToken, axiosJWT);
-                alert('Cập nhật mật khẩu thành công');
+                //alert('Cập nhật mật khẩu thành công');
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Cập nhật mật khẩu thành công!', 'Thông báo');
+                return;
             }
         } else {
-            alert('Vui lòng chọn nhân viên');
+            //alert('Vui lòng chọn nhân viên');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Vui lòng chọn nhân viên!', 'Thông báo');
+            return;
         }
     };
 

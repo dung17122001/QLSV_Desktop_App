@@ -48,7 +48,9 @@ import {
 } from '../../regex/regex';
 import { uploadFile, deleteFile } from '~/services/fileService';
 
-//import TableSinhVien from '../../components/TableSinhVien/TableSinhVien';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 
 const cx = classNames.bind(style);
 
@@ -160,10 +162,28 @@ function SinhVien() {
         if (!!selectedSinhVien) {
             if (window.confirm('Bạn chắc chắn muốn reset lại mật khẩu?')) {
                 await updatePassword(selectedSinhVien.maSinhVien, '123456', accessToken, axiosJWT);
-                alert('Cập nhật mật khẩu thành công');
+                //alert('Cập nhật mật khẩu thành công');
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Cập nhật mật khẩu thành công!', 'Thông báo');
+                return;
             }
         } else {
-            alert('Vui lòng chọn sinh viên');
+            //alert('Vui lòng chọn sinh viên');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Vui lòng chọn sinh viên!', 'Thông báo');
+            return;
         }
     };
     const xoaTrang = () => {
@@ -214,18 +234,45 @@ function SinhVien() {
         if (lop.tenLop !== '' && nganhHoc != null) {
             const countLopHoc = await countLopHocByTenLopHoc(refLopHoc.current.value, accessToken, axiosJWT);
             if (countLopHoc >= 1) {
-                alert('Tên lớp học này đã tồn tại!!!');
+                //alert('Tên lớp học này đã tồn tại!!!');
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.error('Tên lớp học đã tồn tại!', 'Thông báo');
+                return;
             } else {
                 const addLop = await themLopHoc(lop, accessToken, axiosJWT);
                 if (addLop) {
-                    alert('Thêm thành công');
+                    //alert('Thêm thành công');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Thêm lớp học thành công!', 'Thông báo');
                     setLopHoc(refLopHoc);
 
                     setListLH((prev) => [addLop, ...prev]);
+                    return;
                 }
             }
         } else {
-            alert('Vui lòng nhập tên lớp');
+            //alert('Vui lòng nhập tên lớp');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Vui lòng nhập tên lớp!', 'Thông báo');
+            return;
         }
     };
 
@@ -305,7 +352,16 @@ function SinhVien() {
             setLinkAnh(selectedSinhVien.linkAnh);
             setOpen(true);
         } else {
-            alert('Vui lòng chọn sinh viên');
+            //alert('Vui lòng chọn sinh viên');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn sinh viên!', 'Thông báo');
+            return;
         }
     };
     const reload = async () => {
@@ -404,9 +460,17 @@ function SinhVien() {
 
                 if (suaSinhVien) {
                     setOpen(false);
-                    alert('Cập nhật thành công');
-
+                    //alert('Cập nhật thành công');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Cập nhật thông tin thành công!', 'Thông báo');
                     reload();
+                    return;
                 }
             } else {
                 let addSinhVien = await themSinhVien(sinhVien, accessToken, axiosJWT);
@@ -422,12 +486,30 @@ function SinhVien() {
                 if (addSinhVien && sinhVienRegister) {
                     setOpen(false);
                     //await new Promise((resolve) => setTimeout(resolve, 0));
-                    alert('Thêm thành công');
+                    //alert('Thêm thành công');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Thêm thành công!', 'Thông báo');
                     reload();
+                    return;
                 }
             }
         } else {
-            alert('Dữ liệu nhập vào chưa phù hơp!!');
+            //alert('Dữ liệu nhập vào chưa phù hơp!!');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Dữ liệu nhập vào thông hợp lệ!', 'Thông báo');
+            return;
         }
     };
 

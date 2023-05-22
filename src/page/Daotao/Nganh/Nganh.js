@@ -26,6 +26,9 @@ import { exportToExcel } from '~/function/exportToExcel';
 import HeaderQL from '../../../components/HeaderQL';
 import { getTatCaNganh, capNhatNganh, themNganh } from '~/services/nganhService';
 import { getTatCaKhoa } from '~/services/khoaService';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 
 const cx = classNames.bind(style);
 
@@ -72,7 +75,16 @@ function Nganh() {
     };
     const handleClickOpenUpdate = () => {
         if (!selectedNganh) {
-            alert('Vui lòng chọn ngành cần sửa');
+            // alert('Vui lòng chọn ngành cần sửa');
+            // return;
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Chọn lịch ngành sửa!', 'Thông báo');
             return;
         } else {
             setTenNganh(selectedNganh.tenNganh);
@@ -126,7 +138,16 @@ function Nganh() {
             setTrangThai(selectedNganh.trangThai);
             setOpen(true);
         } else {
-            alert('Vui lòng chọn ngành');
+            //alert('Vui lòng chọn ngành');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn ngành!', 'Thông báo');
+            return;
         }
     };
     const handleAddNganh = async () => {
@@ -136,18 +157,45 @@ function Nganh() {
             let suaNganh = await capNhatNganh(nganh, accessToken, axiosJWT);
             if (suaNganh) {
                 setOpen(false);
-                alert('Cập nhật thành công!!');
+                //alert('Cập nhật thành công!!');
                 reload();
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Cập nhật thành công!', 'Thông báo');
+                return;
             } else {
-                alert('Cập nhật không thành công');
+                //alert('Cập nhật không thành công');
                 setOpen(false);
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.warning('Cập nhật không thành công!', 'Thông báo');
+                return;
             }
         } else {
             let addNganh = await themNganh(nganh, accessToken, axiosJWT);
             if (addNganh) {
                 setOpen(false);
-                alert('Thêm thành công');
+                //alert('Thêm thành công');
                 reload();
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Thêm thành công!', 'Thông báo');
+                return;
             }
         }
     };

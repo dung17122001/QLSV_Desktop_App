@@ -24,6 +24,9 @@ import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 import { useDispatch } from 'react-redux';
 import { getDayNhaTheoTen } from '../../../services/dayNhaService';
 import { checkRong } from '../../../regex/regex';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 function DayNha() {
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch();
@@ -87,7 +90,15 @@ function DayNha() {
             setTrangThai(selectedDayNha.trangThai);
             setOpen(true);
         } else {
-            alert('Vui lòng chọn dãy nhà');
+            //alert('Vui lòng chọn dãy nhà');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn dãy nhà!', 'Thông báo');
         }
     };
     const xoaTrang = () => {
@@ -128,26 +139,66 @@ function DayNha() {
                 let suaDayNha = await capNhatDayNha(dayNha, accessToken, axiosJWT);
                 if (suaDayNha) {
                     setOpen(false);
-                    alert('Cập nhật thành công!!');
+                    //alert('Cập nhật thành công!!');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Cập nhật thành công!', 'Thông báo');
                     reload();
                 } else {
-                    alert('Cập nhật không thành công');
+                    //alert('Cập nhật không thành công');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.error('Cập nhật không thành công!', 'Thông báo');
                 }
             } else {
                 let checkTenDayNha = listDN.find((e) => e.tenDayNha === dayNha.tenDayNha);
                 if (!!checkTenDayNha) {
-                    alert('Tên dãy nhà bị trùng');
+                    //alert('Tên dãy nhà bị trùng');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.warning('Tên dãy nhà bị trùng!', 'Thông báo');
                     return;
                 }
                 let addDayNha = await themDayNha(dayNha, accessToken, axiosJWT);
                 if (addDayNha) {
                     setOpen(false);
-                    alert('Thêm thành công');
+                    //alert('Thêm thành công');
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Thêm thành công!', 'Thông báo');
                     reload();
                 }
             }
         } else {
-            alert('Dữ liệu không hợp lệ !!');
+            //alert('Dữ liệu không hợp lệ !!');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Dữ liệu không hợp lệ!', 'Thông báo');
         }
     };
     return (

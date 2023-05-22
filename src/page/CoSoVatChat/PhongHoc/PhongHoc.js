@@ -23,6 +23,9 @@ import { useSelector } from 'react-redux';
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 import { useDispatch } from 'react-redux';
 import { getTatCaPhongHoc, getTatLoaiPhong, addPhongHoc, updatePhongHoc } from '~/services/phongService';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 const cx = classNames.bind(style);
 
 function PhongHoc() {
@@ -51,7 +54,15 @@ function PhongHoc() {
     };
     const handleClickUpdatePhong = () => {
         if (!selectedPhong && selectedPhong.maPhong !== '') {
-            alert('Vui lòng chọn phòng cần cập nhật thông tin');
+            //alert('Vui lòng chọn phòng cần cập nhật thông tin');
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn phòng cần sửa!', 'Thông báo');
         } else {
             //console.log(selectedPhong);
             setOpen(true);
@@ -89,18 +100,44 @@ function PhongHoc() {
         if (!selectedPhong && selectedPhong.maPhong !== '') {
             let checkTenPhong = listPhong.find((e) => e.tenPhong === phong.tenPhong);
             if (!!checkTenPhong) {
-                alert('Tên phòng bị trùng');
+                //alert('Tên phòng bị trùng');
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.warning('Tên phòng học bị trùng!', 'Thông báo');
                 return;
             }
             let result = await addPhongHoc(phong, accessToken, axiosJWT);
             setReload(!reload);
             handleClose();
-            if (!!result) alert('Đã thêm phòng học');
+            if (!!result) {
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Đã thêm phòng học!', 'Thông báo');
+            } //alert('Đã thêm phòng học');
         } else {
             let result = await updatePhongHoc(phong, accessToken, axiosJWT);
             setReload(!reload);
             handleClose();
-            if (!!result) alert('Đã cập nhật thông tin phòng học');
+            if (!!result) {
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Đã cập nhật thông tin phòng học!', 'Thông báo');
+            } //alert('Đã cập nhật thông tin phòng học');
         }
     };
 

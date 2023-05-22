@@ -43,7 +43,9 @@ import {
 import { getTatCaMonHoc, getMonHocByTextSearch } from '~/services/monHocService';
 import { addHocPhan, getHocPhanTheoHocKy, getHocPhanTheoKhoaHoc, getHocPhanTheoMaMH } from '~/services/hocPhanService';
 import { tr } from 'date-fns/locale';
-
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+import 'toastr/build/toastr.min.js';
 const cx = classNames.bind(style);
 
 function ChuongTrinhKhung() {
@@ -184,6 +186,16 @@ function ChuongTrinhKhung() {
             setNganhHoc(selectedCTK.nganhHoc?.maNganh);
             setTongTinChi(selectedCTK?.tongSoTinChi);
             setTrangThai(selectedCTK.trangThai);
+        } else {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Chọn chương trình khung cần sửa!', 'Thông báo');
+            return;
         }
         setOpen(true);
     };
@@ -232,15 +244,33 @@ function ChuongTrinhKhung() {
                     //console.log(ctHocKy);
                 }
             }
-            alert('Thêm chương trình khung thành công');
+            //alert('Thêm chương trình khung thành công');
             handleClose();
             setReload(!reload);
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.success('Thêm chương trình khung thành công!', 'Thông báo');
+            return;
         } else {
             //console.log(ctk);
             await capNhatChuongTrinhKhung(ctk, accessToken, axiosJWT);
-            alert('Cập nhật chương trình khung thành công');
+            //alert('Cập nhật chương trình khung thành công');
             handleClose();
             setReload(!reload);
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.success('Cập nhật chương trình khung thành công!', 'Thông báo');
+            return;
         }
     };
     const hanldeSearchCTK = async (value) => {
@@ -329,9 +359,28 @@ function ChuongTrinhKhung() {
                 await addChiTietHocPhan(ctHP, accessToken, axiosJWT);
                 handleCloseModalMonHoc();
             }
-        } else alert('Chọn môn học cần thêm vào chương trình khung');
+        } else {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Chọn môn học cần thêm vào chương trình khung!', 'Thông báo');
+            return;
+        } //alert('Chọn môn học cần thêm vào chương trình khung');
         //setReload(!reload);
-        alert('Thêm môn học vào học kỳ thành công');
+        // alert('Thêm môn học vào học kỳ thành công');
+        toastr.options = {
+            positionClass: 'toast-top-center',
+            closeButton: true,
+            timeOut: 5000,
+            extendedTimeOut: 0,
+            tapToDismiss: false,
+        };
+        toastr.success('Thêm môn học vào học kỳ thành công!', 'Thông báo');
+        //return;
         if (!!selectedCTK?.khoaHoc?.tenKhoaHoc) {
             const startYear = selectedCTK?.khoaHoc?.tenKhoaHoc.substring(0, 4);
             const endYear = selectedCTK?.khoaHoc?.tenKhoaHoc.substring(5);
