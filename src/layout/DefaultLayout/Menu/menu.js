@@ -37,7 +37,7 @@ function Header() {
                     <div className={userLoginData?.role === 'ROLE_GIANGVIEN' ? 'menu flex items-center' : ' hidden '}>
                         <div className={cx('flex flex-row items-center ')}>
                             <Button to={route.kqht} navLink={true} className={' flex items-center '}>
-                                <FaUserGraduate size={20} className={cx('')} /> <div className="ml-2">Điểm</div>
+                                <RiNumbersFill size={20} className={cx('')} /> <div className="ml-2">Điểm</div>
                             </Button>
                         </div>
                     </div>

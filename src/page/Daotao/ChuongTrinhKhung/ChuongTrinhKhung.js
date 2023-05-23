@@ -153,6 +153,7 @@ function ChuongTrinhKhung() {
 
     const handleClickOpen = () => {
         setMaCTK('');
+        setSelectedCTK('');
         handleXoaRong();
         setOpen(true);
     };
