@@ -1182,6 +1182,16 @@ function LopHoc() {
                         Lưu
                     </Button>
                 </div>
+                {/* <div className="ml-4">
+                    <Button
+                        variant="contained"
+                        size="small"
+                        startIcon={<AiFillSave />}
+                        //onClick={handleLuuBangDiem}
+                    >
+                        Xem lịch sử
+                    </Button>
+                </div> */}
             </div>
 
             <div style={{}} className=" mt-2 mr-11 ml-10">

@@ -57,8 +57,8 @@ function ChuongTrinhKhung() {
     const [selectedHK, setSelectedHK] = useState('');
     const [maCTK, setMaCTK] = useState();
     const [tenCTK, setTenCTK] = useState();
-    const [nganhHoc, setNganhHoc] = useState();
-    const [khoaHoc, setKhoaHoc] = useState();
+    const [nganhHoc, setNganhHoc] = useState('Ngành');
+    const [khoaHoc, setKhoaHoc] = useState('Khoa');
     const [trangThai, setTrangThai] = useState('Bình thường');
     const [danhSachCTK, setDanhSachCTK] = useState();
     const [listKhoaHoc, setListKhoaHoc] = useState();
@@ -203,8 +203,8 @@ function ChuongTrinhKhung() {
 
     const handleXoaRong = () => {
         setTenCTK('');
-        setKhoaHoc('');
-        setNganhHoc('');
+        setKhoaHoc('Khoa');
+        setNganhHoc('Ngành');
         setTongTinChi(146);
         setTrangThai('Bình thường');
     };
@@ -219,59 +219,66 @@ function ChuongTrinhKhung() {
         setNganhHoc(e.target.value);
     };
     const handleThemCTK = async () => {
-        var ctk = {
-            maChuongTrinhKhung: maCTK,
-            tenChuongTrinhKhung: tenCTK,
-            nganhHoc: nganhHoc,
-            khoaHoc: khoaHoc,
-            tongSoTinChi: tongTinChi,
-            trangThai: trangThai,
-        };
-        if (!selectedCTK.maChuongTrinhKhung && selectedCTK.maChuongTrinhKhung !== '') {
-            let result = await addChuongTrinhKhung(ctk, accessToken, axiosJWT);
-            //console.log(result);
-            if (!!khoaHoc) {
-                const kh = listKhoaHoc.find((item) => item.maKhoaHoc === khoaHoc);
-                const startYear = kh?.tenKhoaHoc.substring(0, 4);
-                const endYear = kh?.tenKhoaHoc.substring(5);
-                var listHK = await getHocKyTheoKhoaHoc(`${startYear}-08-01`, `${endYear}-06-01`, accessToken, axiosJWT);
-                //setListHocKy(listHK);
-                for (let i = 0; i < listHK?.length; i++) {
-                    let ctHocKy = {
-                        chuongTrinhKhung: result?.maChuongTrinhKhung,
-                        hocKy: listHK[i].maHocKy,
-                    };
-                    await addChiTietHK(ctHocKy, accessToken, axiosJWT);
-                    //console.log(ctHocKy);
+        if (checkData()) {
+            var ctk = {
+                maChuongTrinhKhung: maCTK,
+                tenChuongTrinhKhung: tenCTK,
+                nganhHoc: nganhHoc,
+                khoaHoc: khoaHoc,
+                tongSoTinChi: tongTinChi,
+                trangThai: trangThai,
+            };
+            if (!selectedCTK.maChuongTrinhKhung && selectedCTK.maChuongTrinhKhung !== '') {
+                let result = await addChuongTrinhKhung(ctk, accessToken, axiosJWT);
+                //console.log(result);
+                if (!!khoaHoc) {
+                    const kh = listKhoaHoc.find((item) => item.maKhoaHoc === khoaHoc);
+                    const startYear = kh?.tenKhoaHoc.substring(0, 4);
+                    const endYear = kh?.tenKhoaHoc.substring(5);
+                    var listHK = await getHocKyTheoKhoaHoc(
+                        `${startYear}-08-01`,
+                        `${endYear}-06-01`,
+                        accessToken,
+                        axiosJWT,
+                    );
+                    //setListHocKy(listHK);
+                    for (let i = 0; i < listHK?.length; i++) {
+                        let ctHocKy = {
+                            chuongTrinhKhung: result?.maChuongTrinhKhung,
+                            hocKy: listHK[i].maHocKy,
+                        };
+                        await addChiTietHK(ctHocKy, accessToken, axiosJWT);
+                        //console.log(ctHocKy);
+                    }
                 }
+                //alert('Thêm chương trình khung thành công');
+                handleClose();
+                setReload(!reload);
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Thêm chương trình khung thành công!', 'Thông báo');
+                return;
+            } else {
+                //console.log(ctk);
+                await capNhatChuongTrinhKhung(ctk, accessToken, axiosJWT);
+                //alert('Cập nhật chương trình khung thành công');
+                handleClose();
+                setReload(!reload);
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Cập nhật chương trình khung thành công!', 'Thông báo');
+                return;
             }
-            //alert('Thêm chương trình khung thành công');
-            handleClose();
-            setReload(!reload);
-            toastr.options = {
-                positionClass: 'toast-top-center',
-                closeButton: true,
-                timeOut: 5000,
-                extendedTimeOut: 0,
-                tapToDismiss: false,
-            };
-            toastr.success('Thêm chương trình khung thành công!', 'Thông báo');
-            return;
-        } else {
-            //console.log(ctk);
-            await capNhatChuongTrinhKhung(ctk, accessToken, axiosJWT);
-            //alert('Cập nhật chương trình khung thành công');
-            handleClose();
-            setReload(!reload);
-            toastr.options = {
-                positionClass: 'toast-top-center',
-                closeButton: true,
-                timeOut: 5000,
-                extendedTimeOut: 0,
-                tapToDismiss: false,
-            };
-            toastr.success('Cập nhật chương trình khung thành công!', 'Thông báo');
-            return;
         }
     };
     const hanldeSearchCTK = async (value) => {
@@ -418,6 +425,46 @@ function ChuongTrinhKhung() {
             );
             setListHocPhanKhoaHoc(listHocPhanTheoKhoaHoc);
         }
+    };
+
+    const checkData = () => {
+        // if (!!giangVien && !!caHoc && !!phongHoc) {
+        //     return false;
+        // }
+        if (tenCTK === '') {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Tên chương trình không được để trống!', 'Thông báo');
+            return false;
+        }
+        if (khoaHoc === 'Khoa') {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn khoá của chương trình khung!', 'Thông báo');
+            return false;
+        }
+        if (nganhHoc === 'Ngành') {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn ngành của chương trình khung!', 'Thông báo');
+            return false;
+        }
+        return true;
     };
 
     const renderMonHoc = () => {
@@ -717,7 +764,7 @@ function ChuongTrinhKhung() {
                                 <input
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Mã chương trình khung"
+                                    placeholder="Mã tự động tạo"
                                     disabled="true"
                                     value={maCTK}
                                     onChange={(e) => {
@@ -775,7 +822,7 @@ function ChuongTrinhKhung() {
                                         value={nganhHoc}
                                         onChange={(e) => handleNganhHoc(e)}
                                     >
-                                        <option value="Khóa">Ngành</option>
+                                        <option value="Ngành">Ngành</option>
                                         {danhSachNganh?.map((item, index) => (
                                             <option key={item.maNganh} value={item.maNganh}>
                                                 {item.tenNganh}

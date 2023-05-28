@@ -71,8 +71,8 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
     const [maMonHoc, setMaMonHoc] = useState('');
     const [tenMonHoc, setTenMonHoc] = useState();
     const [selectTrangThai, setSelectTrangThai] = useState('Bình thường');
-    const [soTCLT, setSoTCLT] = useState();
-    const [soTCTH, setSoTCTH] = useState();
+    const [soTCLT, setSoTCLT] = useState(0);
+    const [soTCTH, setSoTCTH] = useState(0);
     const [valueSearchMH, setValueSearchMH] = useState('');
 
     const [reload, setReload] = useState(false);
@@ -182,8 +182,8 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
     const handleXoaRong = () => {
         setSelectedMon('');
         setTenMonHoc('');
-        setSoTCLT('');
-        setSoTCTH('');
+        setSoTCLT(0);
+        setSoTCTH(0);
         setListCheckedHocTruoc([]);
         setListCheckedSongSong([]);
         setListCheckedTienQuyet([]);
@@ -222,45 +222,47 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
     }, [reload]);
 
     const handleAddMonHoc = async () => {
-        var monHoc = {
-            maMonHoc: maMonHoc,
-            tenMonHoc: tenMonHoc,
-            soTCLT: soTCLT,
-            soTCTH: soTCTH,
-            trangThai: selectTrangThai,
-            danhSachMonHocTienQuyet: listCheckedTienQuyet,
-            danhSachMonHocHocTruoc: listCheckedHocTruoc,
-            danhSachMonHocSongHanh: listCheckedSongSong,
-        };
+        if (checkData()) {
+            var monHoc = {
+                maMonHoc: maMonHoc,
+                tenMonHoc: tenMonHoc,
+                soTCLT: soTCLT,
+                soTCTH: soTCTH,
+                trangThai: selectTrangThai,
+                danhSachMonHocTienQuyet: listCheckedTienQuyet,
+                danhSachMonHocHocTruoc: listCheckedHocTruoc,
+                danhSachMonHocSongHanh: listCheckedSongSong,
+            };
 
-        if (!!selectedMon.maMonHoc) {
-            const result = await capNhatMonHoc(monHoc, accessToken, axiosJWT);
-            //alert('Cập nhật môn học thành công');
-            handleClose();
-            setReload(!reload);
-            toastr.options = {
-                positionClass: 'toast-top-center',
-                closeButton: true,
-                timeOut: 5000,
-                extendedTimeOut: 0,
-                tapToDismiss: false,
-            };
-            toastr.success('Cập nhật môn học thành công!', 'Thông báo');
-            return;
-        } else {
-            const result = await addMonHoc(monHoc, accessToken, axiosJWT);
-            //alert('Lưu môn học thành công');
-            handleClose();
-            setReload(!reload);
-            toastr.options = {
-                positionClass: 'toast-top-center',
-                closeButton: true,
-                timeOut: 5000,
-                extendedTimeOut: 0,
-                tapToDismiss: false,
-            };
-            toastr.success('Lưu môn học thành công!', 'Thông báo');
-            return;
+            if (!!selectedMon.maMonHoc) {
+                const result = await capNhatMonHoc(monHoc, accessToken, axiosJWT);
+                //alert('Cập nhật môn học thành công');
+                handleClose();
+                setReload(!reload);
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Cập nhật môn học thành công!', 'Thông báo');
+                return;
+            } else {
+                const result = await addMonHoc(monHoc, accessToken, axiosJWT);
+                //alert('Lưu môn học thành công');
+                handleClose();
+                setReload(!reload);
+                toastr.options = {
+                    positionClass: 'toast-top-center',
+                    closeButton: true,
+                    timeOut: 5000,
+                    extendedTimeOut: 0,
+                    tapToDismiss: false,
+                };
+                toastr.success('Lưu môn học thành công!', 'Thông báo');
+                return;
+            }
         }
     };
 
@@ -303,6 +305,43 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
         const getTatCaMH = await getMonHocByTextSearch(value, accessToken, axiosJWT);
         //getTatCaMH.isChecked = false;
         setListMonHoc(getTatCaMH);
+    };
+
+    const checkData = () => {
+        if (tenMonHoc === '') {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Tên môn học không được để trống!', 'Thông báo');
+            return false;
+        }
+        if (soTCLT !== 0 && soTCLT < 1) {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Số tín chỉ lý thuyết phải lớn hơn 0!', 'Thông báo');
+            return false;
+        }
+        if (soTCTH !== 0 && soTCTH < 1) {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Số tín chỉ thực hành phải lớn hơn 0!', 'Thông báo');
+            return false;
+        }
+        return true;
     };
 
     return (
@@ -396,9 +435,7 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                                 <input
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Mã môn học"
-                                    value={maMonHoc}
-                                    disabled="true"
+                                    placeholder="Mã tự động tạo"
                                     onChange={(e) => {
                                         setMaMonHoc(e.target.value);
                                     }}

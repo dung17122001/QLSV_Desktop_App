@@ -39,7 +39,7 @@ function Nganh() {
 
     const [selectedNganh, setSelectedNganh] = useState('');
     const [maNganh, setMaNganh] = useState();
-    const [tenNganh, setTenNganh] = useState();
+    const [tenNganh, setTenNganh] = useState('');
     //const [tongTinChi, setTongTinChi] = useState();
     const [trangThai, setTrangThai] = useState();
     const [khoa, setKhoa] = useState('Khoa');
@@ -151,53 +151,83 @@ function Nganh() {
         }
     };
     const handleAddNganh = async () => {
-        if (!!selectedNganh) {
-            nganh.maNganh = selectedNganh.maNganh;
-            //console.log(nganh);
-            let suaNganh = await capNhatNganh(nganh, accessToken, axiosJWT);
-            if (suaNganh) {
-                setOpen(false);
-                //alert('Cập nhật thành công!!');
-                reload();
-                toastr.options = {
-                    positionClass: 'toast-top-center',
-                    closeButton: true,
-                    timeOut: 5000,
-                    extendedTimeOut: 0,
-                    tapToDismiss: false,
-                };
-                toastr.success('Cập nhật thành công!', 'Thông báo');
-                return;
+        if (checkData()) {
+            if (!!selectedNganh) {
+                nganh.maNganh = selectedNganh.maNganh;
+                //console.log(nganh);
+                let suaNganh = await capNhatNganh(nganh, accessToken, axiosJWT);
+                if (suaNganh) {
+                    setOpen(false);
+                    //alert('Cập nhật thành công!!');
+                    reload();
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Cập nhật thành công!', 'Thông báo');
+                    return;
+                } else {
+                    //alert('Cập nhật không thành công');
+                    setOpen(false);
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.warning('Cập nhật không thành công!', 'Thông báo');
+                    return;
+                }
             } else {
-                //alert('Cập nhật không thành công');
-                setOpen(false);
-                toastr.options = {
-                    positionClass: 'toast-top-center',
-                    closeButton: true,
-                    timeOut: 5000,
-                    extendedTimeOut: 0,
-                    tapToDismiss: false,
-                };
-                toastr.warning('Cập nhật không thành công!', 'Thông báo');
-                return;
-            }
-        } else {
-            let addNganh = await themNganh(nganh, accessToken, axiosJWT);
-            if (addNganh) {
-                setOpen(false);
-                //alert('Thêm thành công');
-                reload();
-                toastr.options = {
-                    positionClass: 'toast-top-center',
-                    closeButton: true,
-                    timeOut: 5000,
-                    extendedTimeOut: 0,
-                    tapToDismiss: false,
-                };
-                toastr.success('Thêm thành công!', 'Thông báo');
-                return;
+                let addNganh = await themNganh(nganh, accessToken, axiosJWT);
+                if (addNganh) {
+                    setOpen(false);
+                    //alert('Thêm thành công');
+                    reload();
+                    toastr.options = {
+                        positionClass: 'toast-top-center',
+                        closeButton: true,
+                        timeOut: 5000,
+                        extendedTimeOut: 0,
+                        tapToDismiss: false,
+                    };
+                    toastr.success('Thêm thành công!', 'Thông báo');
+                    return;
+                }
             }
         }
+    };
+    const checkData = () => {
+        // if (!!giangVien && !!caHoc && !!phongHoc) {
+        //     return false;
+        // }
+        if (tenNganh === '') {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Tên ngành không được để trống!', 'Thông báo');
+            return false;
+        }
+        if (khoa === 'Khoa') {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.warning('Vui lòng chọn khoa của ngành học!', 'Thông báo');
+            return false;
+        }
+        return true;
     };
     return (
         <>
@@ -289,7 +319,7 @@ function Nganh() {
                                 <input
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Mã ngành học"
+                                    placeholder="Mã tự tạo"
                                     disabled="true"
                                     value={maNganh}
                                     onChange={(e) => {
