@@ -17,7 +17,7 @@ import { MdRemove } from 'react-icons/md';
 import { AiFillSave } from 'react-icons/ai';
 import { TiCancel } from 'react-icons/ti';
 import { BsFillEraserFill } from 'react-icons/bs';
-
+import { getMaLHP } from '../../../services/lopHocPhanService';
 function DanhSachLopHoc() {
     const dsKhoa = ['Công nghệ thông tin', 'Khoa học cơ bản', 'Điện - điện tử'];
     const [open, setOpen] = useState(false);
@@ -31,7 +31,7 @@ function DanhSachLopHoc() {
     const [ngayKT, setNgayKT] = useState('');
     const [trangThai, setTrangThai] = useState('');
 
-    const handleClickOpen = () => {
+    const handleClickOpen = async () => {
         setOpen(true);
     };
 

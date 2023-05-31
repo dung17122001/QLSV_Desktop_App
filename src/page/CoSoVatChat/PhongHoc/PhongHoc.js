@@ -26,6 +26,7 @@ import { getTatCaPhongHoc, getTatLoaiPhong, addPhongHoc, updatePhongHoc } from '
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 import 'toastr/build/toastr.min.js';
+import { getMaPhong } from '../../../services/phongService';
 const cx = classNames.bind(style);
 
 function PhongHoc() {
@@ -47,10 +48,13 @@ function PhongHoc() {
     const [soGhe, setSoGhe] = useState(60);
     const [trangThai, setTrangThai] = useState('Bình thường');
 
-    const handleClickOpen = () => {
+    const handleClickOpen = async () => {
+        const getMaPhongHoc = await getMaPhong(accessToken, axiosJWT);
+
         setOpen(true);
         setSelectPhong('');
         handleXoaRong();
+        setMaPhong(getMaPhongHoc);
     };
     const handleClickUpdatePhong = () => {
         if (!selectedPhong && selectedPhong.maPhong !== '') {

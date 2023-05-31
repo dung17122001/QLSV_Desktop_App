@@ -6,7 +6,7 @@ import classNames from 'classnames/bind';
 import style from './HocKy.module.scss';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-import { getTatCaHocKy, capNhatHocKy, themHocKy, timKiemHocKy } from '../../../services/hocKyService';
+import { getTatCaHocKy, capNhatHocKy, themHocKy, timKiemHocKy, getMaHocKy } from '../../../services/hocKyService';
 
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
 import { TiCancel } from 'react-icons/ti';
@@ -30,8 +30,9 @@ function HocKy() {
     const [trangThai, setTrangThai] = useState('');
     const [thoiGianBD, setThoiGianBD] = useState('');
     const [thoiGianKT, setThoiGianKT] = useState('');
-    const handleClickOpenAdd = () => {
-        setMaHocKy('');
+    const handleClickOpenAdd = async () => {
+        const getMaHK = await getMaHocKy(accessToken, axiosJWT);
+        setMaHocKy(getMaHK);
         setSelectedHocKy('');
         xoaTrang();
         setOpen(true);

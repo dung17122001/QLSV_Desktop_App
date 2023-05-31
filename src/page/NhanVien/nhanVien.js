@@ -20,6 +20,7 @@ import {
     countNhanVienByEmail,
     countNhanVienBySoCCCD,
     countNhanVienBySDT,
+    getMaNhanVien,
 } from '../../services/nhanVienService';
 import { capNhatNhanVien } from '../../services/nhanVienService';
 
@@ -208,8 +209,9 @@ function GiangVien() {
         setLinkAnh('');
         setHocVi('');
     };
-    const handleClickOpenThem = () => {
-        setMaNhanVien('');
+    const handleClickOpenThem = async () => {
+        const getMaNV = await getMaNhanVien(accessToken, axiosJWT);
+        setMaNhanVien(getMaNV);
         setSelectedNhanVien('');
         xoaTrang();
         setOpen(true);

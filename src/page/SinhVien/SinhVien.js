@@ -26,6 +26,7 @@ import {
     countSinhVienBySDT,
     countSinhVienByEmail,
     countSinhVienBySoCCCD,
+    getMaSinhVien,
 } from '../../services/sinhVienService';
 import { getTatCaKhoa } from '../../services/khoaService';
 import { getNganhHocByKhoa } from '../../services/nganhService';
@@ -100,6 +101,7 @@ function SinhVien() {
     const [demSDT, setDemSDT] = useState(0);
     const [demCCCD, setDemSoCCCD] = useState(0);
     let [countSV, setCountSV] = useState(0);
+
     const [demEmail, setDemEmail] = useState(0);
     const [valueAvatar, setValueAvatar] = useState(null);
     function convertDateFormat(dateString) {
@@ -208,8 +210,10 @@ function SinhVien() {
         setNgayVaoDoan('');
         setTrangThai('Bình thường');
     };
-    const handleClickOpenThem = () => {
-        setMaSinhVien('');
+    const handleClickOpenThem = async () => {
+        const getMaSV = await getMaSinhVien(accessToken, axiosJWT);
+
+        setMaSinhVien(getMaSV);
 
         setSelectedSinhVien('');
         xoaTrang();

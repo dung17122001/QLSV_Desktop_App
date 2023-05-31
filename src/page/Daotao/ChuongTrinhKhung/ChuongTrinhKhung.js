@@ -46,6 +46,7 @@ import { tr } from 'date-fns/locale';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 import 'toastr/build/toastr.min.js';
+import { getMaCTK } from '../../../services/chuongTrinhKhungService';
 const cx = classNames.bind(style);
 
 function ChuongTrinhKhung() {
@@ -151,8 +152,9 @@ function ChuongTrinhKhung() {
     //     setSelectedHK(item);
     // };
 
-    const handleClickOpen = () => {
-        setMaCTK('');
+    const handleClickOpen = async () => {
+        const maCTKhung = await getMaCTK(accessToken, axiosJWT);
+        setMaCTK(maCTKhung);
         setSelectedCTK('');
         handleXoaRong();
         setOpen(true);

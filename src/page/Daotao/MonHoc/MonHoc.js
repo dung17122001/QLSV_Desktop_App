@@ -25,6 +25,7 @@ import {
     getTatCaLoaiMonHoc,
     capNhatMonHoc,
     getMonHocByTextSearch,
+    getMaMonHoc,
 } from '~/services/monHocService';
 import { getTatCaKhoa } from '~/services/khoaService';
 import {
@@ -138,9 +139,11 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
         exportToExcel('data-sv', 'Danh sách môn học');
     };
 
-    const handleClickOpen = () => {
+    const handleClickOpen = async () => {
+        const getMaMH = await getMaMonHoc(accessToken, axiosJWT);
+
         handleXoaRong();
-        setMaMonHoc('');
+        setMaMonHoc(getMaMH);
         setOpen(true);
     };
 
@@ -436,6 +439,8 @@ function MonHoc({ onPressSearch, onPressAdd, onPressUpdate, onPressDelete, place
                                     type="text"
                                     className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
                                     placeholder="Mã tự động tạo"
+                                    disabled
+                                    value={maMonHoc}
                                     onChange={(e) => {
                                         setMaMonHoc(e.target.value);
                                     }}

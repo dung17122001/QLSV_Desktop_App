@@ -55,6 +55,21 @@ export const capNhatKhoa = async (khoa, accessToken, axiosJWT) => {
     }
 };
 
+export const getMaKhoa = async (accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/khoa/makhoa', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
 export const getKhoaTheoTen = async (tenKhoa, accessToken, axiosJWT) => {
     try {
         const res = await axiosJWT.get('khoa/tenkhoa', {

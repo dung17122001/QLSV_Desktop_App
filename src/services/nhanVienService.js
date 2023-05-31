@@ -14,6 +14,21 @@ export const getNhanVienById = async (idNV, accessToken, axiosJWT) => {
     }
 };
 
+export const getMaNhanVien = async (accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/nhanvien/manv', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
 export const timKiemNhanVien = async (text, accessToken, axiosJWT) => {
     try {
         const res = await axiosJWT.get('nhanvien/timkiem', {

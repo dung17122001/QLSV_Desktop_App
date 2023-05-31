@@ -29,6 +29,7 @@ import { getTatCaKhoa } from '~/services/khoaService';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 import 'toastr/build/toastr.min.js';
+import { getMaNganh } from '../../../services/nganhService';
 
 const cx = classNames.bind(style);
 
@@ -122,8 +123,9 @@ function Nganh() {
         setTrangThai('Bình thường');
         setKhoa('Khoa');
     };
-    const handleClickThem = () => {
-        setMaNganh('');
+    const handleClickThem = async () => {
+        const maNganh = await getMaNganh(accessToken, axiosJWT);
+        setMaNganh(maNganh);
         setSelectedNganh('');
         setKhoa('Khoa');
         xoaTrang();
@@ -366,20 +368,6 @@ function Nganh() {
 
                         <div className="w-full flex flex-row justify-between">
                             <div className="flex justify-center flex-row items-center w-1/3">
-                                {/* <div className="w-32 text-left">
-                                    <label htmlFor="">Tổng tín chỉ:</label>
-                                </div>
-                                <input
-                                    type="number"
-                                    className="block m-4 p-2 pl-4 h-9 caret-sv-blue-4 text-sm w-60 rounded-md bg-transparent border border-sv-blue-4 outline-none placeholder:text-sv-placeholder placeholder:italic "
-                                    placeholder="Tổng tín chỉ   "
-                                    value={tongTinChi}
-                                    onChange={(e) => {
-                                        setTongTinChi(e.target.value);
-                                    }}
-                                /> */}
-                            </div>
-                            <div className="flex justify-center flex-row items-center w-1/3">
                                 <div className="w-32 text-left">
                                     <label htmlFor="">Trạng thái:</label>
                                 </div>
@@ -394,6 +382,7 @@ function Nganh() {
                                     </select>
                                 </div>
                             </div>
+                            <div className="w-1/3"></div>
                             <div className="w-1/3"></div>
                         </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 
-import { capNhatKhoa, getTatCaKhoa, themKhoa, timKiemKhoa } from '../../services/khoaService';
+import { capNhatKhoa, getTatCaKhoa, themKhoa, timKiemKhoa, getMaKhoa } from '../../services/khoaService';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { getAxiosJWT } from '~/utils/httpConfigRefreshToken';
@@ -112,8 +112,9 @@ function Khoa() {
     const handleSelectKhoa = (item) => {
         setSelectedKhoa(item);
     };
-    const handleClickOpenThem = () => {
-        setMaKhoa('');
+    const handleClickOpenThem = async () => {
+        const maKhoa = await getMaKhoa(accessToken, axiosJWT);
+        setMaKhoa(maKhoa);
         setSelectedKhoa('');
         xoaTrang();
         setOpen(true);

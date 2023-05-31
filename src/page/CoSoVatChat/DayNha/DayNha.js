@@ -4,7 +4,7 @@ import { FaRegWindowClose } from 'react-icons/fa';
 import { AiFillSave } from 'react-icons/ai';
 import { BsFillEraserFill } from 'react-icons/bs';
 import { TiCancel } from 'react-icons/ti';
-import { getTatCaDayNha, themDayNha, capNhatDayNha, timKiemDayNha } from '../../../services/dayNhaService';
+import { getTatCaDayNha, themDayNha, capNhatDayNha, timKiemDayNha, getMaDayNha } from '../../../services/dayNhaService';
 import {
     DataGridPremium,
     GridToolbarColumnsButton,
@@ -106,8 +106,9 @@ function DayNha() {
         setSoTang(1);
         setTrangThai('Bình thường');
     };
-    const handleClickOpenThem = () => {
-        setMaDayNha('');
+    const handleClickOpenThem = async () => {
+        const getMaDN = await getMaDayNha(accessToken, axiosJWT);
+        setMaDayNha(getMaDN);
         setSelectedDayNha('');
         xoaTrang();
         setOpen(true);

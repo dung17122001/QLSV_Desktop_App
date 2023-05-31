@@ -14,6 +14,21 @@ export const getTatCaSinhVien = async (accessToken, axiosJWT) => {
         return null;
     }
 };
+
+export const getMaSinhVien = async (accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/sinhvien/masv', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
 export const themSinhVien = async (sinhvien, accessToken, axiosJWT) => {
     try {
         const res = await axiosJWT.post('/sinhvien', sinhvien, {

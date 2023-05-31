@@ -142,3 +142,18 @@ export const getHocKyTheoTen = async (tenHocKy, accessToken, axiosJWT) => {
         return null;
     }
 };
+
+export const getMaHocKy = async (accessToken, axiosJWT) => {
+    try {
+        const res = await axiosJWT.get('/hocky/mahk', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!!res) {
+            return res.data;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

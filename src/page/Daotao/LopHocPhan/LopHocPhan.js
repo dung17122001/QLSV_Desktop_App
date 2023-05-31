@@ -41,6 +41,7 @@ import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 import 'toastr/build/toastr.min.js';
 import Modal from 'react-modal';
+import { getMaLHP } from '../../../services/lopHocPhanService';
 const cx = classNames.bind(style);
 
 function LopHoc() {
@@ -191,10 +192,12 @@ function LopHoc() {
         setListLichHoc();
     };
 
-    const handleClickOpenModalLHP = () => {
+    const handleClickOpenModalLHP = async () => {
         handleXoaTrangModalLHP();
         setOpenModalLHP(true);
+        const getMaLopHocPhan = await getMaLHP(accessToken, axiosJWT);
         setSelectedLHP('');
+        setMaLopHocPhan(getMaLopHocPhan);
     };
     const handleClickOpenModalUpdateLHP = () => {
         if (!selectedLHP) {
