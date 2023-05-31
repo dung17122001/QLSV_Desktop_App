@@ -299,8 +299,10 @@ function LopHoc() {
             //let tenLHP = listLHP.find((e) => e.tenLopHocPhan === lhp.tenLopHocPhan);
 
             var kq;
-            if (lhp.maLopHocPhan !== '' && !!lhp.maLopHocPhan) kq = await updateLopHocPhan(lhp, accessToken, axiosJWT);
-            else {
+            if (lhp.maLopHocPhan !== '' && !!lhp.maLopHocPhan) {
+                kq = await updateLopHocPhan(lhp, accessToken, axiosJWT);
+                setSelectedLHP('');
+            } else {
                 // if (!!tenLHP) {
                 //     alert('Tên lớp học phần bị trùng');
                 //     return;
@@ -702,6 +704,17 @@ function LopHoc() {
     };
 
     const handleXoaLopHP = async () => {
+        if (selectedLHP?.trangThai === 'Đã khóa') {
+            toastr.options = {
+                positionClass: 'toast-top-center',
+                closeButton: true,
+                timeOut: 5000,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+            };
+            toastr.error('Không thể xóa lớp học phần ở trạng thái đã khóa!', 'Thông báo');
+            return;
+        }
         if (!!selectedLHP && selectedLHP?.maLopHocPhan !== '') {
             let dsNhomTHDaCo = await getNhomTHTheoMaHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
             await xoaLichTheoMaLHP(selectedLHP?.maLopHocPhan, accessToken, axiosJWT);
